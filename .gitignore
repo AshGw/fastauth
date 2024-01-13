@@ -1,0 +1,14 @@
+playground/
+__pycache__/
+.pytest_cache
+*output
+*.log
+*.csv
+*.mypy_cache/
+/.ruff_cache
+fastauth.egg-info/
+venv/
+poetry.lock
+*dist/
+.coverage
+site/

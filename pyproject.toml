@@ -1,0 +1,130 @@
+[tool.poetry]
+name = "fastauth"
+version = "0.0.1"
+description = "OAuth2 3rd party integration libray for your favorite framework"
+authors = ["Ashref Gwader <ashrefgw@proton.me>"]
+license = "MIT"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: OAuth2",
+    "Typing :: Typed",
+]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[project.urls]
+Homepage = 'https://github.com/ashgw/fastauth'
+Documentation = 'https://ashgw.github.io/fastauth/'
+Source = 'https://github.com/ashgw/fastauth'
+Changelog = 'https://github.com/ashgw/fastauth/releases'
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.68.0"
+python-jose = { version = "^3.1.0", extras = ["cryptography"] }
+httpx = "^0.23.2"
+
+[tool.poetry.group.dev.dependencies]
+python-dotenv = "^1.0.0"
+coverage = "^7.4.0"
+uvicorn = "^0.24.0.post1"
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+bumpversion = "^0.6.0"
+pre-commit = "^3.3.3"
+mypy = "^1.7.0"
+ruff = "^0.1.11"
+mkdocstrings = "^0.24.0"
+mkdocs-material = "^9.1.21"
+mkdocs = "^1.5.3"
+
+
+
+[tool.mypy]
+strict = true
+pretty = true
+show_error_codes = true
+strict_optional = true
+warn_unused_ignores = true
+
+
+[[tool.mypy.overrides]]
+module = "fastauth.playground"
+warn_unused_ignores = false
+ignore_missing_imports = true
+check_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py38"
+
+exclude = [
+    "__init__.py",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E501","E203","F541"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+testpaths = 'tests'
+filterwarnings = 'error'
+
+[tool.coverage.run]
+parallel = true
+command_line = "-m pytest"
+source = [
+    "tests",
+    "fastauth"
+]
+disable_warnings = ["no-data-collected"]
+
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+    'pragma: no cover',
+    'raise NotImplementedError',
+    'raise NotImplemented',
+    'if TYPE_CHECKING:',
+    'if MYPY:',
+    '@overload',
+]
