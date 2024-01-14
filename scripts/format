@@ -3,4 +3,5 @@
 set -e
 set -x
 
-mypy .
+ruff .
+ruff format --check

@@ -7,6 +7,7 @@ chmod +x ./scripts/test
 chmod +x ./scripts/coverage
 chmod +x ./scripts/clean
 chmod +x ./scripts/lint
+chmod +x ./scripts/format
 chmod +x ./scripts/install
 ./scripts/install
 
@@ -14,4 +15,3 @@ chmod +x ./scripts/install
 ./scripts/pre-push
 
 echo -e "\e[32mDevelopment environment ready!\e[0m"
-

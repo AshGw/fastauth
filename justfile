@@ -8,6 +8,10 @@
 @lint:
     ./scripts/lint
 
+
+@format:
+    ./scripts/format
+
 @clean:
     ./scripts/clean
 
@@ -35,4 +39,3 @@
 
 @sys-info:
   @echo "Running on {{arch()}} machine".
-
