@@ -48,6 +48,7 @@ ruff = "^0.1.11"
 mkdocstrings = "^0.24.0"
 mkdocs-material = "^9.1.21"
 mkdocs = "^1.5.3"
+validators = "^0.22.0"
 
 
 
@@ -57,15 +58,11 @@ pretty = true
 show_error_codes = true
 strict_optional = true
 warn_unused_ignores = true
+exclude = [
+    "tests",
+    "venv"
+]
 
-
-[[tool.mypy.overrides]]
-module = "fastauth.playground"
-warn_unused_ignores = false
-ignore_missing_imports = true
-check_untyped_defs = false
-disallow_incomplete_defs = false
-disallow_untyped_calls = false
 
 
 [tool.ruff]

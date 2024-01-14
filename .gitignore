@@ -12,3 +12,4 @@ poetry.lock
 *dist/
 .coverage
 site/
+.idea/
