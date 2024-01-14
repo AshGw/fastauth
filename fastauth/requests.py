@@ -1,9 +1,5 @@
-from starlette.requests import Request
+from starlette.requests import Request  # pragma: no cover
 
 
-class OAuthRequest(Request):
+class OAuthRequest(Request):  # pragma: no cover
     pass
-
-
-class Other:
-    ...

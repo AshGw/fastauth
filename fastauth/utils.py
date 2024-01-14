@@ -19,7 +19,7 @@ def gen_oauth_params() -> OAuth2SecurityQueryParams:
 
 
 def gen_csrf_token() -> str:
-    return token_urlsafe(64)
+    return token_urlsafe(64)[:84]
 
 
 def querify_kwargs(kwargs: Optional[Dict[str, str]] = None) -> str:

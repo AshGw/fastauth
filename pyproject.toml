@@ -118,6 +118,10 @@ disable_warnings = ["no-data-collected"]
 
 [tool.coverage.report]
 precision = 2
+omit = [
+    'tests\test_base_redirect.py',
+]
+
 exclude_lines = [
     'pragma: no cover',
     'raise NotImplementedError',

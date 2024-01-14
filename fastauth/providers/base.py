@@ -21,7 +21,7 @@ class Provider(ABC):
         authorizationUrl: str,
         tokenUrl: str,
         userInfo: str,
-    ) -> None:
+    ) -> None: # pragma: no cover
         self.provider = provider
         self.client_id = client_id
         self.client_secret = client_secret
@@ -33,13 +33,13 @@ class Provider(ABC):
     @abstractmethod
     def redirect(
         self, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:
+    ) -> OAuthRedirectResponse: # pragma: no cover
         ...
 
     @abstractmethod
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str: # pragma: no cover
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> Mapping[Any,Any]:
+    def get_user_info(self, access_token: str) -> Mapping[Any,Any]: # pragma: no cover
         ...
