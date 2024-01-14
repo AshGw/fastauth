@@ -1,0 +1,36 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+      - xx
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - run: |
+            pip install poetry
+            poetry config virtualenvs.create false
+            poetry install
+      - run: mkdocs gh-deploy --force
