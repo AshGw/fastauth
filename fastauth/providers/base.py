@@ -41,5 +41,5 @@ class Provider(ABC):
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> Mapping[Any,Any]: # pragma: no cover
+    def get_user_info(self, access_token: str) -> Mapping[str,Any]: # pragma: no cover
         ...

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Cookies:
     class JWT:
         name: str = "jwt"
@@ -20,7 +20,7 @@ class Cookies:
         max_age: int = 60 * 15
 
 
-@dataclass
+@dataclass(frozen=True)
 class OAuthURLs:
     class Google:
         authorizationUrl: str = "https://accounts.google.com/o/oauth2/auth"

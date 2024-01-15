@@ -1,8 +1,9 @@
-from typing import Tuple
+from typing import Any, Callable, TypeVar, NamedTuple
 
-State = str
-CodeVerifier = str
-CodeChallege = str
-CodeChallegeMethod = str
+F = TypeVar('F', bound=Callable[..., Any])
 
-OAuth2SecurityQueryParams = Tuple[State, CodeVerifier, CodeChallege, CodeChallegeMethod]
+class OAuthParams(NamedTuple):
+    state: str
+    code_verifier: str
+    code_challenge: str
+    code_challenge_method: str

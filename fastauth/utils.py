@@ -3,19 +3,19 @@ from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
 from typing import Dict, Optional
-from fastauth._types import OAuth2SecurityQueryParams
+from fastauth._types import OAuthParams
 
 def auth_cookie_name(*, cookie_name: str) -> str:
     return "fastauth" + "." + cookie_name
 
-
-def gen_oauth_params() -> OAuth2SecurityQueryParams:
+def gen_oauth_params() -> OAuthParams:
     state: str = token_urlsafe(96)[:128]
     code_verifier = token_urlsafe(96)[:128]
     code_challenge = urlsafe_b64encode(
         sha256(code_verifier.encode("ascii")).digest()
     ).decode("ascii")[:-1]
-    return state, code_verifier, code_challenge, "S256"
+    code_challenge_method = "S256"
+    return OAuthParams(state, code_verifier, code_challenge, code_challenge_method)
 
 
 def gen_csrf_token() -> str:
