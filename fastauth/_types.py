@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar, NamedTuple, TypedDict
+from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Dict
 from datetime import datetime
 
 F = TypeVar('F', bound=Callable[..., Any])
@@ -10,7 +10,11 @@ class OAuthParams(NamedTuple):
     code_challenge_method: str
 
 class UserInfo(TypedDict):
-    ... # TODO: implement it
+    user_id: str
+    email: str
+    name: str
+    avatar: str
+    extras: Optional[Dict[str,Any]] # depending on the provider
 
 class JWTPayload(TypedDict):
     iss: str

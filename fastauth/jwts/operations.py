@@ -22,10 +22,11 @@ def encipher_user_info(
     check_key_length(key)
     now = datetime.utcnow()
     plain_jwt: str = encode_jwt(
-                         claims=JWTPayload(iss="fastauth",
-                         sub="client",
-                         iat=now,exp=now + timedelta(seconds=exp),
-                         user_info=user_info
+                         claims=JWTPayload(
+                             iss="fastauth",
+                             sub="client",
+                             iat=now,exp=now + timedelta(seconds=exp),
+                             user_info=user_info
                          ), key=key[:32], algorithm=ALGORITHMS.HS256)
     encrypted_jwt: str = encrypt(
         plaintext=plain_jwt.encode(),
