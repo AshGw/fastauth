@@ -1,5 +1,10 @@
 from datetime import datetime, timedelta
-from fastauth.jwts.operations import encipher_user_info, decipher_jwt, UserInfo, JWT_MAX_AGE
+from fastauth.jwts.operations import (encipher_user_info,
+                                      decipher_jwt,
+                                      UserInfo,
+                                      JWT_MAX_AGE,
+                                      ISSUER,
+                                      SUBJECT)
 from fastauth.jwts.helpers import generate_secret
 from dataclasses import dataclass
 
@@ -35,8 +40,8 @@ class _TestData:
     user_id = "123"
     avatar = "https://s3.amazonaws.com/bucket/avatar"
     extras = {"extra":'s'}
-    iss = "fastauth"
-    sub = "client"
+    iss = ISSUER
+    sub = SUBJECT
     iat = NOW
     exp = NOW + timedelta(seconds=JWT_MAX_AGE)
     jwt_max_age = JWT_MAX_AGE

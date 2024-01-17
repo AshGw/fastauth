@@ -8,6 +8,11 @@ from fastauth.jwts.helpers import check_key_length
 from fastauth.types import JWT, UserInfo
 
 JWT_MAX_AGE = Cookies.JWT.max_age
+JWT_ALGORITHM = ALGORITHMS.HS256
+JWE_ALGORITHM = ALGORITHMS.A256GCM
+ISSUER = 'fastauth'
+SUBJECT = 'client'
+
 def encipher_user_info(
     user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE
 ) -> str:
@@ -23,16 +28,16 @@ def encipher_user_info(
     now = datetime.utcnow()
     plain_jwt: str = encode_jwt(
                          claims=JWT(
-                             iss="fastauth",
-                             sub="client",
+                             iss=ISSUER,
+                             sub=SUBJECT,
                              iat=now,exp=now + timedelta(seconds=exp),
                              user_info=user_info
-                         ), key=key[:32], algorithm=ALGORITHMS.HS256)
+                         ), key=key[:32], algorithm=JWT_ALGORITHM)
     encrypted_jwt: str = encrypt(
         plaintext=plain_jwt.encode(),
         key=key,
         algorithm=ALGORITHMS.DIR,
-        encryption=ALGORITHMS.A256GCM,
+        encryption=JWE_ALGORITHM,
     ).rstrip(b"=").decode()
     return encrypted_jwt
 
@@ -49,8 +54,8 @@ def decipher_jwt(encrypted_jwt: str, key: str) -> JWT:
     jwt: JWT = decode_jwt(
         token=decrypted_jwt,
         key=key[:32],
-        algorithms="HS256",
-        issuer="fastauth",
-        subject="client",
+        algorithms=JWT_ALGORITHM,
+        issuer=ISSUER,
+        subject=SUBJECT,
     )
     return jwt
