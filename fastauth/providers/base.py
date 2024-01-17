@@ -42,5 +42,5 @@ class Provider(ABC):
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> UserInfo:
+    def get_user_info(self, access_token: str) -> Optional[UserInfo]:
         ...

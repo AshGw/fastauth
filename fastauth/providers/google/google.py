@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastauth.types import UserInfo
+from fastauth.providers.google.user_scheme import GoogleUserInfo
 from fastauth.exceptions import InvalidAccessToken
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs
@@ -54,14 +54,19 @@ class Google(Provider):
         if token_response.status_code not in {200, 201}:
             raise InvalidAccessToken()
         access_token: Optional[str] = token_response.json().get("access_token")
+        # TODO: log if None raise if debug
         return access_token
 
-    def get_user_info(self, access_token: str) -> UserInfo:
-        user_info = get(
+    def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
+        response = get(
             url=self.userInfo,
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {access_token}",
             },
         )
-        return user_info.json()
+        if response.status_code not in {200, 201}:
+            # TODO: log & raise
+            return None
+        user_info: GoogleUserInfo = response.json()
+        return user_info
