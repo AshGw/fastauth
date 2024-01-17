@@ -29,16 +29,15 @@ class JWTHandler:
         encrypted_jwt: Optional[str] = self.req.cookies.get(
             auth_cookie_name(cookie_name=Cookies.JWT.name)
         )
-        try:
-            if encrypted_jwt:
-                jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
-                return OAuthResponse(content=ViewableJWT(jwt=jwt), status_code=StatusCode.OK)
-        except JOSEError as e:
-            self._handle_error(e)
+        if encrypted_jwt:
+            try:
+                    jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
+                    return OAuthResponse(content=ViewableJWT(jwt=jwt), status_code=StatusCode.OK)
+            except JOSEError as e:
+                self._handle_error(e)
 
         return OAuthResponse(content=ViewableJWT(jwt=None),
-                             status_code=StatusCode.UNAUTHORIZED,
-                             headers={"WWW-Authenticate": "Bearer"})
+                             status_code=StatusCode.UNAUTHORIZED)
 
     def _handle_error(self, error: JOSEError) -> None:
         if self.debug:
