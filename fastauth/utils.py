@@ -5,6 +5,7 @@ from base64 import urlsafe_b64encode
 from typing import Optional, Dict
 from fastauth.types import OAuthParams, QueryParams
 
+
 def auth_cookie_name(*, cookie_name: str) -> str:
     return "fastauth" + "." + cookie_name
 

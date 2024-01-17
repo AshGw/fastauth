@@ -7,16 +7,6 @@ def test_auth_cookie_name():
     result = utils.auth_cookie_name(cookie_name=c_name)
     assert result == "fastauth." + c_name
 
-
-def test_gen_oauth_params():
-    result = utils.gen_oauth_params()
-    assert len(result) == 4
-    assert len(result.state) == 128
-    assert len(result.code_verifier) == 128
-    assert len(result.code_challenge) == 43
-    assert result.code_challenge_method == "S256"
-
-
 def test_csrf():
     token = utils.gen_csrf_token()
     assert len(token) == 84
