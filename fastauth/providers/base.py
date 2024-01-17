@@ -33,13 +33,13 @@ class Provider(ABC):
     @abstractmethod
     def redirect(
         self, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse: # pragma: no cover
+    ) -> OAuthRedirectResponse:
         ...
 
     @abstractmethod
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str: # pragma: no cover
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> Mapping[str,Any]: # pragma: no cover
+    def get_user_info(self, access_token: str) -> Mapping[str,Any]:
         ...

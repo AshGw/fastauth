@@ -51,3 +51,9 @@ class OAuthURLs:
         authorizationUrl = "https://accounts.spotify.com/authorize"
         tokenUrl = "https://accounts.spotify.com/api/token"
         userInfo = "https://api.spotify.com/v1/me"
+
+
+@dataclass(frozen=True)
+class StatusCode:
+    OK = 200
+    UNAUTHORIZED = 401
