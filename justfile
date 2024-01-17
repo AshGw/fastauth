@@ -2,8 +2,8 @@
     just --list
 
 @install:
-    chmod +x ./install
-    ./install
+    chmod +x ./scripts/install
+    ./scripts/install
 
 @lint:
     ./scripts/lint
