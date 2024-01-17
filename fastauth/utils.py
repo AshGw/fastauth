@@ -36,13 +36,14 @@ def tokenUrl_payload(
     **kwargs: str,
 ) -> QueryParams:
     extra_args: Dict[str,str] = {key: value for _, (key, value) in enumerate(kwargs.items(), start=1)}
-    qp =  QueryParams(
-        grant_type= provider.grant_type,
-        client_id= provider.client_id,
-        client_secret= provider.client_secret,
-        redirect_uri= provider.redirect_uri,
+    qp: QueryParams =  {
+        "grant_type": provider.grant_type,
+        "client_id": provider.client_id,
+        "client_secret": provider.client_secret,
+        "redirect_uri": provider.redirect_uri,
         **extra_args,
-    )
+    }
+
     return qp
 
 

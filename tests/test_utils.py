@@ -14,12 +14,14 @@ def test_csrf():
 
 
 def test_querify_kwargst():
-    res = utils.querify_kwargs(QueryParams(
-        grant_type= "grant_type",
-        client_id= "client_id",
-        client_secret= "client_secret",
-        redirect_uri= "redirect_uri",
-        extraOne="one"))
+    kwargs: QueryParams = {
+        "grant_type": "grant_type",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "redirect_uri": "redirect_uri",
+        "extraOne":"one"
+    }
+    res = utils.querify_kwargs(kwargs)
     assert res == ('&client_id=client_id'
                    '&client_secret=client_secret'
                    '&extraOne=one'

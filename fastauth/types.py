@@ -4,6 +4,8 @@ from datetime import datetime
 
 _F = TypeVar('_F', bound=Callable[..., Any])
 
+QueryParams = Dict[str, str]
+
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]
 
@@ -26,6 +28,3 @@ class OAuthParams(NamedTuple):
     code_verifier: str
     code_challenge: str
     code_challenge_method: str
-
-class QueryParams(Dict[str, str]):
-    ...
