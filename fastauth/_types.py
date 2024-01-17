@@ -1,18 +1,11 @@
+from __future__ import annotations
 from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Dict
 from datetime import datetime
 
 _F = TypeVar('_F', bound=Callable[..., Any])
 
-
-
-class QueryParams(Dict[str, str]):
-    ...
-
-class OAuthParams(NamedTuple):
-    state: str
-    code_verifier: str
-    code_challenge: str
-    code_challenge_method: str
+class ViewableJWT(TypedDict):
+    jwt: Optional[JWT]
 
 class UserInfo(TypedDict):
     user_id: str
@@ -21,9 +14,18 @@ class UserInfo(TypedDict):
     avatar: str
     extras: Optional[Dict[str,Any]] # depending on the provider
 
-class JWTPayload(TypedDict):
+class JWT(TypedDict):
     iss: str
     sub: str
     iat: datetime
     exp: datetime
     user_info: UserInfo
+
+class OAuthParams(NamedTuple):
+    state: str
+    code_verifier: str
+    code_challenge: str
+    code_challenge_method: str
+
+class QueryParams(Dict[str, str]):
+    ...
