@@ -21,6 +21,7 @@ class OAuthRedirect:
         self.code_challenge_method = code_challenge_method
         self.kwargs = kwargs
 
+    @property
     def url(self) -> str:
         return base_redirect_url(
             response_type=self.response_type,
@@ -33,5 +34,5 @@ class OAuthRedirect:
             kwargs=self.kwargs,
         )
 
-    def redirect(self) -> OAuthRedirectResponse:
-        return OAuthRedirectResponse(url=self.url())
+    def __call__(self) -> OAuthRedirectResponse:
+        return OAuthRedirectResponse(url=self.url)

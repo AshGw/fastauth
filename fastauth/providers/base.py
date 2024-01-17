@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Mapping, Any
+from typing import Mapping, Any, Optional
 
 from fastauth.responses import OAuthRedirectResponse
 
@@ -37,7 +37,7 @@ class Provider(ABC):
         ...
 
     @abstractmethod
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) ->  Optional[str]:
         ...
 
     @abstractmethod

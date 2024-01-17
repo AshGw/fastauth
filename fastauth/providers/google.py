@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastauth.exceptions import InvalidAccessToken
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs
@@ -36,9 +38,9 @@ class Google(Provider):
             service="lso",
             access_type="offline",
             flowName="GeneralOAuthFlow",
-        ).redirect()
+        )()
 
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> Optional[str]:
         token_response = post(
             url=self.tokenUrl,
             data=tokenUrl_payload(
@@ -50,7 +52,8 @@ class Google(Provider):
         )
         if token_response.status_code not in {200, 201}:
             raise InvalidAccessToken()
-        return token_response.json().get("access_token")
+        access_token: Optional[str] = token_response.json().get("access_token")
+        return access_token
 
     def get_user_info(self, access_token: str) -> dict:
         user_info = get(
