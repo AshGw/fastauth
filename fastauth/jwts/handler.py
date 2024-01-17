@@ -39,7 +39,7 @@ class JWTHandler:
         return OAuthResponse(content=ViewableJWT(jwt=None),
                              status_code=StatusCode.UNAUTHORIZED)
 
-    def _handle_error(self, error: JOSEError) -> None:
+    def _handle_error(self, error: JOSEError) -> None: # pragma: no cover
         if self.debug:
             raise error
         self.logger.warning(error)
