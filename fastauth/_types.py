@@ -1,7 +1,8 @@
 from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Dict
 from datetime import datetime
 
-F = TypeVar('F', bound=Callable[..., Any])
+_F = TypeVar('_F', bound=Callable[..., Any])
+
 
 
 class QueryParams(Dict[str, str]):
