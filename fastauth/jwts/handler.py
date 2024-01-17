@@ -1,5 +1,5 @@
 from typing import Optional
-from fastauth._types import JWT, ViewableJWT
+from fastauth.types import JWT, ViewableJWT
 from logging import Logger
 
 from jose.exceptions import JOSEError # type: ignore
@@ -10,7 +10,6 @@ from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
-
 
 class JWTHandler:
     def __init__(
@@ -30,7 +29,6 @@ class JWTHandler:
         encrypted_jwt: Optional[str] = self.req.cookies.get(
             auth_cookie_name(cookie_name=Cookies.JWT.name)
         )
-
         try:
             if encrypted_jwt:
                 jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)

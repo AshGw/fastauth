@@ -5,7 +5,7 @@ from jose.jwe import encrypt, decrypt # type: ignore
 from datetime import datetime, timedelta
 from fastauth.data import Cookies
 from fastauth.jwts.helpers import check_key_length
-from fastauth._types import JWT, UserInfo
+from fastauth.types import JWT, UserInfo
 
 JWT_MAX_AGE = Cookies.JWT.max_age
 def encipher_user_info(
