@@ -3,6 +3,10 @@ from datetime import datetime
 
 F = TypeVar('F', bound=Callable[..., Any])
 
+
+class QueryParams(Dict[str, str]):
+    ...
+
 class OAuthParams(NamedTuple):
     state: str
     code_verifier: str
