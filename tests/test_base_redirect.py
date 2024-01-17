@@ -37,6 +37,7 @@ class _MockPovider(Provider):
             tokenUrl='https://example.com/token',
             userInfo='https://example.com/info',
             provider='Mock',
+            debug=True
         )
 
     def redirect(
