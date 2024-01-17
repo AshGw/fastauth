@@ -122,6 +122,7 @@ precision = 2
 omit = [
     'tests\test_base_redirect.py',
     'fastauth\oauth2\base.py', # metaclass to be ignored
+    'fastauth\providers\google\user_schema.py', # just types
 ]
 
 exclude_lines = [
