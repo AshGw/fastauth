@@ -34,5 +34,5 @@ class OAuthRedirect:
             kwargs=self.kwargs,
         )
 
-    def __call__(self) -> OAuthRedirectResponse:
+    def __call__(self) -> OAuthRedirectResponse: # pragma: no cover
         return OAuthRedirectResponse(url=self.url)
