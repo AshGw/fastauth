@@ -1,15 +1,16 @@
+from typing import Optional
+from fastauth._types import JWT, ViewableJWT
 from logging import Logger
+
+from jose.exceptions import JOSEError # type: ignore
+
 from fastauth.data import Cookies
 from fastauth.utils import auth_cookie_name
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
 from fastauth.jwts.operations import decipher_jwt
-from jose.exceptions import JOSEError
-from typing import Optional
-from fastauth._types import JWT, ViewableJWT
 from fastauth.data import StatusCode
 
-JWT_COOKIE_NAME = Cookies.JWT.name
 
 class JWTHandler:
     def __init__(
@@ -27,7 +28,7 @@ class JWTHandler:
 
     def get_jwt(self) -> OAuthResponse:
         encrypted_jwt: Optional[str] = self.req.cookies.get(
-            auth_cookie_name(cookie_name=JWT_COOKIE_NAME)
+            auth_cookie_name(cookie_name=Cookies.JWT.name)
         )
 
         try:
@@ -41,7 +42,7 @@ class JWTHandler:
                              status_code=StatusCode.UNAUTHORIZED,
                              headers={"WWW-Authenticate": "Bearer"})
 
-    def _handle_error(self, error: JOSEError):
+    def _handle_error(self, error: JOSEError) -> None:
         if self.debug:
             raise error
-        self.logger.error(error)
+        self.logger.warning(error)
