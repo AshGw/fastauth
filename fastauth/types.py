@@ -14,7 +14,6 @@ class UserInfo(TypedDict):
     email: str
     name: str
     avatar: str
-    extras: Optional[Dict[str,Any]] # depending on the provider
 
 class JWT(TypedDict):
     iss: str

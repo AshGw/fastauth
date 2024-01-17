@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fastauth.types import UserInfo
 from fastauth.exceptions import InvalidAccessToken
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs
@@ -55,7 +56,7 @@ class Google(Provider):
         access_token: Optional[str] = token_response.json().get("access_token")
         return access_token
 
-    def get_user_info(self, access_token: str) -> dict:
+    def get_user_info(self, access_token: str) -> UserInfo:
         user_info = get(
             url=self.userInfo,
             headers={

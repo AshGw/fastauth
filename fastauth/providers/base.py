@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Mapping, Any, Optional
+from typing import  Optional
 
+from fastauth.types import UserInfo
 from fastauth.responses import OAuthRedirectResponse
 
 class Provider(ABC):
@@ -41,5 +42,5 @@ class Provider(ABC):
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> Mapping[str,Any]:
+    def get_user_info(self, access_token: str) -> UserInfo:
         ...

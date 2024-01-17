@@ -76,6 +76,6 @@ class _TestData:
     debug = False
     jwt_cookie_name= auth_cookie_name(cookie_name=Cookies.JWT.name)
     encrypted_jwt = encipher_user_info(user_info=UserInfo(
-        avatar='...',name='...',user_id='...',email='...',extras=None
+        avatar='...',name='...',user_id='...',email='...',
     ),
     key=_SECRET_KEY)

@@ -11,7 +11,6 @@ def test_all():
         email=data.email,
         user_id=data.user_id,
         avatar=data.avatar,
-        extras=data.extras
     )
 
     encrypted_jwt = encipher_user_info(user_info, data.secret_key, data.jwt_max_age)
@@ -21,7 +20,6 @@ def test_all():
     assert decrypted_payload["user_info"]['avatar'] == data.avatar
     assert decrypted_payload["user_info"]['user_id'] == data.user_id
     assert decrypted_payload["user_info"]['email'] == data.email
-    assert decrypted_payload["user_info"]['extras'] == data.extras
     assert decrypted_payload["iss"] == data.iss
     assert decrypted_payload["sub"] == data.sub
     assert decrypted_payload["iat"] <= decrypted_payload["exp"]
