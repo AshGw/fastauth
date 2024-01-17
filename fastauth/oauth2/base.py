@@ -3,7 +3,7 @@ from logging import Logger
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
 
-class OAuth2Base(metaclass=ABC):
+class OAuth2Base(ABC):
     def __init__(
         self,
         *,
