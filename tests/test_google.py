@@ -27,7 +27,7 @@ google = Google(
     logger=getLogger("..."),
     debug=False,
 )
-# for debug
+# for debugging
 google_d_mode = Google(
     client_id=getenv("GOOGLE_CLIENT_ID"),
     client_secret=getenv("GOOGLE_CLIENT_SECRET"),
@@ -36,14 +36,24 @@ google_d_mode = Google(
     debug=True,
 )
 
-OP = gen_oauth_params()
+@pytest.fixture
+def op():
+    return gen_oauth_params()
 
-### Debug
-...
-### Normal
+@pytest.fixture
+def user_JSON_data():
+    return GoogleUserJSONData(
+        email="example@gmail.com",
+        verified_email=True,
+        given_name="John",
+        family_name="Doe",
+        picture="https://example.com/hosted/pic",
+        locale="en",
+        id="123",
+        name="John Doe",
+    )
 
-
-def test_token_acquisition():
+def test_token_acquisition(op):
     with patch(
         "fastauth.providers.google.google.Google._access_token_request"
     ) as mock_request:
@@ -53,7 +63,7 @@ def test_token_acquisition():
             InvalidTokenAcquisitionRequest
         ):
             google_d_mode.get_access_token(
-                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+                state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
 
         # simulate success response from Google
@@ -70,7 +80,7 @@ def test_token_acquisition():
         # though since we're mocking, we need to have a valid access_token name
         mock_response.json.return_value = {google.access_token_name: "valid"}
         google_d_mode.get_access_token(
-            state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+            state=op.state, code_verifier=op.code_verifier, code="invalid"
         )
 
         # The access token should not be None, but in some very rare cases the actual name
@@ -79,18 +89,18 @@ def test_token_acquisition():
         mock_request.return_value = mock_response
         with pytest.raises(InvalidAccessTokenName):
             google_d_mode.get_access_token(
-                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+                state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
         # In non debug mode this should just return None:
         assert (
             google.get_access_token(
-                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+                state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
             is None
         )
 
 
-def test_user_info_acquisition():
+def test_user_info_acquisition(user_JSON_data):
     with patch(
         "fastauth.providers.google.google.Google._user_info_request"
     ) as mock_request:
@@ -110,33 +120,15 @@ def test_user_info_acquisition():
             == 200
         )
         # assert isinstance(google.get_user_info(access_token='invalid'),GoogleUserInfo)
-        mock_response.json.return_value = GoogleUserJSONData(
-            email="example@gmail.com",
-            verified_email=True,
-            given_name="John",
-            family_name="Doe",
-            picture="https://exmaple.com/hosted/pic",
-            locale="en",
-            id="123",
-            name="John Doe",
-        )
+        mock_response.json.return_value = user_JSON_data
         mock_request.return_value = mock_response
         assert google.get_user_info(access_token="valid_one") == serialize(
             google_d_mode._user_info_request(access_token="valid_one").json()
         )
 
-def test_serialize():
+def test_serialize(user_JSON_data):
     # Example data
-    given_data = GoogleUserJSONData(
-        email="example@gmail.com",
-        verified_email=True,
-        given_name="John",
-        family_name="Doe",
-        picture="https://example.com/hosted/pic",
-        locale="en",
-        id="123",
-        name="John Doe",
-    )
+    given_data = user_JSON_data
 
     # Expected result
     expected_result = {
@@ -154,13 +146,10 @@ def test_serialize():
     assert serialize(given_data) == expected_result
 
 
-### Normal
-
-
-def test_invalid_authorization_code():
+def test_invalid_authorization_code(op):
     assert (
         google.get_access_token(
-            state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+            state=op.state, code_verifier=op.code_verifier, code="invalid"
         )
         is None
     )
