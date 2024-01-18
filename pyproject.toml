@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastauth"
-version = "0.0.1"
+version = "0.0.0"
 description = "OAuth2 3rd party integration libray for your favorite framework"
 authors = ["Ashref Gwader <ashrefgw@proton.me>"]
 license = "MIT"
