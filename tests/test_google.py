@@ -11,7 +11,7 @@ google = Google(
 )
 
 ### Debug
-
+...
 ### Normal
 def test_invalid_authorization_code():
     op = gen_oauth_params()
