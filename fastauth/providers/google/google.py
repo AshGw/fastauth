@@ -7,7 +7,7 @@ from fastauth.providers.google.user_schema import (
     serialize,
 )
 from fastauth.exceptions import (
-    InvalidTokenAquisitionRequest,
+    InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
     InvalidResourceAccessRequest,
 )
@@ -68,7 +68,7 @@ class Google(Provider):
             code_verifier=code_verifier, code=code, state=state
         )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            _invalid_token_request = InvalidTokenAquisitionRequest(response.json())
+            _invalid_token_request = InvalidTokenAcquisitionRequest(response.json())
             self.logger.warning(_invalid_token_request)
             if self.debug:
                 raise _invalid_token_request

@@ -10,7 +10,7 @@ class InvalidCodeVerifier(Exception):
     pass
 
 
-class InvalidTokenAquisitionRequest(Exception):
+class InvalidTokenAcquisitionRequest(Exception):
     # The provider will show the error
     pass
 

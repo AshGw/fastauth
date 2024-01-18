@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 from fastauth.providers.google.google import Google
-from fastauth.exceptions import InvalidTokenAquisitionRequest, InvalidAccessTokenName
+from fastauth.exceptions import InvalidTokenAcquisitionRequest, InvalidAccessTokenName
 from fastauth.utils import gen_oauth_params
 
 load_dotenv()
@@ -35,11 +35,11 @@ OP = gen_oauth_params()
 ### Normal
 
 
-def test_all():
+def test_token_acquisition():
     with patch("fastauth.providers.google.google.Google._access_token_request") as mock_request:
         mock_response = Mock()
 
-        with pytest.raises(InvalidTokenAquisitionRequest): # invalid code before patching
+        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code param before patching
             google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
 
         # simulate success response from Google
@@ -48,21 +48,27 @@ def test_all():
         assert google_d_mode._access_token_request(
             code_verifier="..", code="..", state=".."
         ).status_code == 200
-        # If the response is success then we're good
+        # If the response is successful then we're good
+
+        # though since we're mocking, we need to have a valid access_token name
+        mock_response.json.return_value = {google.access_token_name: "valid"}
         google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
-        # The access token should not be None, but in some rare cases the actual name
+
+        # The access token should not be None, but in some very rare cases the actual name
         # of the access_token is  different, sometimes 'accessToken' 'token' etc...
         mock_response.json.return_value = {'accessToken':'valid'}
         mock_request.return_value = mock_response
         with pytest.raises(InvalidAccessTokenName):
             google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
+        # In non debug mode this should just return None:
+        assert google.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid') is None
 
 
-def test_two():
+def test_user_info_acquisition():
     with patch("fastauth.providers.google.google.Google._access_token_request") as mock_request:
         mock_response = Mock()
 
-        with pytest.raises(InvalidTokenAquisitionRequest): # invalid code before patching
+        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code before patching
             google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
 
         mock_response.json.return_value = {google.access_token_name: "valid"}
@@ -71,7 +77,7 @@ def test_two():
             code_verifier="..", code="..", state=".."
         ).json() == {google.access_token_name: "valid"}
 
-        with pytest.raises(InvalidTokenAquisitionRequest): # invalid code before patching
+        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code before patching
             google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
 
 
