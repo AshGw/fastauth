@@ -1,6 +1,10 @@
 from typing import Optional
 
-from fastauth.providers.google.user_schema import GoogleUserInfo
+from fastauth.providers.google.user_schema import (
+    GoogleUserInfo,
+    GoogleUserJSONData,
+    serialize,
+)
 from fastauth.exceptions import (
     InvalidTokenAquisitionRequest,
     InvalidAccessTokenName,
@@ -63,7 +67,8 @@ class Google(Provider):
         )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
             if self.debug:
-                raise InvalidTokenAquisitionRequest()
+                reason = response.json()
+                raise InvalidTokenAquisitionRequest(reason)
             return None
 
         access_token: Optional[str] = response.json().get(self.access_token_name)
@@ -83,7 +88,9 @@ class Google(Provider):
         )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
             if self.debug:
-                raise InvalidResourceAccessRequest()
+                reason: str = response.json()
+                raise InvalidResourceAccessRequest(reason)
             return None
-        user_info: GoogleUserInfo = response.json()
+        json_user_data: GoogleUserJSONData = response.json()
+        user_info: GoogleUserInfo = serialize(json_user_data)
         return user_info

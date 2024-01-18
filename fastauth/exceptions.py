@@ -11,6 +11,9 @@ class InvalidCodeVerifier(Exception):
 
 
 class InvalidTokenAquisitionRequest(Exception):
+    """
+
+    """
     pass
 
 
