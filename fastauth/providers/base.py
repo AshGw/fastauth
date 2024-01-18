@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Final
-
+from logging import Logger
 from fastauth.types import UserInfo
 from fastauth.responses import OAuthRedirectResponse
 
@@ -24,6 +24,7 @@ class Provider(ABC):
         tokenUrl: str,
         userInfo: str,
         debug: bool,
+        logger: Logger
     ) -> None:  # pragma: no cover
         self.provider = provider
         self.client_id = client_id
@@ -33,6 +34,7 @@ class Provider(ABC):
         self.tokenUrl = tokenUrl
         self.userInfo = userInfo
         self.debug = debug
+        self.logger = logger
 
     @abstractmethod
     def redirect(

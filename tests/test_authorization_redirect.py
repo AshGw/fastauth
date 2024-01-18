@@ -1,5 +1,8 @@
 from fastauth.grant_redirect import AuthGrantRedirect
 from fastauth.providers.base import Provider
+from logging import getLogger
+
+logger = getLogger("...")
 
 
 class MockProvider(Provider):
@@ -19,6 +22,7 @@ class MockProvider(Provider):
             tokenUrl="https://accounts.exmaple.com/api/token",
             userInfo="https://api.exmaple.com/v1/me",
             debug=debug,
+            logger=logger,
         )
 
     def redirect(

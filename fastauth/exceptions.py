@@ -11,9 +11,7 @@ class InvalidCodeVerifier(Exception):
 
 
 class InvalidTokenAquisitionRequest(Exception):
-    """
-
-    """
+    # The provider will show the error
     pass
 
 

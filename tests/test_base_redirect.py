@@ -1,6 +1,9 @@
 from fastauth import utils
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
+from logging import getLogger
+
+logger = getLogger("...")
 
 
 def test_base_redirect_url():
@@ -42,6 +45,7 @@ class _MockPovider(Provider):
             userInfo="https://example.com/info",
             provider="Mock",
             debug=True,
+            logger=logger
         )
 
     def redirect(

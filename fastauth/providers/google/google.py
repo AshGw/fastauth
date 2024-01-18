@@ -1,4 +1,5 @@
 from typing import Optional
+from logging import Logger
 
 from fastauth.providers.google.user_schema import (
     GoogleUserInfo,
@@ -27,6 +28,7 @@ class Google(Provider):
         client_secret: str,
         redirect_uri: str,
         debug: bool,
+        logger: Logger
     ):
         super().__init__(
             client_id=client_id,
@@ -37,6 +39,7 @@ class Google(Provider):
             userInfo=OAuthURLs.Google.userInfo,
             provider=OAuthURLs.Google.__name__.lower(),
             debug=debug,
+            logger=logger,
         )
 
     def redirect(
