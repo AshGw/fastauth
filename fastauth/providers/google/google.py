@@ -15,6 +15,8 @@ from httpx import post, get
 
 
 class Google(Provider):
+	access_token_name = "access_token"
+
 	def __init__(
 		self,
 		client_id: str,
@@ -64,7 +66,7 @@ class Google(Provider):
 				raise InvalidTokenAquisitionRequest()
 			return None
 
-		access_token: Optional[str] = response.json().get("access_token")
+		access_token: Optional[str] = response.json().get(self.access_token_name)
 		if access_token is None:
 			if self.debug:
 				raise InvalidAccessTokenName()
