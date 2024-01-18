@@ -45,6 +45,7 @@ class Google(Provider):
     def redirect(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:
+        self.logger.info('Redirecting the client to the authorization server')
         return AuthGrantRedirect(
             provider=self,
             state=state,
@@ -59,6 +60,7 @@ class Google(Provider):
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
+        self.logger.info('Requesting the access token from the authorization server')
         response = post(
             url=self.tokenUrl,
             data=tokenUrl_payload(
@@ -69,16 +71,20 @@ class Google(Provider):
             ),
         )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
+            err =  InvalidTokenAquisitionRequest(response.json())
+            self.logger.warning(err)
             if self.debug:
-                reason = response.json()
-                raise InvalidTokenAquisitionRequest(reason)
+                raise err
             return None
 
         access_token: Optional[str] = response.json().get(self.access_token_name)
         if access_token is None:
+            err = InvalidAccessTokenName()
+            self.logger.warning(err)
             if self.debug:
-                raise InvalidAccessTokenName()
+                raise err
             return None
+        self.logger.info("Access token acquired successfully")
         return access_token
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
@@ -90,9 +96,10 @@ class Google(Provider):
             },
         )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
+            err = InvalidResourceAccessRequest(response.json())
+            self.logger.warning(err)
             if self.debug:
-                reason: str = response.json()
-                raise InvalidResourceAccessRequest(reason)
+                raise err
             return None
         json_user_data: GoogleUserJSONData = response.json()
         user_info: GoogleUserInfo = serialize(json_user_data)
