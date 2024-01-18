@@ -8,26 +8,26 @@ QueryParams = Mapping[str, str]
 
 
 class ViewableJWT(TypedDict):
-	jwt: Optional[JWT]
+    jwt: Optional[JWT]
 
 
 class UserInfo(TypedDict):
-	user_id: str
-	email: str
-	name: str
-	avatar: str
+    user_id: str
+    email: str
+    name: str
+    avatar: str
 
 
 class JWT(TypedDict):
-	iss: str
-	sub: str
-	iat: datetime
-	exp: datetime
-	user_info: UserInfo
+    iss: str
+    sub: str
+    iat: datetime
+    exp: datetime
+    user_info: UserInfo
 
 
 class OAuthParams(NamedTuple):
-	state: str
-	code_verifier: str
-	code_challenge: str
-	code_challenge_method: str
+    state: str
+    code_verifier: str
+    code_challenge: str
+    code_challenge_method: str
