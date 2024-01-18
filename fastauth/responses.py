@@ -2,8 +2,8 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 
 class OAuthResponse(JSONResponse):
-    pass
+	pass
 
 
 class OAuthRedirectResponse(RedirectResponse):
-    pass
+	pass
