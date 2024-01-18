@@ -44,8 +44,8 @@ class Google(Provider):
 
     def redirect(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:
-        self.logger.info('Redirecting the client to the authorization server')
+    ) -> OAuthRedirectResponse: # pragma: no cover
+        self.logger.info('Redirecting the client to the resource owner via the authorization server')
         return AuthGrantRedirect(
             provider=self,
             state=state,
@@ -60,7 +60,7 @@ class Google(Provider):
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
-        self.logger.info('Requesting the access token from the authorization server')
+        self.logger.info('Requesting the access token from the resource server')
         response = post(
             url=self.tokenUrl,
             data=tokenUrl_payload(
@@ -88,6 +88,7 @@ class Google(Provider):
         return access_token
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
+        self.logger.info('Requesting the resource from the authorization server')
         response = get(
             url=self.userInfo,
             headers={

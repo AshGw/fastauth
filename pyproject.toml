@@ -51,8 +51,6 @@ mkdocs = "^1.5.3"
 validators = "^0.22.0"
 pytest-mock = "^3.12.0"
 
-
-
 [tool.mypy]
 strict = true
 pretty = true
@@ -120,6 +118,7 @@ disable_warnings = ["no-data-collected"]
 [tool.coverage.report]
 precision = 2
 omit = [
+    'fastauth\__main__.py',
     'tests\test_base_redirect.py',
     'fastauth\oauth2\base.py', # metaclass to be ignored
     'fastauth\providers\google\user_schema.py', # just types
