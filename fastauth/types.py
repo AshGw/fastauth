@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Dict
+from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Mapping
 from datetime import datetime
 
 _F = TypeVar('_F', bound=Callable[..., Any])
 
-QueryParams = Dict[str, str]
+QueryParams = Mapping[str, str]
 
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]

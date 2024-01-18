@@ -8,7 +8,7 @@ from fastauth.exceptions import (InvalidTokenAquisitionRequest,
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.redirect import OAuthRedirect
+from fastauth.grant_redirect import AuthGrantRedirect
 from fastauth.utils import tokenUrl_payload
 from httpx import post, get
 
@@ -34,7 +34,7 @@ class Google(Provider):
     def redirect(
         self,*, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:
-        return OAuthRedirect(
+        return AuthGrantRedirect(
             provider=self,
             state=state,
             code_challenge=code_challenge,

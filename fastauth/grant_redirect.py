@@ -3,7 +3,7 @@ from fastauth.responses import OAuthRedirectResponse
 from fastauth.providers.base import Provider
 
 
-class OAuthRedirect:
+class AuthGrantRedirect:
     def __init__(
         self,
         provider: Provider,

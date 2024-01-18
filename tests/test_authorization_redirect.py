@@ -1,4 +1,4 @@
-from fastauth.redirect import OAuthRedirect
+from fastauth.grant_redirect import AuthGrantRedirect
 from fastauth.providers.base import Provider
 
 
@@ -38,7 +38,7 @@ def test_oauth_redirect_url():
         redirect_uri="https://mysite.com/auth/callback/mock",
         debug = True,
     )
-    redirect = OAuthRedirect(
+    redirect = AuthGrantRedirect(
         provider=pv,
         state='state',
         code_challenge='code_challenge',
