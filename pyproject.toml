@@ -31,7 +31,7 @@ Changelog = 'https://github.com/ashgw/fastauth/releases'
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = "^0.68.0"
+fastapi = "^0.109.0"
 python-jose = { version = "^3.1.0", extras = ["cryptography"] }
 httpx = "^0.23.2"
 
