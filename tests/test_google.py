@@ -7,7 +7,15 @@ from dotenv import load_dotenv
 from os import getenv
 
 from fastauth.providers.google.google import Google
-from fastauth.exceptions import InvalidTokenAcquisitionRequest, InvalidAccessTokenName
+from fastauth.providers.google.user_schema import (
+    GoogleUserJSONData,
+    serialize,
+)
+from fastauth.exceptions import (
+    InvalidTokenAcquisitionRequest,
+    InvalidAccessTokenName,
+    InvalidResourceAccessRequest,
+)
 from fastauth.utils import gen_oauth_params
 
 load_dotenv()
@@ -36,52 +44,118 @@ OP = gen_oauth_params()
 
 
 def test_token_acquisition():
-    with patch("fastauth.providers.google.google.Google._access_token_request") as mock_request:
+    with patch(
+        "fastauth.providers.google.google.Google._access_token_request"
+    ) as mock_request:
         mock_response = Mock()
-
-        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code param before patching
-            google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
+        # invalid auth code, raise in debug
+        with pytest.raises(
+            InvalidTokenAcquisitionRequest
+        ):
+            google_d_mode.get_access_token(
+                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+            )
 
         # simulate success response from Google
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        assert google_d_mode._access_token_request(
-            code_verifier="..", code="..", state=".."
-        ).status_code == 200
+        assert (
+            google_d_mode._access_token_request(
+                code_verifier="..", code="..", state=".."
+            ).status_code
+            == 200
+        )
         # If the response is successful then we're good
 
         # though since we're mocking, we need to have a valid access_token name
         mock_response.json.return_value = {google.access_token_name: "valid"}
-        google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
+        google_d_mode.get_access_token(
+            state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+        )
 
         # The access token should not be None, but in some very rare cases the actual name
         # of the access_token is  different, sometimes 'accessToken' 'token' etc...
-        mock_response.json.return_value = {'accessToken':'valid'}
+        mock_response.json.return_value = {"accessToken": "valid"}
         mock_request.return_value = mock_response
         with pytest.raises(InvalidAccessTokenName):
-            google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
+            google_d_mode.get_access_token(
+                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+            )
         # In non debug mode this should just return None:
-        assert google.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid') is None
+        assert (
+            google.get_access_token(
+                state=OP.state, code_verifier=OP.code_verifier, code="invalid"
+            )
+            is None
+        )
 
 
 def test_user_info_acquisition():
-    with patch("fastauth.providers.google.google.Google._access_token_request") as mock_request:
+    with patch(
+        "fastauth.providers.google.google.Google._user_info_request"
+    ) as mock_request:
         mock_response = Mock()
 
-        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code before patching
-            google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
-
-        mock_response.json.return_value = {google.access_token_name: "valid"}
+        with pytest.raises(
+            InvalidResourceAccessRequest
+        ):  # invalid auth code before patching
+            google_d_mode.get_user_info(access_token="invalid")
+        # in normal mode this should return None
+        assert google.get_user_info(access_token="invalid") is None
+        # ok how about a success ?
+        mock_response.status_code = 200
         mock_request.return_value = mock_response
-        assert google_d_mode._access_token_request(
-            code_verifier="..", code="..", state=".."
-        ).json() == {google.access_token_name: "valid"}
+        assert (
+            google_d_mode._user_info_request(access_token="valid_one").status_code
+            == 200
+        )
+        # assert isinstance(google.get_user_info(access_token='invalid'),GoogleUserInfo)
+        mock_response.json.return_value = GoogleUserJSONData(
+            email="example@gmail.com",
+            verified_email=True,
+            given_name="John",
+            family_name="Doe",
+            picture="https://exmaple.com/hosted/pic",
+            locale="en",
+            id="123",
+            name="John Doe",
+        )
+        mock_request.return_value = mock_response
+        assert google.get_user_info(access_token="valid_one") == serialize(
+            google_d_mode._user_info_request(access_token="valid_one").json()
+        )
 
-        with pytest.raises(InvalidTokenAcquisitionRequest): # invalid code before patching
-            google_d_mode.get_access_token(state=OP.state, code_verifier=OP.code_verifier, code='invalid')
+def test_serialize():
+    # Example data
+    given_data = GoogleUserJSONData(
+        email="example@gmail.com",
+        verified_email=True,
+        given_name="John",
+        family_name="Doe",
+        picture="https://example.com/hosted/pic",
+        locale="en",
+        id="123",
+        name="John Doe",
+    )
+
+    # Expected result
+    expected_result = {
+        "user_id": "123",
+        "email": "example@gmail.com",
+        "name": "John Doe",
+        "avatar": "https://example.com/hosted/pic",
+        "extras": {
+            "locale": "en",
+            "verified_email": True,
+            "given_name": "John",
+            "family_name": "Doe",
+        },
+    }
+    assert serialize(given_data) == expected_result
 
 
 ### Normal
+
 
 def test_invalid_authorization_code():
     assert (

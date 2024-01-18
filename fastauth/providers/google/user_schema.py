@@ -39,3 +39,19 @@ def serialize(data: GoogleUserJSONData) -> GoogleUserInfo:
             family_name=data["family_name"],
         ),
     )
+
+
+print(
+    serialize(
+        GoogleUserJSONData(
+            email="example@gmail.com",
+            verified_email=True,
+            given_name="John",
+            family_name="Doe",
+            picture="https://exmaple.com/hosted/pic",
+            locale="en",
+            id="123",
+            name="John Doe",
+        )
+    )
+)
