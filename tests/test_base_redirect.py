@@ -45,7 +45,7 @@ class _MockPovider(Provider):
             userInfo="https://example.com/info",
             provider="Mock",
             debug=True,
-            logger=logger
+            logger=logger,
         )
 
     def redirect(

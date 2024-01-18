@@ -29,7 +29,7 @@ class Google(Provider):
         client_secret: str,
         redirect_uri: str,
         debug: bool,
-        logger: Logger
+        logger: Logger,
     ):
         super().__init__(
             client_id=client_id,
@@ -45,8 +45,10 @@ class Google(Provider):
 
     def redirect(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse: # pragma: no cover
-        self.logger.info('Redirecting the client to the resource owner via the authorization server')
+    ) -> OAuthRedirectResponse:  # pragma: no cover
+        self.logger.info(
+            "Redirecting the client to the resource owner via the authorization server"
+        )
         return AuthGrantRedirect(
             provider=self,
             state=state,
@@ -58,31 +60,32 @@ class Google(Provider):
             flowName="GeneralOAuthFlow",  # you can add more
         )()
 
-
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
-        self.logger.info('Requesting the access token from the authorization server')
-        response = self._access_token_request(code_verifier=code_verifier, code=code, state=state)
+        self.logger.info("Requesting the access token from the authorization server")
+        response = self._access_token_request(
+            code_verifier=code_verifier, code=code, state=state
+        )
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            invalid_token_request =  InvalidTokenAquisitionRequest(response.json())
-            self.logger.warning(invalid_token_request)
+            _invalid_token_request = InvalidTokenAquisitionRequest(response.json())
+            self.logger.warning(_invalid_token_request)
             if self.debug:
-                raise invalid_token_request
+                raise _invalid_token_request
             return None
 
         access_token: Optional[str] = response.json().get(self.access_token_name)
         if access_token is None:
-            invalid_token_name_err = InvalidAccessTokenName()
-            self.logger.warning(invalid_token_name_err)
+            _invalid_token_name_err = InvalidAccessTokenName()
+            self.logger.warning(_invalid_token_name_err)
             if self.debug:
-                raise invalid_token_name_err
+                raise _invalid_token_name_err
             return None
         self.logger.info("Access token acquired successfully")
         return access_token
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
-        self.logger.info('Requesting the resource from the resource server')
+        self.logger.info("Requesting the resource from the resource server")
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
             err = InvalidResourceAccessRequest(response.json())
@@ -94,7 +97,7 @@ class Google(Provider):
         user_info: GoogleUserInfo = serialize(json_user_data)
         return user_info
 
-    def _user_info_request(self, *, access_token : str) -> HttpxResponse:
+    def _user_info_request(self, *, access_token: str) -> HttpxResponse:
         return get(
             url=self.userInfo,
             headers={
@@ -103,7 +106,9 @@ class Google(Provider):
             },
         )
 
-    def _access_token_request(self, *, code_verifier: str, code: str, state: str) -> HttpxResponse:
+    def _access_token_request(
+        self, *, code_verifier: str, code: str, state: str
+    ) -> HttpxResponse:
         return post(
             url=self.tokenUrl,
             data=tokenUrl_payload(

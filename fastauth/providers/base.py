@@ -24,7 +24,7 @@ class Provider(ABC):
         tokenUrl: str,
         userInfo: str,
         debug: bool,
-        logger: Logger
+        logger: Logger,
     ) -> None:  # pragma: no cover
         self.provider = provider
         self.client_id = client_id
