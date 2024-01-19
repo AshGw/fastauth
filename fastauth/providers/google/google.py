@@ -3,7 +3,6 @@ from logging import Logger
 
 from fastauth.providers.google.user_schema import (
     GoogleUserInfo,
-    GoogleUserJSONData,
     serialize,
 )
 from pydantic.error_wrappers import ValidationError
@@ -97,8 +96,7 @@ class Google(Provider):
                 raise e
             return None
         try:
-            json_user_data: GoogleUserJSONData = response.json()
-            user_info: GoogleUserInfo = serialize(json_user_data)
+            user_info: GoogleUserInfo = serialize(response.json())
             self.logger.info("Resource acquired successfully")
             return user_info
         except ValidationError as e:

@@ -53,7 +53,7 @@ def JSON_valid_user_data():
         locale="en",
         id="123",
         name="John Doe",
-    )
+    ).dict()
 
 def test_token_acquisition(op):
     with patch(
@@ -121,12 +121,32 @@ def test_user_info_acquisition(JSON_valid_user_data):
             google_d_mode._user_info_request(access_token="valid_one").status_code
             == 200
         )
-        # assert isinstance(google.get_user_info(access_token='invalid'),GoogleUserInfo)
+
         mock_response.json.return_value = JSON_valid_user_data
         mock_request.return_value = mock_response
         assert google.get_user_info(access_token="valid_one") == serialize(
             google_d_mode._user_info_request(access_token="valid_one").json()
         )
+
+        # What if in 2077 google changes the way they send their data ?
+        mock_response.json.return_value = {
+            "id": "123",
+            "email": "not@gmail", #
+            "verified_email": True,
+            "name": "John Doe",
+            "given_name": "John",
+            "family_name": "Doe",
+            "picture": "htps://lh3.googleusercontent.com/a/abc", # not an valid HTTP(s) URL
+            "locale": "en"
+        }
+        mock_request.return_value = mock_response
+        with pytest.raises(
+            ValidationError
+        ): # raise in debug
+         google_d_mode.get_user_info(access_token="valid_one")
+        # no info if normal
+        assert google.get_user_info(access_token="valid_one") is None
+
 
 def test_serialize(JSON_valid_user_data):
     # Example data
@@ -159,7 +179,7 @@ def test_serialize(JSON_valid_user_data):
         locale="en",
         id="123",
         name="John Doe",
-    ))
+    ).dict())
 
 
 
