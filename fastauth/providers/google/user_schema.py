@@ -6,7 +6,7 @@ from typing import TypedDict, Annotated
 
 
 class GoogleUserJSONData(BaseModel):
-    id: Annotated[str, 'string of integers']
+    id: Annotated[str, 'represented as a string of integers']
     email: EmailStr
     verified_email: bool
     name: str
@@ -28,6 +28,7 @@ class GoogleUserInfo(UserInfo, total=False):
 
 
 def serialize(data: GoogleUserJSONData) -> GoogleUserInfo:
+    data.dict() # trigger validation if good continue
     return GoogleUserInfo(
         user_id=data.id,
         email=data.email,

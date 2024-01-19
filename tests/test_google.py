@@ -6,6 +6,8 @@ from logging import getLogger
 from dotenv import load_dotenv
 from os import getenv
 
+from pydantic.error_wrappers import ValidationError
+
 from fastauth.providers.google.google import Google
 from fastauth.providers.google.user_schema import (
     GoogleUserJSONData,
@@ -41,7 +43,7 @@ def op():
     return gen_oauth_params()
 
 @pytest.fixture
-def user_JSON_data():
+def JSON_valid_user_data():
     return GoogleUserJSONData(
         email="example@gmail.com",
         verified_email=True,
@@ -100,7 +102,7 @@ def test_token_acquisition(op):
         )
 
 
-def test_user_info_acquisition(user_JSON_data):
+def test_user_info_acquisition(JSON_valid_user_data):
     with patch(
         "fastauth.providers.google.google.Google._user_info_request"
     ) as mock_request:
@@ -120,16 +122,15 @@ def test_user_info_acquisition(user_JSON_data):
             == 200
         )
         # assert isinstance(google.get_user_info(access_token='invalid'),GoogleUserInfo)
-        mock_response.json.return_value = user_JSON_data
+        mock_response.json.return_value = JSON_valid_user_data
         mock_request.return_value = mock_response
         assert google.get_user_info(access_token="valid_one") == serialize(
             google_d_mode._user_info_request(access_token="valid_one").json()
         )
 
-def test_serialize(user_JSON_data):
+def test_serialize(JSON_valid_user_data):
     # Example data
-    given_data = user_JSON_data
-
+    valid_data = JSON_valid_user_data
     # Expected result
     expected_result = {
         "user_id": "123",
@@ -143,7 +144,23 @@ def test_serialize(user_JSON_data):
             "family_name": "Doe",
         },
     }
-    assert serialize(given_data) == expected_result
+    assert serialize(valid_data) == expected_result
+    # now if data is invalid e.g avatar is not presented as a URL then
+
+    with pytest.raises(
+        ValidationError
+    ):
+        serialize(GoogleUserJSONData(
+        email="example@gmail", # invalid email
+        verified_email=True,
+        given_name="John",
+        family_name="Doe",
+        picture="htps://example.com/hosted/pic", # not an actual HTTP(s) URL
+        locale="en",
+        id="123",
+        name="John Doe",
+    ))
+
 
 
 def test_invalid_authorization_code(op):
