@@ -6,6 +6,7 @@ from fastauth.providers.google.user_schema import (
     GoogleUserJSONData,
     serialize,
 )
+from pydantic.error_wrappers import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
@@ -57,7 +58,9 @@ class Google(Provider):
             scope="openid%20profile%20email",
             service="lso",
             access_type="offline",
-            flowName="GeneralOAuthFlow",  # you can add more
+            flowName="GeneralOAuthFlow",
+            # The scopes correspond with the current user info schema
+            # To add more you need to re-configure the schema
         )()
 
     def get_access_token(
@@ -88,14 +91,22 @@ class Google(Provider):
         self.logger.info("Requesting the resource from the resource server")
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            err = InvalidResourceAccessRequest(response.json())
-            self.logger.warning(err)
+            e = InvalidResourceAccessRequest(response.json())
+            self.logger.warning(e)
             if self.debug:
-                raise err
+                raise e
             return None
-        json_user_data: GoogleUserJSONData = response.json()
-        user_info: GoogleUserInfo = serialize(json_user_data)
-        return user_info
+        try:
+            json_user_data: GoogleUserJSONData = response.json()
+            user_info: GoogleUserInfo = serialize(json_user_data)
+            self.logger.info("Resource acquired successfully")
+            return user_info
+        except ValidationError as e:
+            # This should never happen with Google, maybe you messed up the schema ?
+            self.logger.critical(e)
+            if self.debug:
+                raise e
+            return None
 
     def _user_info_request(self, *, access_token: str) -> HttpxResponse:
         return get(
