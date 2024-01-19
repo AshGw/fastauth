@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 from fastauth.types import UserInfo
-from typing import TypedDict
+from pydantic import BaseModel, EmailStr, HttpUrl
+from typing import TypedDict, Annotated
 
 
-class GoogleUserJSONData(TypedDict):
-    id: str
-    email: str
+class GoogleUserJSONData(BaseModel):
+    id: Annotated[str, 'string of integers']
+    email: EmailStr
     verified_email: bool
     name: str
     given_name: str
     family_name: str
-    picture: str
+    picture: HttpUrl
     locale: str
 
 
@@ -28,14 +29,14 @@ class GoogleUserInfo(UserInfo, total=False):
 
 def serialize(data: GoogleUserJSONData) -> GoogleUserInfo:
     return GoogleUserInfo(
-        user_id=data["id"],
-        email=data["email"],
-        name=data["name"],
-        avatar=data["picture"],
+        user_id=data.id,
+        email=data.email,
+        name=data.name,
+        avatar=data.picture,
         extras=_GoogleUserExtraInfo(
-            locale=data["locale"],
-            verified_email=data["verified_email"],
-            given_name=data["given_name"],
-            family_name=data["family_name"],
+            locale=data.locale,
+            verified_email=data.verified_email,
+            given_name=data.given_name,
+            family_name=data.family_name,
         ),
     )
