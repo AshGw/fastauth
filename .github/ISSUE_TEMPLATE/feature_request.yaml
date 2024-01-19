@@ -12,13 +12,13 @@ body:
   - type: textarea
     attributes:
       label: New feature description
-      description: Describe the functional changes that would have to be made in `semantic-release` or its plugins.
+      description: Describe the functional changes that would have to be made.
     validations:
       required: true
 
   - type: textarea
     attributes:
       label: New feature implementation
-      description: Optionally describe the technical changes to be made in `semantic-release` or its plugins.
+      description: Optionally describe the technical changes to be made.
     validations:
       required: false
