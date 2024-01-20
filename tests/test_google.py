@@ -6,17 +6,18 @@ from logging import getLogger
 from dotenv import load_dotenv
 from os import getenv
 
-from pydantic.error_wrappers import ValidationError
 
 from fastauth.providers.google.google import Google, SUCCESS_STATUS_CODES
 from fastauth.providers.google.user_schema import (
     GoogleUserJSONData,
     serialize,
 )
+from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
     InvalidResourceAccessRequest,
+    SchemaValidationError
 )
 from fastauth.utils import gen_oauth_params
 
@@ -142,7 +143,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
             "locale": "en",
         }
         mock_request.return_value = mock_response
-        with pytest.raises(ValidationError):  # raise in debug
+        with pytest.raises(SchemaValidationError):  # raise in debug
             google_d_mode.get_user_info(access_token="valid_one")
         # no info if normal
         assert google.get_user_info(access_token="valid_one") is None

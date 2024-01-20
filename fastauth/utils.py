@@ -31,7 +31,7 @@ def querify_kwargs(kwargs: Optional[QueryParams] = None) -> str:
     return f"&{query_string}"
 
 
-def tokenUrl_payload(
+def token_request_payload(
     *,
     provider: Provider,
     **kwargs: str,

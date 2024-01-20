@@ -35,24 +35,24 @@ class OAuth2Base(ABC):
         self.logger = logger
         self.secret = secret
         self.debug = debug
-        self.authroute = APIRouter()
+        self.auth_route = APIRouter()
 
     @abstractmethod
-    def _signin(self) -> None:
+    def on_signin(self) -> None:
         ...
 
     @abstractmethod
-    def _signout(self) -> None:
+    def on_signout(self) -> None:
         ...
 
     @abstractmethod
-    def _jwt(self) -> None:
+    def set_jwt(self) -> None:
         ...
 
     @abstractmethod
-    def _csrf_token(self) -> None:
+    def set_csrf_token(self) -> None:
         ...
 
     @abstractmethod
-    def route(self) -> APIRouter:
+    def set_router(self) -> APIRouter:
         ...
