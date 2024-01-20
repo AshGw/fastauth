@@ -19,6 +19,8 @@ from fastauth.utils import tokenUrl_payload
 from httpx import post, get
 from httpx import Response as HttpxResponse
 
+SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
+
 
 class Google(Provider):
     access_token_name = "access_token"
@@ -69,19 +71,19 @@ class Google(Provider):
         response = self._access_token_request(
             code_verifier=code_verifier, code=code, state=state
         )
-        if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            _invalid_token_request = InvalidTokenAcquisitionRequest(response.json())
-            self.logger.warning(_invalid_token_request)
+        if response.status_code not in SUCCESS_STATUS_CODES:
+            token_acquisition_error = InvalidTokenAcquisitionRequest(response.json())
+            self.logger.warning(token_acquisition_error)
             if self.debug:
-                raise _invalid_token_request
+                raise token_acquisition_error
             return None
 
         access_token: Optional[str] = response.json().get(self.access_token_name)
         if access_token is None:
-            _invalid_token_name_err = InvalidAccessTokenName()
-            self.logger.warning(_invalid_token_name_err)
+            invalid_name_error = InvalidAccessTokenName()
+            self.logger.warning(invalid_name_error)
             if self.debug:
-                raise _invalid_token_name_err
+                raise invalid_name_error
             return None
         self.logger.info("Access token acquired successfully")
         return access_token
@@ -89,21 +91,23 @@ class Google(Provider):
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         self.logger.info("Requesting the resource from the resource server")
         response = self._user_info_request(access_token=access_token)
-        if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            e = InvalidResourceAccessRequest(response.json())
-            self.logger.warning(e)
+        if response.status_code not in SUCCESS_STATUS_CODES:
+            resource_access_error = InvalidResourceAccessRequest(response.json())
+            self.logger.warning(
+                f"Failed to retrieve user information. HTTP Status Code. Error: {resource_access_error}"
+            )
             if self.debug:
-                raise e
+                raise resource_access_error
             return None
         try:
             user_info: GoogleUserInfo = serialize(response.json())
             self.logger.info("Resource acquired successfully")
             return user_info
-        except ValidationError as e:
+        except ValidationError as schema_validation_error:
             # This should never happen with Google, maybe you messed up the schema ?
-            self.logger.critical(e)
+            self.logger.critical(schema_validation_error)
             if self.debug:
-                raise e
+                raise schema_validation_error
             return None
 
     def _user_info_request(self, *, access_token: str) -> HttpxResponse:

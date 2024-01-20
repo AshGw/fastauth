@@ -6,10 +6,12 @@ from typing import TypedDict, Annotated, Dict, Any
 
 
 class GoogleUserJSONData(BaseModel):
-    id: Annotated[str, 'Represented as a string of integers'] = Field(...,min_length=1)
+    id: Annotated[str, "Represented as a string of integers"] = Field(..., min_length=1)
     email: EmailStr
     verified_email: bool
-    name: Annotated[str, 'Combo of the given name & family name'] = Field(...,min_length=1)
+    name: Annotated[str, "Combo of the given name & family name"] = Field(
+        ..., min_length=1
+    )
     given_name: str
     family_name: str
     picture: HttpUrl
@@ -27,7 +29,7 @@ class GoogleUserInfo(UserInfo, total=False):
     extras: _GoogleUserExtraInfo
 
 
-def serialize(data: Dict[Any,Any]) -> GoogleUserInfo:
+def serialize(data: Dict[Any, Any]) -> GoogleUserInfo:
     valid_data = GoogleUserJSONData.parse_obj(data)
     return GoogleUserInfo(
         user_id=valid_data.id,
