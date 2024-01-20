@@ -19,9 +19,7 @@ QueryParams = MutableMapping[str, str]
 
 ProviderJSONResponse = Mapping[Any,Any]
 
-ProviderBinSeqResponse = TypeVar('ProviderBinSeqResponse', bytes, str)
-
-ProviderResponse = Union[ProviderJSONResponse, ProviderBinSeqResponse]
+ProviderResponse = Union[ProviderJSONResponse, str]
 
 
 class ViewableJWT(TypedDict):

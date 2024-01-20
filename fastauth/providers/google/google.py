@@ -1,6 +1,8 @@
 from typing import Optional
 from logging import Logger
 
+from fastauth.types import ProviderJSONResponse
+
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
     serialize_user_info,
@@ -71,7 +73,7 @@ class Google(Provider):
             code_verifier=code_verifier, code=code, state=state
         )
 
-        provider_response_data = response.json()
+        provider_response_data: ProviderJSONResponse = response.json()
 
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
@@ -110,7 +112,7 @@ class Google(Provider):
                 raise resource_access_error
             return None
 
-        provider_response_data = response.json()
+        provider_response_data: ProviderJSONResponse = response.json()
 
         try:
             user_info: GoogleUserInfo = serialize_user_info(provider_response_data)

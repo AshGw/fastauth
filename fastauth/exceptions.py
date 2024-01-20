@@ -1,6 +1,5 @@
 from fastauth.types import ProviderResponse
 from pydantic import ValidationError
-from typing import Any
 
 class WrongKeyLength(Exception):
     pass
@@ -14,7 +13,7 @@ class SchemaValidationError(Exception):
         resource: str,
         validation_error: ValidationError,
         debug: bool,
-        provider_response_data: ProviderResponse[Any],
+        provider_response_data: ProviderResponse,
     ) -> None:
         self.display = (
             f"Error during {resource} validation for {provider}. "
@@ -47,7 +46,7 @@ class InvalidCodeVerifier(Exception):
 
 class InvalidTokenAcquisitionRequest(Exception):
     def __init__(
-        self, *, provider: str, provider_response_data: ProviderResponse[Any]
+        self, *, provider: str, provider_response_data: ProviderResponse
     ) -> None:
         self.display = (
             "There's an issue with acquiring the access token from "
@@ -61,7 +60,7 @@ class InvalidTokenAcquisitionRequest(Exception):
 
 class InvalidUserInfoAccessRequest(Exception):
     def __init__(
-        self, *, provider: str, provider_response_data: ProviderResponse[Any]
+        self, *, provider: str, provider_response_data: ProviderResponse
     ) -> None:
         self.display = (
             "The request for the resource is invalid, "
