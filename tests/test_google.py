@@ -6,21 +6,23 @@ from logging import getLogger
 from dotenv import load_dotenv
 from os import getenv
 
-from pydantic.error_wrappers import ValidationError
 
-from fastauth.providers.google.google import Google
+from fastauth.providers.google.google import Google, SUCCESS_STATUS_CODES
 from fastauth.providers.google.user_schema import (
     GoogleUserJSONData,
     serialize,
 )
+from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
     InvalidResourceAccessRequest,
+    SchemaValidationError
 )
 from fastauth.utils import gen_oauth_params
 
 load_dotenv()
+
 
 google = Google(
     client_id=getenv("GOOGLE_CLIENT_ID"),
@@ -38,9 +40,11 @@ google_d_mode = Google(
     debug=True,
 )
 
+
 @pytest.fixture
 def op():
     return gen_oauth_params()
+
 
 @pytest.fixture
 def JSON_valid_user_data():
@@ -55,15 +59,14 @@ def JSON_valid_user_data():
         name="John Doe",
     ).dict()
 
+
 def test_token_acquisition(op):
     with patch(
         "fastauth.providers.google.google.Google._access_token_request"
     ) as mock_request:
         mock_response = Mock()
         # invalid auth code, raise in debug
-        with pytest.raises(
-            InvalidTokenAcquisitionRequest
-        ):
+        with pytest.raises(InvalidTokenAcquisitionRequest):
             google_d_mode.get_access_token(
                 state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
@@ -75,7 +78,7 @@ def test_token_acquisition(op):
             google_d_mode._access_token_request(
                 code_verifier="..", code="..", state=".."
             ).status_code
-            == 200
+            in SUCCESS_STATUS_CODES
         )
         # If the response is successful then we're good
 
@@ -119,7 +122,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
         mock_request.return_value = mock_response
         assert (
             google_d_mode._user_info_request(access_token="valid_one").status_code
-            == 200
+            in SUCCESS_STATUS_CODES
         )
 
         mock_response.json.return_value = JSON_valid_user_data
@@ -131,19 +134,17 @@ def test_user_info_acquisition(JSON_valid_user_data):
         # What if in 2077 google changes the way they send their data ?
         mock_response.json.return_value = {
             "id": "123",
-            "email": "not@gmail", #
+            "email": "not@gmail",  #
             "verified_email": True,
             "name": "John Doe",
             "given_name": "John",
             "family_name": "Doe",
-            "picture": "htps://lh3.googleusercontent.com/a/abc", # not an valid HTTP(s) URL
-            "locale": "en"
+            "picture": "htps://lh3.googleusercontent.com/a/abc",  # not an valid HTTP(s) URL
+            "locale": "en",
         }
         mock_request.return_value = mock_response
-        with pytest.raises(
-            ValidationError
-        ): # raise in debug
-         google_d_mode.get_user_info(access_token="valid_one")
+        with pytest.raises(SchemaValidationError):  # raise in debug
+            google_d_mode.get_user_info(access_token="valid_one")
         # no info if normal
         assert google.get_user_info(access_token="valid_one") is None
 
@@ -167,21 +168,19 @@ def test_serialize(JSON_valid_user_data):
     assert serialize(valid_data) == expected_result
     # now if data is invalid e.g avatar is not presented as a URL then
 
-    with pytest.raises(
-        ValidationError
-    ):
-        serialize(GoogleUserJSONData(
-        email="example@gmail", # invalid email
-        verified_email=True,
-        given_name="John",
-        family_name="Doe",
-        picture="htps://example.com/hosted/pic", # not an actual HTTP(s) URL
-        locale="en",
-        id="123",
-        name="John Doe",
-    ).dict())
-
-
+    with pytest.raises(ValidationError):
+        serialize(
+            GoogleUserJSONData(
+                email="example@gmail",  # invalid email
+                verified_email=True,
+                given_name="John",
+                family_name="Doe",
+                picture="htps://example.com/hosted/pic",  # not an actual HTTP(s) URL
+                locale="en",
+                id="123",
+                name="John Doe",
+            ).dict()
+        )
 
 
 def test_invalid_authorization_code(op):

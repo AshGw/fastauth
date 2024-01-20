@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from fastauth.types import UserInfo
-from pydantic import BaseModel, EmailStr, HttpUrl
+from pydantic import BaseModel, EmailStr, HttpUrl, Field
 from typing import TypedDict, Annotated, Dict, Any
 
 
 class GoogleUserJSONData(BaseModel):
-    id: Annotated[str, 'represented as a string of integers']
+    id: Annotated[str, "Represented as a string of integers"] = Field(..., min_length=1)
     email: EmailStr
     verified_email: bool
-    name: str
+    name: Annotated[str, "Combo of the given name & family name"] = Field(
+        ..., min_length=1
+    )
     given_name: str
     family_name: str
     picture: HttpUrl
@@ -27,9 +29,8 @@ class GoogleUserInfo(UserInfo, total=False):
     extras: _GoogleUserExtraInfo
 
 
-def serialize(data: Dict[Any,Any]) -> GoogleUserInfo:
+def serialize(data: Dict[Any, Any]) -> GoogleUserInfo:
     valid_data = GoogleUserJSONData.parse_obj(data)
-     # trigger validation if good continue
     return GoogleUserInfo(
         user_id=valid_data.id,
         email=valid_data.email,

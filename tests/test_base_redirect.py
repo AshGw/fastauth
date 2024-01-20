@@ -66,4 +66,4 @@ class _TokenUrlTester:
         self.kwargs = kwargs
 
     def payload(self):
-        return utils.tokenUrl_payload(provider=self.provider, **self.kwargs)
+        return utils.token_request_payload(provider=self.provider, **self.kwargs)

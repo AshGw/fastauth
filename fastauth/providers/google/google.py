@@ -10,14 +10,17 @@ from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
     InvalidResourceAccessRequest,
+    SchemaValidationError
 )
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
-from fastauth.utils import tokenUrl_payload
+from fastauth.utils import token_request_payload
 from httpx import post, get
 from httpx import Response as HttpxResponse
+
+SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
 
 
 class Google(Provider):
@@ -58,8 +61,6 @@ class Google(Provider):
             service="lso",
             access_type="offline",
             flowName="GeneralOAuthFlow",
-            # The scopes correspond with the current user info schema
-            # To add more you need to re-configure the schema
         )()
 
     def get_access_token(
@@ -69,41 +70,45 @@ class Google(Provider):
         response = self._access_token_request(
             code_verifier=code_verifier, code=code, state=state
         )
-        if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            _invalid_token_request = InvalidTokenAcquisitionRequest(response.json())
-            self.logger.warning(_invalid_token_request)
+        if response.status_code not in SUCCESS_STATUS_CODES:
+            token_acquisition_error = InvalidTokenAcquisitionRequest(
+                provider=self.provider, provider_error=response.json()
+            )
+            self.logger.warning(token_acquisition_error)
             if self.debug:
-                raise _invalid_token_request
+                raise token_acquisition_error
             return None
 
         access_token: Optional[str] = response.json().get(self.access_token_name)
         if access_token is None:
-            _invalid_token_name_err = InvalidAccessTokenName()
-            self.logger.warning(_invalid_token_name_err)
+            invalid_name_error = InvalidAccessTokenName()
+            self.logger.warning(invalid_name_error)
             if self.debug:
-                raise _invalid_token_name_err
+                raise invalid_name_error
             return None
         self.logger.info("Access token acquired successfully")
         return access_token
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
-        self.logger.info("Requesting the resource from the resource server")
+        self.logger.info("Requesting the user information from the resource server")
         response = self._user_info_request(access_token=access_token)
-        if response.status_code not in {StatusCode.OK, StatusCode.CREATED}:
-            e = InvalidResourceAccessRequest(response.json())
-            self.logger.warning(e)
+        if response.status_code not in SUCCESS_STATUS_CODES:
+            resource_access_error = InvalidResourceAccessRequest(
+                provider=self.provider, provider_error=response.json()
+            )
+            self.logger.warning(resource_access_error)
             if self.debug:
-                raise e
+                raise resource_access_error
             return None
         try:
             user_info: GoogleUserInfo = serialize(response.json())
-            self.logger.info("Resource acquired successfully")
+            self.logger.info("User information acquired successfully")
             return user_info
-        except ValidationError as e:
-            # This should never happen with Google, maybe you messed up the schema ?
-            self.logger.critical(e)
+        except ValidationError as ve:
+            schema_validation_error = SchemaValidationError(provider=self.provider, validation_error=ve)
+            self.logger.critical(schema_validation_error)
             if self.debug:
-                raise e
+                raise schema_validation_error
             return None
 
     def _user_info_request(self, *, access_token: str) -> HttpxResponse:
@@ -120,7 +125,7 @@ class Google(Provider):
     ) -> HttpxResponse:
         return post(
             url=self.tokenUrl,
-            data=tokenUrl_payload(
+            data=token_request_payload(
                 provider=self,
                 code=code,
                 state=state,
