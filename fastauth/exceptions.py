@@ -2,7 +2,8 @@ from fastauth.types import ProviderResponse
 from pydantic import ValidationError
 
 class WrongKeyLength(Exception):
-    pass
+    def __init__(self) -> None:
+        super().__init__("Key length must be exactly 32 bit")
 
 
 class SchemaValidationError(Exception):
