@@ -8,9 +8,9 @@ from os import getenv
 
 
 from fastauth.providers.google.google import Google, SUCCESS_STATUS_CODES
-from fastauth.providers.google.user_schema import (
+from fastauth.providers.google.schemas import (
     GoogleUserJSONData,
-    serialize,
+    serialize_user_info,
 )
 from pydantic import ValidationError
 from fastauth.exceptions import (
@@ -127,7 +127,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
 
         mock_response.json.return_value = JSON_valid_user_data
         mock_request.return_value = mock_response
-        assert google.get_user_info(access_token="valid_one") == serialize(
+        assert google.get_user_info(access_token="valid_one") == serialize_user_info(
             google_d_mode._user_info_request(access_token="valid_one").json()
         )
 
@@ -165,11 +165,11 @@ def test_serialize(JSON_valid_user_data):
             "family_name": "Doe",
         },
     }
-    assert serialize(valid_data) == expected_result
+    assert serialize_user_info(valid_data) == expected_result
     # now if data is invalid e.g avatar is not presented as a URL then
 
     with pytest.raises(ValidationError):
-        serialize(
+        serialize_user_info(
             GoogleUserJSONData(
                 email="example@gmail",  # invalid email
                 verified_email=True,

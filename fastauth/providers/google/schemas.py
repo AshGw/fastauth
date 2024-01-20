@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastauth.types import UserInfo
 from pydantic import BaseModel, EmailStr, HttpUrl, Field
-from typing import TypedDict, Annotated, Dict, Any
+from typing import TypedDict, Literal, Dict, Any, Annotated
 
 
 class GoogleUserJSONData(BaseModel):
@@ -29,7 +29,7 @@ class GoogleUserInfo(UserInfo, total=False):
     extras: _GoogleUserExtraInfo
 
 
-def serialize(data: Dict[Any, Any]) -> GoogleUserInfo:
+def serialize_user_info(data: Dict[Any, Any]) -> GoogleUserInfo:
     valid_data = GoogleUserJSONData.parse_obj(data)
     return GoogleUserInfo(
         user_id=valid_data.id,
@@ -43,3 +43,14 @@ def serialize(data: Dict[Any, Any]) -> GoogleUserInfo:
             family_name=valid_data.family_name,
         ),
     )
+
+class GoogleAccessTokenResponse(BaseModel):
+    access_token: str = Field(..., min_length=1)
+    expires_in: Annotated[int, "seconds"]
+    scope: str
+    token_type: Literal['Bearer']
+    id_token: str
+
+def serialize_access_token(data: Dict[Any, Any]) -> str:
+    valid_data = GoogleAccessTokenResponse.parse_obj(data)
+    return valid_data.access_token

@@ -1,9 +1,9 @@
 from typing import Optional
 from logging import Logger
 
-from fastauth.providers.google.user_schema import (
+from fastauth.providers.google.schemas import (
     GoogleUserInfo,
-    serialize,
+    serialize_user_info,
 )
 from pydantic.error_wrappers import ValidationError
 from fastauth.exceptions import (
@@ -101,7 +101,7 @@ class Google(Provider):
                 raise resource_access_error
             return None
         try:
-            user_info: GoogleUserInfo = serialize(response.json())
+            user_info: GoogleUserInfo = serialize_user_info(response.json())
             self.logger.info("User information acquired successfully")
             return user_info
         except ValidationError as ve:
