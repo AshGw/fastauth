@@ -1,10 +1,25 @@
 from __future__ import annotations
-from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Mapping
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+    NamedTuple,
+    TypedDict,
+    Optional,
+    MutableMapping,
+    Mapping,
+    Union,
+)
 from datetime import datetime
 
 _F = TypeVar("_F", bound=Callable[..., Any])
 
-QueryParams = Mapping[str, str]
+
+QueryParams = MutableMapping[str, str]
+
+ProviderJSONResponse = Mapping[Any,Any]
+
+ProviderResponse = Union[ProviderJSONResponse, str]
 
 
 class ViewableJWT(TypedDict):

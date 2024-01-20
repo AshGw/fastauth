@@ -8,16 +8,15 @@ from os import getenv
 
 
 from fastauth.providers.google.google import Google, SUCCESS_STATUS_CODES
-from fastauth.providers.google.user_schema import (
+from fastauth.providers.google.schemas import (
     GoogleUserJSONData,
-    serialize,
+    serialize_user_info,
 )
 from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
-    InvalidAccessTokenName,
-    InvalidResourceAccessRequest,
-    SchemaValidationError
+    InvalidUserInfoAccessRequest,
+    SchemaValidationError,
 )
 from fastauth.utils import gen_oauth_params
 
@@ -81,28 +80,37 @@ def test_token_acquisition(op):
             in SUCCESS_STATUS_CODES
         )
         # If the response is successful then we're good
-
-        # though since we're mocking, we need to have a valid access_token name
-        mock_response.json.return_value = {google.access_token_name: "valid"}
+        valid_token_response = {
+          "access_token": "ya29.--MQ2DXEK727auj8---U4eLDI0g0171",
+          "expires_in": 3599,
+          "scope": "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+          "token_type": "Bearer",
+          "id_token": "..."
+        }
+        invalid_token_response = {
+            "access_token": "",
+            "expires_in": "3599",
+            "scope": "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+            "token_type": "Bearer",
+            "id_token": "..."
+        }
+        # valid access token JSON data should raise no errors
+        mock_response.json.return_value = valid_token_response
         google_d_mode.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="invalid"
         )
-
-        # The access token should not be None, but in some very rare cases the actual name
-        # of the access_token is  different, sometimes 'accessToken' 'token' etc...
-        mock_response.json.return_value = {"accessToken": "valid"}
-        mock_request.return_value = mock_response
-        with pytest.raises(InvalidAccessTokenName):
+        # with invalid access token JSON data should raise in debug
+        mock_response.json.return_value = invalid_token_response
+        with pytest.raises(SchemaValidationError):
             google_d_mode.get_access_token(
                 state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
-        # In non debug mode this should just return None:
-        assert (
-            google.get_access_token(
-                state=op.state, code_verifier=op.code_verifier, code="invalid"
-            )
-            is None
-        )
+
+        # with invalid access token JSON data should return None in normal mode
+        mock_response.json.return_value = invalid_token_response
+        assert google.get_access_token(
+            state=op.state, code_verifier=op.code_verifier, code="invalid"
+        ) is None
 
 
 def test_user_info_acquisition(JSON_valid_user_data):
@@ -112,7 +120,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
         mock_response = Mock()
 
         with pytest.raises(
-            InvalidResourceAccessRequest
+            InvalidUserInfoAccessRequest
         ):  # invalid auth code before patching
             google_d_mode.get_user_info(access_token="invalid")
         # in normal mode this should return None
@@ -127,7 +135,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
 
         mock_response.json.return_value = JSON_valid_user_data
         mock_request.return_value = mock_response
-        assert google.get_user_info(access_token="valid_one") == serialize(
+        assert google.get_user_info(access_token="valid_one") == serialize_user_info(
             google_d_mode._user_info_request(access_token="valid_one").json()
         )
 
@@ -165,11 +173,11 @@ def test_serialize(JSON_valid_user_data):
             "family_name": "Doe",
         },
     }
-    assert serialize(valid_data) == expected_result
+    assert serialize_user_info(valid_data) == expected_result
     # now if data is invalid e.g avatar is not presented as a URL then
 
     with pytest.raises(ValidationError):
-        serialize(
+        serialize_user_info(
             GoogleUserJSONData(
                 email="example@gmail",  # invalid email
                 verified_email=True,
