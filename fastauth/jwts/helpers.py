@@ -10,6 +10,6 @@ def generate_secret() -> str:
     return "".join(choice(ascii_letters + "_-?$#+-*") for _ in range(32))
 
 
-def check_key_length(key: str) -> None:
+def validate_key(key: str) -> None:
     if len(key) != 32:
         raise WrongKeyLength()
