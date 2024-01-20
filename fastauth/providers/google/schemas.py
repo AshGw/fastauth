@@ -44,12 +44,14 @@ def serialize_user_info(data: Dict[Any, Any]) -> GoogleUserInfo:
         ),
     )
 
+
 class GoogleAccessTokenResponse(BaseModel):
     access_token: str = Field(..., min_length=1)
     expires_in: Annotated[int, "Expressed in seconds"]
     scope: str
-    token_type: Literal['Bearer']
+    token_type: Literal["Bearer"]
     id_token: str
+
 
 def serialize_access_token(data: Dict[Any, Any]) -> str:
     valid_data = GoogleAccessTokenResponse.parse_obj(data)

@@ -17,7 +17,7 @@ from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
     InvalidUserInfoAccessRequest,
-    UserInfoSchemaValidationError
+    UserInfoSchemaValidationError,
 )
 from fastauth.utils import gen_oauth_params
 

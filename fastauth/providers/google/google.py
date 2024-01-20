@@ -3,14 +3,14 @@ from logging import Logger
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
-    serialize_user_info
+    serialize_user_info,
+    serialize_access_token,
 )
 from pydantic.error_wrappers import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
-    InvalidAccessTokenName,
     InvalidUserInfoAccessRequest,
-    UserInfoSchemaValidationError
+    SchemaValidationError,
 )
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
@@ -72,30 +72,36 @@ class Google(Provider):
         )
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
-                provider=self.provider, provider_error=response.json()
+                provider=self.provider, provider_response=response.json()
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
                 raise token_acquisition_error
             return None
-
-
-        access_token: Optional[str] = response.json().get(self.access_token_name)
-        if access_token is None:
-            invalid_name_error = InvalidAccessTokenName()
-            self.logger.warning(invalid_name_error)
+        provider_response = response.json()
+        try:
+            access_token: str = serialize_access_token(provider_response)
+            self.logger.info("Access token acquired successfully")
+            return access_token
+        except ValidationError as ve:
+            schema_error = SchemaValidationError(
+                provider=self.provider,
+                resource="access token",
+                validation_error=ve,
+                debug=self.debug,
+                provider_response=provider_response,
+            )
+            self.logger.warning(schema_error)
             if self.debug:
-                raise invalid_name_error
+                raise schema_error
             return None
-        self.logger.info("Access token acquired successfully")
-        return access_token
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         self.logger.info("Requesting the user information from the resource server")
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
-                provider=self.provider, provider_error=response.json()
+                provider=self.provider, provider_response=response.json()
             )
             self.logger.warning(resource_access_error)
             if self.debug:
@@ -106,7 +112,9 @@ class Google(Provider):
             self.logger.info("User information acquired successfully")
             return user_info
         except ValidationError as ve:
-            schema_validation_error = UserInfoSchemaValidationError(provider=self.provider, validation_error=ve)
+            schema_validation_error = SchemaValidationError(
+                provider=self.provider, resource="user information", validation_error=ve
+            )
             self.logger.critical(schema_validation_error)
             if self.debug:
                 raise schema_validation_error
