@@ -70,12 +70,3 @@ class InvalidUserInfoAccessRequest(Exception):
             f"{provider_response_data}"
         )
         super().__init__(self.display)
-
-
-class InvalidAccessTokenName(Exception):
-    def __init__(self) -> None:
-        self.display = (
-            "You might want to check in with your provider over how the "
-            "`access_token` is named, e.g.: `accessToken` or `token` and so on."
-        )
-        super().__init__(self.display)
