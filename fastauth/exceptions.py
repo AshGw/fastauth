@@ -46,27 +46,32 @@ class InvalidCodeVerifier(Exception):
 
 class InvalidTokenAcquisitionRequest(Exception):
     def __init__(
-        self, *, provider: str, provider_response_data: ProviderResponse
+        self, *, provider: str, debug: bool, provider_response_data: ProviderResponse
     ) -> None:
         self.display = (
             "There's an issue with acquiring the access token from "
             f"{provider}'s authorization server. It is due to incorrect/invalid "
             "request body parameters (`code`, `code_verifier`, `state`). "
-            f"{provider}'s response: "
-            f"{provider_response_data}"
         )
+        if debug:
+            self.display = (
+                self.display + f"{provider} response: {provider_response_data}"
+            )
         super().__init__(self.display)
+
 
 
 class InvalidUserInfoAccessRequest(Exception):
     def __init__(
-        self, *, provider: str, provider_response_data: ProviderResponse
+        self, *, provider: str,debug: bool ,provider_response_data: ProviderResponse
     ) -> None:
         self.display = (
             "The request for the resource is invalid, "
             "it's either due to an invalid/expired `access_token` "
             "or the wrong `Content-Type` header. "
-            f"{provider}'s response: "
-            f"{provider_response_data}"
         )
+        if debug:
+            self.display = (
+                self.display + f"{provider} response: {provider_response_data}"
+            )
         super().__init__(self.display)

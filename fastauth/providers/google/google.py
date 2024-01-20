@@ -75,7 +75,7 @@ class Google(Provider):
 
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
-                provider=self.provider, provider_response_data=provider_response_data
+                provider=self.provider, debug=True,provider_response_data=provider_response_data
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
@@ -103,7 +103,7 @@ class Google(Provider):
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
-                provider=self.provider, provider_response_data=response.json()
+                provider=self.provider,debug=True, provider_response_data=response.json()
             )
             self.logger.warning(resource_access_error)
             if self.debug:
