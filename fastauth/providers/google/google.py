@@ -70,17 +70,19 @@ class Google(Provider):
         response = self._access_token_request(
             code_verifier=code_verifier, code=code, state=state
         )
+
+        provider_response_data = response.json()
+
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
-                provider=self.provider, provider_response=response.json()
+                provider=self.provider, provider_response_data=provider_response_data
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
                 raise token_acquisition_error
             return None
-        provider_response = response.json()
         try:
-            access_token: str = serialize_access_token(provider_response)
+            access_token: str = serialize_access_token(provider_response_data)
             self.logger.info("Access token acquired successfully")
             return access_token
         except ValidationError as ve:
@@ -89,7 +91,7 @@ class Google(Provider):
                 resource="access token",
                 validation_error=ve,
                 debug=self.debug,
-                provider_response=provider_response,
+                provider_response_data=provider_response_data,
             )
             self.logger.warning(schema_error)
             if self.debug:
@@ -101,19 +103,27 @@ class Google(Provider):
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
-                provider=self.provider, provider_response=response.json()
+                provider=self.provider, provider_response_data=response.json()
             )
             self.logger.warning(resource_access_error)
             if self.debug:
                 raise resource_access_error
             return None
+
+        provider_response_data = response.json()
+
         try:
-            user_info: GoogleUserInfo = serialize_user_info(response.json())
+            user_info: GoogleUserInfo = serialize_user_info(provider_response_data)
             self.logger.info("User information acquired successfully")
             return user_info
+
         except ValidationError as ve:
             schema_validation_error = SchemaValidationError(
-                provider=self.provider, resource="user information", validation_error=ve
+                provider=self.provider,
+                resource="user information",
+                validation_error=ve,
+                debug=True,
+                provider_response_data=provider_response_data,
             )
             self.logger.critical(schema_validation_error)
             if self.debug:

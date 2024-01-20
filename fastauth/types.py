@@ -1,11 +1,28 @@
 from __future__ import annotations
-from typing import Any, Callable, TypeVar, NamedTuple, TypedDict, Optional, Mapping, AnyStr, Union
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+    NamedTuple,
+    TypedDict,
+    Optional,
+    MutableMapping,
+    Mapping,
+    Union,
+)
 from datetime import datetime
 
 _F = TypeVar("_F", bound=Callable[..., Any])
 
-QueryParams = Mapping[str, str]
-ProviderResponse = Union[Mapping[Any,Any],AnyStr]
+
+QueryParams = MutableMapping[str, str]
+
+ProviderJSONResponse = Mapping[Any,Any]
+
+ProviderBinSeqResponse = TypeVar('ProviderBinSeqResponse', bytes, str)
+
+ProviderResponse = Union[ProviderJSONResponse, ProviderBinSeqResponse]
+
 
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]
