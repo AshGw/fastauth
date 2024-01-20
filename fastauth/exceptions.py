@@ -6,9 +6,9 @@ class WrongKeyLength(Exception):
     pass
 
 
-class SchemaValidationError(Exception):
+class UserInfoSchemaValidationError(Exception):
     def __init__(self, *, provider: str, validation_error: ValidationError) -> None:
-        self.display = (f"Error during schema validation for {provider}. "
+        self.display = (f"Error during user info schema validation for {provider}. "
                         f"The defined schema does not match the received JSON data."
                         f"Perhaps you updated the scopes without adjusting the schema. To add "
                         f"more scopes, you need to re-configure the schema accordingly. "
@@ -26,7 +26,7 @@ class InvalidState(Exception):
 class InvalidCodeVerifier(Exception):
     def __init__(self) -> None:
         self.display = (
-            "The received code verifier does not match the expected code verifier"
+            "The received code verifier does not match the expected code verifier, possible tampering"
         )
         super().__init__(self.display)
 
@@ -43,7 +43,7 @@ class InvalidTokenAcquisitionRequest(Exception):
         super().__init__(self.display)
 
 
-class InvalidResourceAccessRequest(Exception):
+class InvalidUserInfoAccessRequest(Exception):
     def __init__(self, *, provider: str, provider_error: Any) -> None:
         self.display = (
             "The request for the resource is invalid, "

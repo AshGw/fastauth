@@ -16,8 +16,8 @@ from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
-    InvalidResourceAccessRequest,
-    SchemaValidationError
+    InvalidUserInfoAccessRequest,
+    UserInfoSchemaValidationError
 )
 from fastauth.utils import gen_oauth_params
 
@@ -112,7 +112,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
         mock_response = Mock()
 
         with pytest.raises(
-            InvalidResourceAccessRequest
+            InvalidUserInfoAccessRequest
         ):  # invalid auth code before patching
             google_d_mode.get_user_info(access_token="invalid")
         # in normal mode this should return None
@@ -143,7 +143,7 @@ def test_user_info_acquisition(JSON_valid_user_data):
             "locale": "en",
         }
         mock_request.return_value = mock_response
-        with pytest.raises(SchemaValidationError):  # raise in debug
+        with pytest.raises(UserInfoSchemaValidationError):  # raise in debug
             google_d_mode.get_user_info(access_token="valid_one")
         # no info if normal
         assert google.get_user_info(access_token="valid_one") is None

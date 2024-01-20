@@ -3,14 +3,14 @@ from logging import Logger
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
-    serialize_user_info,
+    serialize_user_info
 )
 from pydantic.error_wrappers import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidAccessTokenName,
-    InvalidResourceAccessRequest,
-    SchemaValidationError
+    InvalidUserInfoAccessRequest,
+    UserInfoSchemaValidationError
 )
 from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
@@ -79,6 +79,7 @@ class Google(Provider):
                 raise token_acquisition_error
             return None
 
+
         access_token: Optional[str] = response.json().get(self.access_token_name)
         if access_token is None:
             invalid_name_error = InvalidAccessTokenName()
@@ -93,7 +94,7 @@ class Google(Provider):
         self.logger.info("Requesting the user information from the resource server")
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
-            resource_access_error = InvalidResourceAccessRequest(
+            resource_access_error = InvalidUserInfoAccessRequest(
                 provider=self.provider, provider_error=response.json()
             )
             self.logger.warning(resource_access_error)
@@ -105,7 +106,7 @@ class Google(Provider):
             self.logger.info("User information acquired successfully")
             return user_info
         except ValidationError as ve:
-            schema_validation_error = SchemaValidationError(provider=self.provider, validation_error=ve)
+            schema_validation_error = UserInfoSchemaValidationError(provider=self.provider, validation_error=ve)
             self.logger.critical(schema_validation_error)
             if self.debug:
                 raise schema_validation_error

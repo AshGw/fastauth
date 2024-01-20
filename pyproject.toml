@@ -126,7 +126,6 @@ omit = [
     'fastauth\__main__.py',
     'tests\test_base_redirect.py',
     'fastauth\oauth2\base.py', # metaclass to be ignored
-    'fastauth\providers\google\user_schema.py', # just types
     'fastauth\exceptions.py',
 
 ]
