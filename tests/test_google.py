@@ -205,4 +205,4 @@ def test_invalid_authorization_code(op):
 
 def test_invalid_access_token():
     user_info = google.get_user_info(access_token="...")
-    assert user_info == None
+    assert user_info is None
