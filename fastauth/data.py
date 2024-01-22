@@ -7,9 +7,9 @@ class Cookies:
         name: str = "jwt"
         max_age: int = 60 * 60 * 24 * 7  # 7 days # through the whole session
 
-    class CSRF:
-        name: str = "csrf.token"
-        max_age: int = 60 * 60 * 24 * 7  # same as the default jaat TODO: link with jaat
+    class CSRFToken:
+        name: str = "csrf-token"
+        max_age = None  # session cookie
 
     class State:
         name: str = "state"

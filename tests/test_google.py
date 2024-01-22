@@ -81,18 +81,18 @@ def test_token_acquisition(op):
         )
         # If the response is successful then we're good
         valid_token_response = {
-          "access_token": "ya29.--MQ2DXEK727auj8---U4eLDI0g0171",
-          "expires_in": 3599,
-          "scope": "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-          "token_type": "Bearer",
-          "id_token": "..."
+            "access_token": "ya29.--MQ2DXEK727auj8---U4eLDI0g0171",
+            "expires_in": 3599,
+            "scope": "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+            "token_type": "Bearer",
+            "id_token": "...",
         }
         invalid_token_response = {
             "access_token": "",
             "expires_in": "3599",
             "scope": "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
             "token_type": "Bearer",
-            "id_token": "..."
+            "id_token": "...",
         }
         # valid access token JSON data should raise no errors
         mock_response.json.return_value = valid_token_response
@@ -108,9 +108,12 @@ def test_token_acquisition(op):
 
         # with invalid access token JSON data should return None in normal mode
         mock_response.json.return_value = invalid_token_response
-        assert google.get_access_token(
-            state=op.state, code_verifier=op.code_verifier, code="invalid"
-        ) is None
+        assert (
+            google.get_access_token(
+                state=op.state, code_verifier=op.code_verifier, code="invalid"
+            )
+            is None
+        )
 
 
 def test_user_info_acquisition(JSON_valid_user_data):
@@ -202,4 +205,4 @@ def test_invalid_authorization_code(op):
 
 def test_invalid_access_token():
     user_info = google.get_user_info(access_token="...")
-    assert user_info == None
+    assert user_info is None

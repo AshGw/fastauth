@@ -17,7 +17,7 @@ _F = TypeVar("_F", bound=Callable[..., Any])
 
 QueryParams = MutableMapping[str, str]
 
-ProviderJSONResponse = Mapping[Any,Any]
+ProviderJSONResponse = Mapping[Any, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 
@@ -30,7 +30,7 @@ class UserInfo(TypedDict):
     user_id: str
     email: str
     name: str
-    avatar: str
+    avatar: Optional[str]  # some do not have an avatar make it optional
 
 
 class JWT(TypedDict):

@@ -5,6 +5,18 @@ from pydantic import BaseModel, EmailStr, HttpUrl, Field
 from typing import TypedDict, Literal, Annotated
 
 
+class GoogleUserInfo(UserInfo, total=False):
+    extras: _GoogleUserExtraInfo
+
+
+class GoogleAccessTokenResponse(BaseModel):
+    access_token: str = Field(..., min_length=1)
+    expires_in: Annotated[int, "1 hour expressed in seconds"]
+    scope: str
+    token_type: Literal["Bearer"]
+    id_token: str
+
+
 class GoogleUserJSONData(BaseModel):
     id: Annotated[str, "Represented as a string of integers"] = Field(..., min_length=1)
     email: EmailStr
@@ -25,34 +37,22 @@ class _GoogleUserExtraInfo(TypedDict):
     family_name: str
 
 
-class GoogleUserInfo(UserInfo, total=False):
-    extras: _GoogleUserExtraInfo
-
-
 def serialize_user_info(data: ProviderJSONResponse) -> GoogleUserInfo:
-    valid_data = GoogleUserJSONData.parse_obj(data)
+    user_data = GoogleUserJSONData.parse_obj(data)
     return GoogleUserInfo(
-        user_id=valid_data.id,
-        email=valid_data.email,
-        name=valid_data.name,
-        avatar=valid_data.picture,
+        user_id=user_data.id,
+        email=user_data.email,
+        name=user_data.name,
+        avatar=user_data.picture,
         extras=_GoogleUserExtraInfo(
-            locale=valid_data.locale,
-            verified_email=valid_data.verified_email,
-            given_name=valid_data.given_name,
-            family_name=valid_data.family_name,
+            locale=user_data.locale,
+            verified_email=user_data.verified_email,
+            given_name=user_data.given_name,
+            family_name=user_data.family_name,
         ),
     )
 
 
-class GoogleAccessTokenResponse(BaseModel):
-    access_token: str = Field(..., min_length=1)
-    expires_in: Annotated[int, "Expressed in seconds"]
-    scope: str
-    token_type: Literal["Bearer"]
-    id_token: str
-
-
 def serialize_access_token(data: ProviderJSONResponse) -> str:
-    valid_data = GoogleAccessTokenResponse.parse_obj(data)
-    return valid_data.access_token
+    token_data = GoogleAccessTokenResponse.parse_obj(data)
+    return token_data.access_token
