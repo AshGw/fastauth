@@ -4,7 +4,7 @@ from jose.jwt import ALGORITHMS
 from jose.jwe import encrypt, decrypt  # type: ignore
 from datetime import datetime, timedelta
 from fastauth.data import Cookies
-from fastauth.jwts.helpers import check_key_length
+from fastauth.jwts.helpers import validate_key
 from fastauth.types import JWT, UserInfo
 
 JWT_MAX_AGE = Cookies.JWT.max_age
@@ -23,7 +23,7 @@ def encipher_user_info(user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE) ->
     :raises: JOSEError
     :return: The encrypted JWT
     """
-    check_key_length(key)
+    validate_key(key)
     now = datetime.utcnow()
     plain_jwt: str = encode_jwt(
         claims=JWT(
@@ -57,7 +57,7 @@ def decipher_jwt(encrypted_jwt: str, key: str) -> JWT:
     :raises: JOSEError
     :return: JWT
     """
-    check_key_length(key)
+    validate_key(key)
     decrypted_jwt: str = decrypt(jwe_str=encrypted_jwt, key=key).rstrip(b"=").decode()
     jwt: JWT = decode_jwt(
         token=decrypted_jwt,
