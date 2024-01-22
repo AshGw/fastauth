@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [project.urls]
-Homepage = 'https://github.com/ashgw/fastauth'
+Homepage = 'https://ashgw.github.io/fastauth/'
 Documentation = 'https://ashgw.github.io/fastauth/'
 Source = 'https://github.com/ashgw/fastauth'
 Changelog = 'https://github.com/ashgw/fastauth/releases'
@@ -128,6 +128,7 @@ omit = [
     'fastauth\oauth2\base.py', # metaclass to be ignored
     'fastauth\exceptions.py',
     'fastauth\authorize.py', # all related to the frameworks' native Request object
+    'fastauth\providers\spotify\schemas.py', # TODO: remove when testing them
 
 
 ]
