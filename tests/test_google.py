@@ -1,4 +1,5 @@
 import pytest
+from typing import cast
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -22,19 +23,22 @@ from fastauth.utils import gen_oauth_params
 
 load_dotenv()
 
+client_id: str = cast(str, getenv("GOOGLE_CLIENT_ID"))
+client_secret: str = cast(str, getenv("GOOGLE_CLIENT_SECRET"))
+redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 google = Google(
-    client_id=getenv("GOOGLE_CLIENT_ID"),
-    client_secret=getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_uri=getenv("GOOGLE_REDIRECT_URI"),
+    client_id= client_id,
+    client_secret=client_secret,
+    redirect_uri=redirect_uri,
     logger=getLogger("..."),
     debug=False,
 )
 # for debugging
 google_d_mode = Google(
-    client_id=getenv("GOOGLE_CLIENT_ID"),
-    client_secret=getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_uri=getenv("GOOGLE_REDIRECT_URI"),
+    client_id=client_id,
+    client_secret=client_secret,
+    redirect_uri=redirect_uri,
     logger=getLogger("..."),
     debug=True,
 )
