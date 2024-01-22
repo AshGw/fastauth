@@ -8,9 +8,7 @@ from typing import Literal, Annotated, List, TypedDict
 class SpotifyUserInfo(UserInfo):
     extras: _SpotifyUserExtraInfo
 
-class _SpotifyUserExtraInfo(TypedDict):
-    spotify_url: str
-    type: str
+
 
 
 class SpotifyUserJSONData(BaseModel, extra=Extra.allow):
@@ -29,6 +27,9 @@ class SpotifyAccessTokenResponse(BaseModel):
     refresh_token: str
     scope: str
 
+class _SpotifyUserExtraInfo(TypedDict):
+    spotify_url: str
+    type: str
 
 class _ProfileImage(BaseModel):
     url: HttpUrl

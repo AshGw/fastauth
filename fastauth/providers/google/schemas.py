@@ -5,6 +5,9 @@ from pydantic import BaseModel, EmailStr, HttpUrl, Field
 from typing import TypedDict, Literal, Annotated
 
 
+class GoogleUserInfo(UserInfo, total=False):
+    extras: _GoogleUserExtraInfo
+
 class GoogleAccessTokenResponse(BaseModel):
     access_token: str = Field(..., min_length=1)
     expires_in: Annotated[int, "1 hour expressed in seconds"]
@@ -25,16 +28,11 @@ class GoogleUserJSONData(BaseModel):
     picture: HttpUrl
     locale: str
 
-
 class _GoogleUserExtraInfo(TypedDict):
     locale: str
     verified_email: bool
     given_name: str
     family_name: str
-
-
-class GoogleUserInfo(UserInfo, total=False):
-    extras: _GoogleUserExtraInfo
 
 
 def serialize_user_info(data: ProviderJSONResponse) -> GoogleUserInfo:
