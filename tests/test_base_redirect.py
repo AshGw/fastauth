@@ -1,4 +1,5 @@
 from fastauth import utils
+from fastauth.types import UserInfo
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
 from logging import getLogger
@@ -49,15 +50,20 @@ class _MockPovider(Provider):
         )
 
     def redirect(
-        self, _state: str, _code_challenge: str, _code_challenge_method: str
+        self, *,state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:
         return OAuthRedirectResponse("/")
 
-    def get_access_token(self, *, _code_verifier: str, _code: str, _state: str) -> str:
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
         return "none"
 
-    def get_user_info(self, _access_token: str) -> dict:
-        return {}
+    def get_user_info(self, _access_token: str) -> UserInfo:
+        return UserInfo(
+            user_id='',
+            email='',
+            name='',
+            avatar=''
+        )
 
 
 class _TokenUrlTester:
