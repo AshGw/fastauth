@@ -31,7 +31,7 @@ Changelog = 'https://github.com/ashgw/fastauth/releases'
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = "^0.68.0"
+fastapi = "^0.93.0"
 python-jose = { version = "^3.1.0", extras = ["cryptography"] }
 httpx = "^0.23.2"
 email-validator = "^2.1.0.post1"
@@ -127,6 +127,8 @@ omit = [
     'tests\test_base_redirect.py',
     'fastauth\oauth2\base.py', # metaclass to be ignored
     'fastauth\exceptions.py',
+    'fastauth\authorize.py', # all related to the frameworks' native Request object
+
 
 ]
 
