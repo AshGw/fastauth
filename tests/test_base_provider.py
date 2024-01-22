@@ -1,4 +1,3 @@
-from fastauth import utils
 from fastauth.types import UserInfo
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
@@ -13,20 +12,25 @@ def test_base_redirect_url():
         client_secret="client_secret",
         redirect_uri="https://example.com",
     )
-    ins = _TokenUrlTester(
-        mp,
+    payload = mp._token_request_payload(
+        code='code',
+        code_verifier='code_verifier',
+        state='state',
         service="exampleService",
         access_type="offline",
         scope="openid%20profile%20email",
     )
-    assert ins.payload() == {
-        "grant_type": mp.grant_type,
-        "client_id": mp.client_id,
-        "client_secret": mp.client_secret,
-        "redirect_uri": mp.redirect_uri,
-        "access_type": "offline",
-        "scope": "openid%20profile%20email",
-        "service": "exampleService",
+    assert payload== {
+      'access_type': 'offline',
+      'client_id': 'client_id',
+      'client_secret': 'client_secret',
+      'code': 'code',
+      'code_verifier': 'code_verifier',
+      'grant_type': 'authorization_code',
+      'redirect_uri': 'https://example.com',
+      'scope': 'openid%20profile%20email',
+      'service': 'exampleService',
+      'state': 'state',
     }
 
 
@@ -51,25 +55,16 @@ class _MockPovider(Provider):
 
     def redirect(
         self, *,state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:
+    ) -> OAuthRedirectResponse: # pragma: no cover
         return OAuthRedirectResponse("/")
 
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:
+    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:  # pragma: no cover
         return "none"
 
-    def get_user_info(self, _access_token: str) -> UserInfo:
+    def get_user_info(self, _access_token: str) -> UserInfo:  # pragma: no cover
         return UserInfo(
             user_id='',
             email='',
             name='',
             avatar=''
         )
-
-
-class _TokenUrlTester:
-    def __init__(self, provider: Provider, **kwargs: str):
-        self.provider = provider
-        self.kwargs = kwargs
-
-    def payload(self):
-        return utils.token_request_payload(provider=self.provider, **self.kwargs)

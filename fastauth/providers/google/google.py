@@ -18,9 +18,6 @@ from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
-from fastauth.utils import token_request_payload
-from httpx import post, get
-from httpx import Response as HttpxResponse
 
 SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
 
@@ -137,28 +134,3 @@ class Google(Provider):
             if self.debug:
                 raise schema_validation_error
             return None
-
-    def _user_info_request(self, *, access_token: str) -> HttpxResponse:
-        return get(
-            url=self.userInfo,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {access_token}",
-            },
-        )
-
-    def _access_token_request(
-        self, *, code_verifier: str, code: str, state: str
-    ) -> HttpxResponse:
-        return post(
-            headers={
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            url=self.tokenUrl,
-            data=token_request_payload(
-                provider=self,
-                code=code,
-                state=state,
-                code_verifier=code_verifier,
-            ),
-        )
