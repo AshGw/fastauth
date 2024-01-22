@@ -9,8 +9,6 @@ class SpotifyUserInfo(UserInfo):
     extras: _SpotifyUserExtraInfo
 
 
-
-
 class SpotifyUserJSONData(BaseModel, extra=Extra.allow):
     display_name: str
     external_urls: _ExternalURLs
@@ -27,9 +25,11 @@ class SpotifyAccessTokenResponse(BaseModel):
     refresh_token: str
     scope: str
 
+
 class _SpotifyUserExtraInfo(TypedDict):
     spotify_url: str
     type: str
+
 
 class _ProfileImage(BaseModel):
     url: HttpUrl
@@ -44,7 +44,7 @@ class _ExternalURLs(BaseModel, extra=Extra.ignore):
 def serialize_user_info(data: ProviderJSONResponse) -> SpotifyUserInfo:
     user_data = SpotifyUserJSONData.parse_obj(data)
     if user_data.images and any(user_data.images):
-        avatar_url = user_data.images.pop().url # the second image is just bigger
+        avatar_url = user_data.images.pop().url  # the second image is just bigger
     else:
         avatar_url = None
     return SpotifyUserInfo(
