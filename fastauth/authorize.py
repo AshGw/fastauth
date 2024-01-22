@@ -9,9 +9,9 @@ from fastauth.utils import (
 
 
 class Authorize:
-    def __init__(self, *, provider: Provider, req: OAuthRequest):
+    def __init__(self, *, provider: Provider, request: OAuthRequest) -> None:
         self.provider = provider
-        self.req = req
+        self.request = request
         self.oauth_params = gen_oauth_params()
         self.res = self.provider.redirect(
             state=self.oauth_params.state,
@@ -26,11 +26,11 @@ class Authorize:
             max_age=max_age,
             httponly=True,
             samesite="lax",
-            secure=self.req.url.is_secure,
+            secure=self.request.url.is_secure,
             path="/",
         )
 
-    def set_cookies(self):
+    def set_cookies(self) -> None:
         self._set_cookie(
             Cookies.State.name, self.oauth_params.state, Cookies.State.max_age
         )
