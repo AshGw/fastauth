@@ -151,6 +151,9 @@ class Google(Provider):
         self, *, code_verifier: str, code: str, state: str
     ) -> HttpxResponse:
         return post(
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
             url=self.tokenUrl,
             data=token_request_payload(
                 provider=self,
