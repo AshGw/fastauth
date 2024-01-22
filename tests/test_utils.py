@@ -15,7 +15,7 @@ def test_csrf():
     assert isinstance(token, str)
 
 
-def test_querify_kwargst():
+def test_querify_kwargst() -> None:
     kwargs: QueryParams = {
         "grant_type": "grant_type",
         "client_id": "client_id",
