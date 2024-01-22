@@ -7,7 +7,7 @@ from unittest.mock import patch
 from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
-from jose.exceptions import JWEError, JWEParseError
+from jose.exceptions import JWEError, JWEParseError # type: ignore
 from fastauth.data import Cookies
 from fastauth.utils import auth_cookie_name
 from fastauth.jwts.operations import encipher_user_info
