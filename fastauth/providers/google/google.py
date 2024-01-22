@@ -66,7 +66,9 @@ class Google(Provider):
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
-        self.logger.info(f"Requesting the access token from {self.provider}'s authorization server")
+        self.logger.info(
+            f"Requesting the access token from {self.provider}'s authorization server"
+        )
         response = self._access_token_request(
             code_verifier=code_verifier, code=code, state=state
         )
@@ -75,7 +77,9 @@ class Google(Provider):
 
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
-                provider=self.provider, debug=True,provider_response_data=provider_response_data
+                provider=self.provider,
+                debug=True,
+                provider_response_data=provider_response_data,
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
@@ -99,11 +103,15 @@ class Google(Provider):
             return None
 
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
-        self.logger.info(f"Requesting the user information from the {self.provider}'s resource server")
+        self.logger.info(
+            f"Requesting the user information from the {self.provider}'s resource server"
+        )
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
-                provider=self.provider,debug=True, provider_response_data=response.json()
+                provider=self.provider,
+                debug=True,
+                provider_response_data=response.json(),
             )
             self.logger.warning(resource_access_error)
             if self.debug:

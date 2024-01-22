@@ -17,7 +17,7 @@ _F = TypeVar("_F", bound=Callable[..., Any])
 
 QueryParams = MutableMapping[str, str]
 
-ProviderJSONResponse = Mapping[Any,Any]
+ProviderJSONResponse = Mapping[Any, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 

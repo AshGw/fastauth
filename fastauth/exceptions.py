@@ -1,6 +1,7 @@
 from fastauth.types import ProviderResponse
 from pydantic import ValidationError
 
+
 class WrongKeyLength(Exception):
     def __init__(self) -> None:
         super().__init__("Key length must be exactly 32 bit")
@@ -61,10 +62,9 @@ class InvalidTokenAcquisitionRequest(Exception):
         super().__init__(self.display)
 
 
-
 class InvalidUserInfoAccessRequest(Exception):
     def __init__(
-        self, *, provider: str,debug: bool ,provider_response_data: ProviderResponse
+        self, *, provider: str, debug: bool, provider_response_data: ProviderResponse
     ) -> None:
         self.display = (
             "The request for the resource is invalid, "
