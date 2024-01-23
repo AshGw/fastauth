@@ -8,6 +8,7 @@ from fastauth.data import CookiesData
 from fastauth.utils import auth_cookie_name
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
+from fastauth.cookies import Cookie
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
 
@@ -16,15 +17,18 @@ class JWTHandler:
     def __init__(
         self,
         *,
-        req: OAuthRequest,
+        request: OAuthRequest,
+        response: OAuthResponse,
         secret: str,
         logger: Logger,
         debug: bool,
     ) -> None:
         self.logger = logger
-        self.req = req
+        self.req = request
         self.secret = secret
         self.debug = debug
+        self.cookie = Cookie(request=request,response=response)
+
 
     def get_jwt(self) -> OAuthResponse:
         encrypted_jwt: Optional[str] = self.req.cookies.get(

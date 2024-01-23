@@ -1,4 +1,5 @@
 from __future__ import annotations
+from fastauth.responses import OAuthResponse, OAuthRedirectResponse
 from typing import (
     Any,
     Callable,
@@ -21,6 +22,7 @@ ProviderJSONResponse = Mapping[Any, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 
+BaseOAuthResponse = Union[OAuthRedirectResponse, OAuthResponse]
 
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]

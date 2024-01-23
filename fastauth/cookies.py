@@ -1,6 +1,7 @@
-from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
+from fastauth.types import BaseOAuthResponse
 from typing import Optional, Literal
+
 
 
 class Cookie:
@@ -12,7 +13,7 @@ class Cookie:
     def __init__(
         self,
         request: OAuthRequest,
-        response: OAuthRedirectResponse,
+        response: BaseOAuthResponse,
     ) -> None:
         self.request = request
         self.response = response
