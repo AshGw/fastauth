@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastauth.providers.base import Provider
-from fastauth.data import Cookies
+from fastauth.data import CookiesData
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.utils import auth_cookie_name, gen_oauth_params
@@ -31,14 +31,14 @@ class Authorize:
 
     def set_cookies(self) -> None:
         self._set_cookie(
-            name=Cookies.State.name,
+            name=CookiesData.State.name,
             value=self.oauth_params.state,
-            max_age=Cookies.State.max_age,
+            max_age=CookiesData.State.max_age,
         )
         self._set_cookie(
-            name=Cookies.Codeverifier.name,
+            name=CookiesData.Codeverifier.name,
             value=self.oauth_params.code_verifier,
-            max_age=Cookies.Codeverifier.max_age,
+            max_age=CookiesData.Codeverifier.max_age,
         )
 
     def __call__(self) -> OAuthRedirectResponse:

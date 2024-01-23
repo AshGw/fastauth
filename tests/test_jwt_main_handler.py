@@ -8,7 +8,7 @@ from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
 from jose.exceptions import JWEError, JWEParseError  # type: ignore
-from fastauth.data import Cookies
+from fastauth.data import CookiesData
 from fastauth.utils import auth_cookie_name
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.types import UserInfo, ViewableJWT
@@ -88,7 +88,7 @@ def test_with_no_jwt():
 class _TestData:
     logger = logging.Logger("fastauth")
     debug = False
-    jwt_cookie_name = auth_cookie_name(cookie_name=Cookies.JWT.name)
+    jwt_cookie_name = auth_cookie_name(cookie_name=CookiesData.JWT.name)
     encrypted_jwt = encipher_user_info(
         user_info=UserInfo(
             avatar="...",

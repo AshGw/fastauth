@@ -3,11 +3,11 @@ from jose.jwt import decode as decode_jwt
 from jose.jwt import ALGORITHMS
 from jose.jwe import encrypt, decrypt  # type: ignore
 from datetime import datetime, timedelta
-from fastauth.data import Cookies
+from fastauth.data import CookiesData
 from fastauth.jwts.helpers import validate_key
 from fastauth.types import JWT, UserInfo
 
-JWT_MAX_AGE = Cookies.JWT.max_age
+JWT_MAX_AGE = CookiesData.JWT.max_age
 JWT_ALGORITHM = ALGORITHMS.HS256
 JWE_ALGORITHM = ALGORITHMS.A256GCM
 ISSUER = "fastauth"

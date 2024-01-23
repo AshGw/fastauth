@@ -4,7 +4,7 @@ from logging import Logger
 
 from jose.exceptions import JOSEError  # type: ignore
 
-from fastauth.data import Cookies
+from fastauth.data import CookiesData
 from fastauth.utils import auth_cookie_name
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
@@ -28,7 +28,7 @@ class JWTHandler:
 
     def get_jwt(self) -> OAuthResponse:
         encrypted_jwt: Optional[str] = self.req.cookies.get(
-            auth_cookie_name(cookie_name=Cookies.JWT.name)
+            auth_cookie_name(cookie_name=CookiesData.JWT.name)
         )
         if encrypted_jwt:
             try:
