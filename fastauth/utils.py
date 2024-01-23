@@ -5,8 +5,8 @@ from typing import Optional
 from fastauth.types import OAuthParams, QueryParams
 
 
-def auth_cookie_name(*, cookie_name: str) -> str:
-    return "fastauth" + "." + cookie_name
+def name_cookie(*, name: str) -> str:
+    return "fastauth" + "." + name
 
 
 def gen_oauth_params() -> OAuthParams:

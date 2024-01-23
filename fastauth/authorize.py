@@ -10,12 +10,12 @@ class Authorize:
     def __init__(self, *, provider: Provider, request: OAuthRequest) -> None:
         self.provider = provider
         self.oauth_params = gen_oauth_params()
-        self.response = self.provider.authorize(
+        self.grant_redirection_response = self.provider.authorize(
             state=self.oauth_params.state,
             code_challenge=self.oauth_params.code_challenge,
             code_challenge_method=self.oauth_params.code_challenge_method,
         )
-        self.cookie = Cookie(request=request, response=self.response)
+        self.cookie = Cookie(request=request, response=self.grant_redirection_response)
 
     def set_state_cookie(self) -> None:
         self.cookie.set(
@@ -34,4 +34,4 @@ class Authorize:
     def __call__(self) -> OAuthRedirectResponse:
         self.set_state_cookie()
         self.set_code_verifier_cookie()
-        return self.response
+        return self.grant_redirection_response
