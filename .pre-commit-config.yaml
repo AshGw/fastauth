@@ -13,4 +13,4 @@ repos:
     rev: v0.1.4
     hooks:
       - id: ruff
-        args: [--exit-non-zero-on-fix, --fix-only, '--config', 'pyproject.toml']
+        args: [--exit-non-zero-on-fix, --fix-only]

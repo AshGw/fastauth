@@ -54,14 +54,15 @@ class Callback:
         else:
             return True
 
-
     def check_code_verifier(self) -> bool:
         """
         Here we check if the cookie holding it has not been deleted somehow
         :return:
         """
         if (
-            self.req.cookies.get(auth_cookie_name(cookie_name=Cookies.Codeverifier.name))
+            self.req.cookies.get(
+                auth_cookie_name(cookie_name=Cookies.Codeverifier.name)
+            )
             is None
         ):
             err = InvalidState()
