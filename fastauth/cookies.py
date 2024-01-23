@@ -6,7 +6,7 @@ from typing import Optional, Literal
 class Cookie:
     http_only = True
     samesite: Literal["lax", "strict", "none"] = "lax"
-    domain = None  # no subdomains
+    domain = None
     path = "/"
 
     def __init__(
