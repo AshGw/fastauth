@@ -68,8 +68,7 @@ class InvalidUserInfoAccessRequest(Exception):
     ) -> None:
         self.display = (
             "The request for the resource is invalid, "
-            "it's either due to an invalid/expired `access_token` "
-            "or the wrong `Content-Type` header. "
+            "usually due to an invalid/expired `access_token` "
         )
         if debug:
             self.display = (

@@ -4,7 +4,7 @@ from fastauth.providers.base import Provider
 from fastauth.data import Cookies
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.utils import auth_cookie_name, gen_oauth_params, gen_csrf_token
+from fastauth.utils import auth_cookie_name, gen_oauth_params
 
 
 class Authorize:
@@ -39,11 +39,6 @@ class Authorize:
             name=Cookies.Codeverifier.name,
             value=self.oauth_params.code_verifier,
             max_age=Cookies.Codeverifier.max_age,
-        )
-        self._set_cookie(
-            name=Cookies.CSRFToken.name,
-            value=gen_csrf_token(),
-            max_age=Cookies.CSRFToken.max_age,
         )
 
     def __call__(self) -> OAuthRedirectResponse:

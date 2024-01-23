@@ -8,7 +8,7 @@ from fastauth.providers.google.schemas import (
     serialize_user_info,
     serialize_access_token,
 )
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidUserInfoAccessRequest,
