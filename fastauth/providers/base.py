@@ -40,7 +40,7 @@ class Provider(ABC):
         self.logger = logger
 
     @abstractmethod
-    def redirect(
+    def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:
         ...
@@ -55,15 +55,12 @@ class Provider(ABC):
     def get_user_info(self, access_token: str) -> Optional[UserInfo]:
         ...
 
-
     @final
     def _access_token_request(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
     ) -> HttpxResponse:
         return post(
-            headers={
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
             url=self.tokenUrl,
             data=self._token_request_payload(
                 code=code,

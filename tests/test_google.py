@@ -28,7 +28,7 @@ client_secret: str = cast(str, getenv("GOOGLE_CLIENT_SECRET"))
 redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 google = Google(
-    client_id= client_id,
+    client_id=client_id,
     client_secret=client_secret,
     redirect_uri=redirect_uri,
     logger=getLogger("..."),

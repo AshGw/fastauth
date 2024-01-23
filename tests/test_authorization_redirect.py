@@ -25,7 +25,7 @@ class MockProvider(Provider):
             logger=logger,
         )
 
-    def redirect(
+    def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ):  # pragma: no cover
         ...

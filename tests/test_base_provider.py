@@ -13,24 +13,24 @@ def test_base_redirect_url():
         redirect_uri="https://example.com",
     )
     payload = mp._token_request_payload(
-        code='code',
-        code_verifier='code_verifier',
-        state='state',
+        code="code",
+        code_verifier="code_verifier",
+        state="state",
         service="exampleService",
         access_type="offline",
         scope="openid%20profile%20email",
     )
-    assert payload== {
-      'access_type': 'offline',
-      'client_id': 'client_id',
-      'client_secret': 'client_secret',
-      'code': 'code',
-      'code_verifier': 'code_verifier',
-      'grant_type': 'authorization_code',
-      'redirect_uri': 'https://example.com',
-      'scope': 'openid%20profile%20email',
-      'service': 'exampleService',
-      'state': 'state',
+    assert payload == {
+        "access_type": "offline",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "code": "code",
+        "code_verifier": "code_verifier",
+        "grant_type": "authorization_code",
+        "redirect_uri": "https://example.com",
+        "scope": "openid%20profile%20email",
+        "service": "exampleService",
+        "state": "state",
     }
 
 
@@ -53,18 +53,15 @@ class _MockPovider(Provider):
             logger=logger,
         )
 
-    def redirect(
-        self, *,state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse: # pragma: no cover
+    def authorize(
+        self, *, state: str, code_challenge: str, code_challenge_method: str
+    ) -> OAuthRedirectResponse:  # pragma: no cover
         return OAuthRedirectResponse("/")
 
-    def get_access_token(self, *, code_verifier: str, code: str, state: str) -> str:  # pragma: no cover
+    def get_access_token(
+        self, *, code_verifier: str, code: str, state: str
+    ) -> str:  # pragma: no cover
         return "none"
 
     def get_user_info(self, _access_token: str) -> UserInfo:  # pragma: no cover
-        return UserInfo(
-            user_id='',
-            email='',
-            name='',
-            avatar=''
-        )
+        return UserInfo(user_id="", email="", name="", avatar="")

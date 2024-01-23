@@ -12,7 +12,7 @@ class Authorize:
         self.provider = provider
         self.request = request
         self.oauth_params = gen_oauth_params()
-        self.res = self.provider.redirect(
+        self.res = self.provider.authorize(
             state=self.oauth_params.state,
             code_challenge=self.oauth_params.code_challenge,
             code_challenge_method=self.oauth_params.code_challenge_method,

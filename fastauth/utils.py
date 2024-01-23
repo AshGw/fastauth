@@ -30,7 +30,6 @@ def querify_kwargs(kwargs: Optional[QueryParams] = None) -> str:
     return f"&{query_string}"
 
 
-
 def base_redirect_url(
     *,
     response_type: str,
