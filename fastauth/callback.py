@@ -41,9 +41,7 @@ class _CallbackPrep:
 
     def _is_state_valid(self) -> bool:
         if (
-            self.cookie.get(
-                auth_cookie_name(cookie_name=CookiesData.State.name)
-            )
+            self.cookie.get(auth_cookie_name(cookie_name=CookiesData.State.name))
             != self.state
         ):
             err = InvalidState()

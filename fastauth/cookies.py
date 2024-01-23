@@ -3,7 +3,6 @@ from fastauth.types import BaseOAuthResponse
 from typing import Optional, Literal
 
 
-
 class Cookie:
     http_only = True
     samesite: Literal["lax", "strict", "none"] = "lax"

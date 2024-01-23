@@ -28,10 +28,14 @@ def test_with_jwt_existence():
         new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
     ):
         req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"":""})
+        res = OAuthResponse(content={"": ""})
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
         handler = JWTHandler(
-            request=req, response=res, secret=_SECRET_KEY, debug=True, logger=data.logger
+            request=req,
+            response=res,
+            secret=_SECRET_KEY,
+            debug=True,
+            logger=data.logger,
         )
         handler.get_jwt()  #
 
@@ -44,11 +48,15 @@ def test_with_altered_jwe_secret():
         new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
     ):
         req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"":""})
+        res = OAuthResponse(content={"": ""})
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
         with pytest.raises(JWEError):
             JWTHandler(
-                request=req,response=res, secret=_SECRET_KEY2, debug=True, logger=data.logger
+                request=req,
+                response=res,
+                secret=_SECRET_KEY2,
+                debug=True,
+                logger=data.logger,
             ).get_jwt()
 
 
@@ -62,12 +70,16 @@ def test_with_altered_jwe():
         },  # alter the last char
     ):
         req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"":""})
+        res = OAuthResponse(content={"": ""})
 
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt[:-1]}
         with pytest.raises(JWEParseError):
             JWTHandler(
-                request=req, response=res,secret=_SECRET_KEY2, debug=True, logger=data.logger
+                request=req,
+                response=res,
+                secret=_SECRET_KEY2,
+                debug=True,
+                logger=data.logger,
             ).get_jwt()
 
 
@@ -75,10 +87,14 @@ def test_with_no_jwt():
     data = _TestData()
     with patch.object(OAuthRequest, attribute="cookies", new_callable=lambda: {}):
         req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"":""})
+        res = OAuthResponse(content={"": ""})
         assert req.cookies.get(data.jwt_cookie_name) is None
         handler = JWTHandler(
-            request=req,response=res ,secret=_SECRET_KEY, debug=True, logger=data.logger
+            request=req,
+            response=res,
+            secret=_SECRET_KEY,
+            debug=True,
+            logger=data.logger,
         )
         actual_response = handler.get_jwt()
         expected_response = OAuthResponse(

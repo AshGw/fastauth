@@ -24,6 +24,7 @@ ProviderResponse = Union[ProviderJSONResponse, str]
 
 BaseOAuthResponse = Union[OAuthRedirectResponse, OAuthResponse]
 
+
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]
 

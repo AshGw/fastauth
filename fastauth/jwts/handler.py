@@ -27,8 +27,7 @@ class JWTHandler:
         self.req = request
         self.secret = secret
         self.debug = debug
-        self.cookie = Cookie(request=request,response=response)
-
+        self.cookie = Cookie(request=request, response=response)
 
     def get_jwt(self) -> OAuthResponse:
         encrypted_jwt: Optional[str] = self.req.cookies.get(
