@@ -14,12 +14,14 @@ ISSUER = "fastauth"
 SUBJECT = "client"
 
 
-def encipher_user_info(user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE) -> str:
+def encipher_user_info(
+    user_info: UserInfo, key: str, max_age: int = JWT_MAX_AGE
+) -> str:
     """
     Encrypts a given user-info payload and returns an encrypted JWT.
     :param user_info: The UserInfo payload
     :param key: The secret key for the entire oauth flow
-    :param exp: expiry date of jwt
+    :param max_age: how long in seconds till the JWT is marked expired
     :raises: JOSEError
     :return: The encrypted JWT
     """
@@ -30,7 +32,7 @@ def encipher_user_info(user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE) ->
             iss=ISSUER,
             sub=SUBJECT,
             iat=now,
-            exp=now + timedelta(seconds=exp),
+            exp=now + timedelta(seconds=max_age),
             user_info=user_info,
         ),
         key=key[:32],

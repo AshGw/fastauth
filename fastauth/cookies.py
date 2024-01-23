@@ -17,11 +17,12 @@ class Cookie:
         self.request = request
         self.response = response
 
-    def set_cookie(
+    def set(
         self,
+        *,
         key: str,
-        value: str = "",
-        max_age: Optional[int] = None,
+        value: str,
+        max_age: Optional[int],
     ) -> None:
         self.response.set_cookie(
             key=key,

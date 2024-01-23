@@ -20,18 +20,28 @@ from typing import Optional
 # application/octet-stream
 
 
-class _CallbackPrerequisites:
+class _CallbackPrep:
     def __init__(
-        self, request: OAuthRequest, state: str, logger: Logger, debug: bool
+        self,
+        request: OAuthRequest,
+        secret: str,
+        state: str,
+        post_signin_uri: str,
+        error_uri: str,
+        logger: Logger,
+        debug: bool,
     ) -> None:
-        self.request = request
+        self.secret = secret
         self.logger = logger
         self.state = state
         self.debug = debug
+        self.success_response = OAuthRedirectResponse(post_signin_uri)
+        self.error_response = OAuthRedirectResponse(error_uri)
+        self.cookie = Cookie(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
         if (
-            self.request.cookies.get(
+            self.cookie.get(
                 auth_cookie_name(cookie_name=CookiesData.State.name)
             )
             != self.state
@@ -45,7 +55,7 @@ class _CallbackPrerequisites:
             return True
 
     def _get_code_verifier(self) -> Optional[str]:
-        code_verifier: Optional[str] = self.request.cookies.get(
+        code_verifier: Optional[str] = self.cookie.get(
             auth_cookie_name(cookie_name=CookiesData.Codeverifier.name)
         )
         if code_verifier is None:
@@ -57,8 +67,25 @@ class _CallbackPrerequisites:
         else:
             return code_verifier
 
+    def set_jwt(self, user_info: UserInfo) -> None:
+        expires_in: int = CookiesData.JWT.max_age
+        self.cookie.set(
+            key=auth_cookie_name(cookie_name=CookiesData.JWT.name),
+            value=encipher_user_info(
+                user_info=user_info, key=self.secret, max_age=expires_in
+            ),
+            max_age=expires_in,
+        )
 
-class Callback(_CallbackPrerequisites):
+    def set_csrf_token(self) -> None:
+        self.cookie.set(
+            key=auth_cookie_name(cookie_name=CookiesData.CSRFToken.name),
+            value=gen_csrf_token(),
+            max_age=CookiesData.CSRFToken.max_age,
+        )
+
+
+class Callback(_CallbackPrep):
     def __init__(
         self,
         *,
@@ -68,20 +95,21 @@ class Callback(_CallbackPrerequisites):
         code: str,
         state: str,
         secret: str,
-        jwt_max_age: int,
         logger: Logger,
         request: OAuthRequest,
         debug: bool,
     ) -> None:
-        super().__init__(request, state, logger, debug)
+        super().__init__(
+            request=request,
+            secret=secret,
+            state=state,
+            logger=logger,
+            debug=debug,
+            post_signin_uri=post_signin_uri,
+            error_uri=error_uri,
+        )
         self.provider = provider
-        self.post_signin_uri = post_signin_uri
-        self.error_uri = error_uri
         self.code = code
-        self.secret = secret
-        self.jwt_max_age = jwt_max_age
-        self.res = OAuthRedirectResponse(self.post_signin_uri)
-        self.cookie = Cookie(request=self.request, response=self.res)
 
     def get_user_info(self) -> Optional[UserInfo]:
         valid_state: bool = self._is_state_valid()
@@ -98,34 +126,10 @@ class Callback(_CallbackPrerequisites):
         user_info: Optional[UserInfo] = self.provider.get_user_info(access_token)
         return user_info
 
-    def set_jwt(self, user_info: UserInfo) -> None:
-        self.res.set_cookie(
-            key=auth_cookie_name(cookie_name=CookiesData.JWT.name),
-            value=encipher_user_info(
-                user_info=user_info, key=self.secret, exp=self.jwt_max_age
-            ),
-            httponly=True,
-            secure=self.request.url.is_secure,
-            path="/",
-            samesite="lax",
-            max_age=self.jwt_max_age,
-        )
-
-    def set_csrf_token(self) -> None:
-        self.res.set_cookie(
-            key=auth_cookie_name(cookie_name=CookiesData.CSRFToken.name),
-            value=gen_csrf_token(),
-            httponly=True,
-            secure=self.request.url.is_secure,
-            path="/",
-            samesite="lax",
-            max_age=None,
-        )
-
     def __call__(self) -> OAuthRedirectResponse:
         user_info: Optional[UserInfo] = self.get_user_info()
         if not user_info:
-            return OAuthRedirectResponse(url=self.error_uri)
+            return self.error_response
         self.set_jwt(user_info=user_info)
         self.set_csrf_token()
-        return self.res
+        return self.success_response
