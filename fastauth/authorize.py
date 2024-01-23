@@ -15,15 +15,16 @@ class Authorize:
             code_challenge=self.oauth_params.code_challenge,
             code_challenge_method=self.oauth_params.code_challenge_method,
         )
-        self.cookie = Cookie(request=request,response=self.response)
+        self.cookie = Cookie(request=request, response=self.response)
 
-    def set_state_cookie(self):
+    def set_state_cookie(self) -> None:
         self.cookie.set(
             key=CookiesData.State.name,
             value=self.oauth_params.state,
             max_age=CookiesData.State.max_age,
         )
-    def set_code_verifier_cookie(self):
+
+    def set_code_verifier_cookie(self) -> None:
         self.cookie.set(
             key=CookiesData.Codeverifier.name,
             value=self.oauth_params.code_verifier,
