@@ -49,8 +49,7 @@ class _CallbackPrep:
             if self.debug:
                 raise err
             return False
-        else:
-            return True
+        return True
 
     def _get_code_verifier(self) -> Optional[str]:
         code_verifier: Optional[str] = self.cookie.get(
@@ -62,8 +61,7 @@ class _CallbackPrep:
             if self.debug:
                 raise err
             return None
-        else:
-            return code_verifier
+        return code_verifier
 
     def set_jwt(self, user_info: UserInfo) -> None:
         expires_in: int = CookiesData.JWT.max_age
