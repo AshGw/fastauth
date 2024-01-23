@@ -5,8 +5,9 @@ from fastauth.utils import auth_cookie_name, gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.exceptions import InvalidState, InvalidCodeVerifier
-
+from fastauth.exceptions import InvalidState, CodeVerifierNotFound
+from fastauth.types import UserInfo
+from typing import Optional
 
 #  application/x-www-form-urlencoded
 #  multipart/form-data
@@ -35,7 +36,7 @@ class Callback:
         self.code = code
         self.state = state
         self.secret = secret
-        self.max_age = jwt_max_age
+        self.jwt_max_age = jwt_max_age
         self.logger = logger
         self.req = req
         self.debug = debug
@@ -54,36 +55,33 @@ class Callback:
         else:
             return True
 
-    def check_code_verifier(self) -> bool:
-        """
-        Here we check if the cookie holding it has not been deleted somehow
-        :return:
-        """
-        if (
-            self.req.cookies.get(
+    def get_code_verifier(self) -> Optional[str]:
+        code_verifier: Optional[str] = self.req.cookies.get(
                 auth_cookie_name(cookie_name=Cookies.Codeverifier.name)
             )
+        if (
+            code_verifier
             is None
         ):
-            err = InvalidState()
+            err = CodeVerifierNotFound()
             self.logger.error(err)
             if self.debug:
                 raise err
-            return False
+            return None
         else:
-            return True
+            return code_verifier
 
-    def get_user_info(self) -> dict:
-        code_verifier: str | None = self.req.cookies.get(
-            auth_cookie_name(cookie_name=Cookies.Codeverifier.name)
-        )
+    def get_user_info(self) -> Optional[UserInfo]:
+        code_verifier: Optional[str] =  self.get_code_verifier()
         if code_verifier is None:
-            raise InvalidCodeVerifier()
-            # TODO: error redirecting error flow
-        access_token = self.provider.get_access_token(
+            return None
+        access_token: Optional[str] = self.provider.get_access_token(
             code_verifier=code_verifier, code=self.code, state=self.state
         )
-        return self.provider.get_user_info(access_token)
+        if access_token is None:
+            return None
+        user_info: Optional[UserInfo] = self.provider.get_user_info(access_token)
+        return user_info
 
     def set_cookie(self, name: str, value: str) -> None:
         self.res.set_cookie(
@@ -93,17 +91,30 @@ class Callback:
             secure=self.req.url.is_secure,
             path="/",
             samesite="lax",
-            max_age=self.max_age,
+            max_age=self.jwt_max_age,
         )
 
-    def set_jwt(self, user_info: dict) -> None:
-        self.set_cookie(
-            Cookies.JWT.name,
-            encipher_user_info(payload=user_info, key=self.secret, exp=self.max_age),
+    def set_jwt(self, user_info: UserInfo) -> None:
+        self.res.set_cookie(
+            key=auth_cookie_name(cookie_name=Cookies.JWT.name),
+            value=encipher_user_info(user_info=user_info, key=self.secret, exp=self.jwt_max_age),
+            httponly=True,
+            secure=self.req.url.is_secure,
+            path="/",
+            samesite="lax",
+            max_age=self.jwt_max_age,
         )
 
     def set_csrf_token(self) -> None:
-        self.set_cookie(Cookies.CSRFToken.name, gen_csrf_token())
+        self.res.set_cookie(
+            key=auth_cookie_name(cookie_name=Cookies.CSRFToken.name),
+            value=gen_csrf_token(),
+            httponly=True,
+            secure=self.req.url.is_secure,
+            path="/",
+            samesite="lax",
+            max_age=None,
+        )
 
     def redirect(self) -> OAuthRedirectResponse:
         from json import dump

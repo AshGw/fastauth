@@ -39,7 +39,7 @@ class InvalidState(Exception):
 
 class CodeVerifierNotFound(Exception):
     def __init__(self) -> None:
-        self.display = "The code verifier could not be retrieved from the cookie"
+        self.display = "The code verifier could not be retrieved from the cookie, the user might have deleted the cookie"
         super().__init__(self.display)
 
 
