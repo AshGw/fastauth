@@ -1,16 +1,16 @@
-from fastauth.types import UserInfo
-from fastauth.providers.base import Provider
-from fastauth.responses import OAuthRedirectResponse
+from .utils import MockPovider
 from logging import getLogger
 
-logger = getLogger("...")
+logger = getLogger(__name__)
 
 
 def test_base_redirect_url():
-    mp = _MockPovider(
+    mp = MockPovider(
         client_id="client_id",
         client_secret="client_secret",
         redirect_uri="https://example.com",
+        debug=True,
+        logger=logger,
     )
     payload = mp._token_request_payload(
         code="code",
@@ -32,36 +32,3 @@ def test_base_redirect_url():
         "service": "exampleService",
         "state": "state",
     }
-
-
-class _MockPovider(Provider):
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        redirect_uri: str,
-    ):
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            redirect_uri=redirect_uri,
-            authorizationUrl="authorizationUrl",
-            tokenUrl="https://example.com/token",
-            userInfo="https://example.com/info",
-            provider="Mock",
-            debug=True,
-            logger=logger,
-        )
-
-    def authorize(
-        self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:  # pragma: no cover
-        return OAuthRedirectResponse("/")
-
-    def get_access_token(
-        self, *, code_verifier: str, code: str, state: str
-    ) -> str:  # pragma: no cover
-        return "none"
-
-    def get_user_info(self, _access_token: str) -> UserInfo:  # pragma: no cover
-        return UserInfo(user_id="", email="", name="", avatar="")
