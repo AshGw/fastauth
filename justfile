@@ -1,32 +1,28 @@
 @help:
     just --list
 
-@install:
+@i:
     chmod +x ./scripts/install
     ./scripts/install
 
-@lint:
+@l:
     ./scripts/lint
 
-
-@format:
+@f:
     ./scripts/format
+
+@t:
+    ./scripts/test
+
+@cov:
+    ./scripts/coverage
 
 @clean:
     ./scripts/clean
 
-@coverage:
-    ./scripts/coverage
-
-@test:
-    ./scripts/test
-
-@set-pre-push:
-    ./scripts/pre-push
-
-@set-pre-commit:
+@set-hooks:
     ./scripts/pre-commit
-
+    ./scripts/pre-push
 
 @serve-app:
     uvicorn app.app:app --reload --port=6969
@@ -37,5 +33,5 @@
 @build-docs:
     mkdocs build
 
-@sys-info:
-  @echo "Running on {{arch()}} machine".
+@info:
+  echo "Running on {{arch()}} machine".
