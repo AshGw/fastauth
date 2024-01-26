@@ -4,7 +4,7 @@ from fastauth.responses import OAuthRedirectResponse
 from logging import Logger
 
 
-class MockPovider(Provider):
+class MockProvider(Provider):
     def __init__(
         self,
         client_id: str,

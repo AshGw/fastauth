@@ -107,7 +107,7 @@ def test_with_no_jwt():
 
 @dataclass
 class _TestData:
-    logger = logging.Logger("fastauth")
+    logger = logging.Logger(__name__)
     debug = False
     jwt_cookie_name = name_cookie(name=CookiesData.JWT.name)
     encrypted_jwt = encipher_user_info(

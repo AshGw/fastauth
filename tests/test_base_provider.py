@@ -1,11 +1,11 @@
-from .utils import MockPovider
+from .utils import MockProvider
 from logging import getLogger
 
 logger = getLogger(__name__)
 
 
 def test_base_redirect_url():
-    mp = MockPovider(
+    mp = MockProvider(
         client_id="client_id",
         client_secret="client_secret",
         redirect_uri="https://example.com",
