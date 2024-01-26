@@ -1,7 +1,6 @@
-from logging import getLogger, Logger
+from fastauth.logger import logger
+from logging import Logger
 from .utils import MockProvider
-
-logger = getLogger(__name__)
 
 
 class _Provider(MockProvider):
@@ -39,7 +38,7 @@ def test_base_redirect_url():
         redirect_uri="https://example.com/redirect",
         client_secret="client_secret",
         debug=True,
-        logger=getLogger(__name__),
+        logger=logger,
     )
     assert p.get_token_request_payload == {
         "grant_type": p.grant_type,
