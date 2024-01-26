@@ -4,10 +4,10 @@ from typing import Optional, Literal
 
 
 class Cookie:
-    http_only = True
-    samesite: Literal["lax", "strict", "none"] = "lax"
-    domain = None
-    path = "/"
+    _http_only = True
+    _samesite: Literal["lax", "strict", "none"] = "lax"
+    _domain = None
+    _path = "/"
 
     def __init__(
         self,
@@ -28,11 +28,11 @@ class Cookie:
             key=key,
             value=value,
             max_age=max_age,
-            path=self.path,
-            domain=self.domain,
+            path=self._path,
+            domain=self._domain,
             secure=self._is_secure(),
-            httponly=self.http_only,
-            samesite=self.samesite,
+            httponly=self._http_only,
+            samesite=self._samesite,
         )
 
     def delete(
@@ -41,11 +41,11 @@ class Cookie:
     ) -> None:
         return self.response.delete_cookie(
             key=key,
-            path=self.path,
-            domain=self.domain,
+            path=self._path,
+            domain=self._domain,
             secure=self._is_secure(),
-            httponly=self.http_only,
-            samesite=self.samesite,
+            httponly=self._http_only,
+            samesite=self._samesite,
         )
 
     def get(self, key: str) -> Optional[str]:
