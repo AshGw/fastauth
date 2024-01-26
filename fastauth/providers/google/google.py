@@ -123,8 +123,9 @@ class Google(Provider):
 
         try:
             user_info: GoogleUserInfo = serialize_user_info(provider_response_data)
-            self.logger.info(f"User information acquired successfully from "
-                             f"{self.provider}")
+            self.logger.info(
+                f"User information acquired successfully from " f"{self.provider}"
+            )
             return user_info
 
         except ValidationError as ve:

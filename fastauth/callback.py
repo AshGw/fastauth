@@ -40,10 +40,7 @@ class _CallbackPrep:
         self.cookie = Cookie(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
-        if (
-            self.cookie.get(name_cookie(name=CookiesData.State.name))
-            != self.state
-        ):
+        if self.cookie.get(name_cookie(name=CookiesData.State.name)) != self.state:
             err = InvalidState()
             self.logger.error(err)
             if self.debug:
