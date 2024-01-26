@@ -13,13 +13,8 @@ from typing import (
     Union,
     Protocol,
     runtime_checkable,
+    ParamSpec,
 )
-
-try:
-    from typing import ParamSpec
-except ImportError:
-    from typing_extensions import ParamSpec  # type: ignore
-
 
 _F = TypeVar("_F", bound=Callable[..., Any])
 
