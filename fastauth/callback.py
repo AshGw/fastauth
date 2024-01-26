@@ -64,13 +64,13 @@ class _CallbackPrep:
         return code_verifier
 
     def set_jwt(self, user_info: UserInfo) -> None:
-        expires_in: int = CookiesData.JWT.max_age
+        max_age: int = CookiesData.JWT.max_age
         self.cookie.set(
             key=name_cookie(name=CookiesData.JWT.name),
             value=encipher_user_info(
-                user_info=user_info, key=self.secret, max_age=expires_in
+                user_info=user_info, key=self.secret, max_age=max_age
             ),
-            max_age=expires_in,
+            max_age=max_age,
         )
 
     def set_csrf_token(self) -> None:

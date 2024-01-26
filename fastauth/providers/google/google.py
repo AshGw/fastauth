@@ -1,6 +1,6 @@
 from typing import Optional
 from logging import Logger
-
+from overrides import override
 from fastauth.types import ProviderJSONResponse
 
 from fastauth.providers.google.schemas import (
@@ -43,11 +43,13 @@ class Google(Provider):
             logger=logger,
         )
 
+    @override
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:  # pragma: no cover
         self.logger.info(
-            f"Redirecting the client to the resource owner via the {self.provider} authorization server"
+            f"Redirecting the client to the resource owner via the {self.provider}"
+            f" authorization server"
         )
         return AuthGrantRedirect(
             provider=self,
@@ -60,6 +62,7 @@ class Google(Provider):
             flowName="GeneralOAuthFlow",
         )()
 
+    @override
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
@@ -70,21 +73,21 @@ class Google(Provider):
             code_verifier=code_verifier, code=code, state=state
         )
 
-        provider_response_data: ProviderJSONResponse = response.json()
+        response_data: ProviderJSONResponse = response.json()
 
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
                 provider=self.provider,
                 debug=True,
-                provider_response_data=provider_response_data,
+                provider_response_data=response_data,
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
                 raise token_acquisition_error
             return None
         try:
-            access_token: str = serialize_access_token(provider_response_data)
-            self.logger.info("Access token acquired successfully")
+            access_token: str = serialize_access_token(response_data)
+            self.logger.info(f"Access token acquired successfully from {self.provider}")
             return access_token
         except ValidationError as ve:
             schema_error = SchemaValidationError(
@@ -92,16 +95,17 @@ class Google(Provider):
                 resource="access token",
                 validation_error=ve,
                 debug=self.debug,
-                provider_response_data=provider_response_data,
+                provider_response_data=response_data,
             )
             self.logger.warning(schema_error)
             if self.debug:
                 raise schema_error
             return None
 
+    @override
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         self.logger.info(
-            f"Requesting the user information from the {self.provider}'s resource server"
+            f"Requesting user information from the {self.provider}'s resource server"
         )
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
@@ -119,7 +123,8 @@ class Google(Provider):
 
         try:
             user_info: GoogleUserInfo = serialize_user_info(provider_response_data)
-            self.logger.info("User information acquired successfully")
+            self.logger.info(f"User information acquired successfully from "
+                             f"{self.provider}")
             return user_info
 
         except ValidationError as ve:
