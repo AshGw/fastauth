@@ -1,7 +1,7 @@
 from typing import Optional
 from logging import Logger
 from overrides import override
-from fastauth.types import ProviderJSONResponse
+from fastauth._types import ProviderJSONResponse
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,

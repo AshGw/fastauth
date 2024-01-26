@@ -11,7 +11,7 @@ from jose.exceptions import JWEError, JWEParseError  # type: ignore
 from fastauth.data import CookiesData
 from fastauth.utils import name_cookie
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.types import UserInfo, ViewableJWT
+from fastauth._types import UserInfo, ViewableJWT
 from fastauth.data import StatusCode
 from fastauth.responses import OAuthResponse
 

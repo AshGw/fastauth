@@ -8,16 +8,8 @@ from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
-from fastauth.types import UserInfo
+from fastauth._types import UserInfo
 from typing import Optional
-
-
-#  application/x-www-form-urlencoded
-#  multipart/form-data
-#  text/plain
-# text/xml
-# application/xml
-# application/octet-stream
 
 
 class _CallbackPrep:

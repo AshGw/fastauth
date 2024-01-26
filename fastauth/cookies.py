@@ -1,5 +1,5 @@
 from fastauth.requests import OAuthRequest
-from fastauth.types import BaseOAuthResponse
+from fastauth._types import BaseOAuthResponse
 from typing import Optional, Literal
 
 

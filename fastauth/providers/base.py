@@ -4,7 +4,7 @@ from logging import Logger
 from httpx import post, get
 from httpx import Response as HttpxResponse
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.types import UserInfo, QueryParams
+from fastauth._types import UserInfo, QueryParams
 from typing import Dict, final
 
 

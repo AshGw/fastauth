@@ -1,4 +1,4 @@
-from fastauth.types import UserInfo
+from fastauth._types import UserInfo
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
 from logging import Logger

@@ -30,7 +30,7 @@ Source = 'https://github.com/ashgw/fastauth'
 Changelog = 'https://github.com/ashgw/fastauth/releases'
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 fastapi = "^0.93.0"
 python-jose = { version = "^3.1.0", extras = ["cryptography"] }
 httpx = "^0.23.2"

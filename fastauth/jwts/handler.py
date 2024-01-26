@@ -1,5 +1,5 @@
 from typing import Optional
-from fastauth.types import JWT, ViewableJWT
+from fastauth._types import JWT, ViewableJWT
 from logging import Logger
 
 from jose.exceptions import JOSEError  # type: ignore

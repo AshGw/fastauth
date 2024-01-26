@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 from fastauth.responses import OAuthResponse, OAuthRedirectResponse
 from typing import (
     Any,
@@ -10,15 +11,23 @@ from typing import (
     MutableMapping,
     Mapping,
     Union,
+    Protocol,
+    runtime_checkable,
 )
-from datetime import datetime
+
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec  # type: ignore
+
 
 _F = TypeVar("_F", bound=Callable[..., Any])
 
+_PSpec = ParamSpec("_PSpec")
 
 QueryParams = MutableMapping[str, str]
 
-ProviderJSONResponse = Mapping[Any, Any]
+ProviderJSONResponse = Mapping[str, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 
@@ -49,3 +58,16 @@ class OAuthParams(NamedTuple):
     code_verifier: str
     code_challenge: str
     code_challenge_method: str
+
+
+@runtime_checkable
+class Callbacks(Protocol):
+    def on_signin(
+        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
+    ) -> None:
+        ...
+
+    def sign_out(
+        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
+    ) -> None:
+        ...

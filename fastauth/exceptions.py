@@ -1,4 +1,4 @@
-from fastauth.types import ProviderResponse
+from fastauth._types import ProviderResponse
 from pydantic import ValidationError
 
 

@@ -1,6 +1,6 @@
 from uuid import uuid4
 from fastauth import utils
-from fastauth.types import QueryParams
+from fastauth._types import QueryParams
 
 
 def test_auth_cookie_name():
