@@ -26,7 +26,7 @@ ProviderJSONResponse = Mapping[str, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 
-BaseOAuthResponse = Union[OAuthRedirectResponse, OAuthResponse]
+OAuthBaseResponse = Union[OAuthRedirectResponse, OAuthResponse]
 
 
 class ViewableJWT(TypedDict):
