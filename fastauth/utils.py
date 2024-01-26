@@ -1,8 +1,8 @@
 from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
-from typing import Optional
 from fastauth._types import OAuthParams, QueryParams
+from typing import Optional
 
 
 def name_cookie(*, name: str) -> str:

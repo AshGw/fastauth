@@ -1,4 +1,4 @@
-from fastauth.logger import logger
+from fastauth.log import logger
 from logging import Logger
 from .utils import MockProvider
 

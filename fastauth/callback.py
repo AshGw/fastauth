@@ -12,17 +12,21 @@ from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackPrep:
+class _CallbackBase:
     def __init__(
         self,
-        request: OAuthRequest,
-        secret: str,
-        state: str,
+        provider: Provider,
         post_signin_uri: str,
         error_uri: str,
+        code: str,
+        state: str,
+        secret: str,
         logger: Logger,
+        request: OAuthRequest,
         debug: bool,
     ) -> None:
+        self.code = code
+        self.provider = provider
         self.secret = secret
         self.logger = logger
         self.state = state
@@ -70,7 +74,7 @@ class _CallbackPrep:
         )
 
 
-class Callback(_CallbackPrep):
+class Callback(_CallbackBase):
     def __init__(
         self,
         *,
@@ -85,16 +89,16 @@ class Callback(_CallbackPrep):
         debug: bool,
     ) -> None:
         super().__init__(
-            request=request,
-            secret=secret,
-            state=state,
-            logger=logger,
-            debug=debug,
+            provider=provider,
             post_signin_uri=post_signin_uri,
             error_uri=error_uri,
+            code=code,
+            state=state,
+            secret=secret,
+            logger=logger,
+            request=request,
+            debug=debug,
         )
-        self.provider = provider
-        self.code = code
 
     def get_user_info(self) -> Optional[UserInfo]:
         valid_state: bool = self._is_state_valid()

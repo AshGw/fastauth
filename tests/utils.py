@@ -2,6 +2,7 @@ from fastauth._types import UserInfo
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
 from logging import Logger
+from fastauth.log import log_action
 
 
 class MockProvider(Provider):
@@ -25,6 +26,7 @@ class MockProvider(Provider):
             logger=logger,
         )
 
+    @log_action
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:  # pragma: no cover
