@@ -1,6 +1,8 @@
 from typing import Optional
 from logging import Logger
 from overrides import override
+from pydantic import ValidationError
+
 from fastauth._types import ProviderJSONResponse
 
 from fastauth.providers.google.schemas import (
@@ -8,7 +10,6 @@ from fastauth.providers.google.schemas import (
     serialize_user_info,
     serialize_access_token,
 )
-from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidTokenAcquisitionRequest,
     InvalidUserInfoAccessRequest,
@@ -18,6 +19,7 @@ from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
+from fastauth.utils import log_action
 
 SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
 
@@ -43,6 +45,7 @@ class Google(Provider):
             logger=logger,
         )
 
+    @log_action
     @override
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
@@ -62,6 +65,7 @@ class Google(Provider):
             flowName="GeneralOAuthFlow",
         )()
 
+    @log_action
     @override
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
@@ -102,6 +106,7 @@ class Google(Provider):
                 raise schema_error
             return None
 
+    @log_action
     @override
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         self.logger.info(

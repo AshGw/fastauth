@@ -14,17 +14,17 @@ def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:
         provider = next((arg for arg in args if isinstance(arg, Provider)), None)
         if not provider:
             return f(*args, **kwargs)
-        if f.__name__ == provider.authorize.__name__:
+        if f.__name__ == "authorize":
             provider.logger.info(
                 f"Redirecting the client to the resource owner via"
                 f" {provider.provider} authorization server"
             )
-        if f.__name__ == provider.get_access_token.__name__:
+        if f.__name__ == "get_access_token":
             provider.logger.info(
                 f"Requesting the access token from {provider.provider} "
                 f"authorization server"
             )
-        if f.__name__ == provider.get_user_info.__name__:
+        if f.__name__ == "get_user_info":
             provider.logger.info(
                 f"Requesting user information from {provider.provider} "
                 f"resource server"
