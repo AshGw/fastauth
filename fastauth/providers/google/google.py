@@ -50,10 +50,6 @@ class Google(Provider):
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:  # pragma: no cover
-        self.logger.info(
-            f"Redirecting the client to the resource owner via the {self.provider}"
-            f" authorization server"
-        )
         return AuthGrantRedirect(
             provider=self,
             state=state,
@@ -70,9 +66,6 @@ class Google(Provider):
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
-        self.logger.info(
-            f"Requesting the access token from {self.provider}'s authorization server"
-        )
         response = self._access_token_request(
             code_verifier=code_verifier, code=code, state=state
         )
@@ -109,9 +102,6 @@ class Google(Provider):
     @log_action
     @override
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
-        self.logger.info(
-            f"Requesting user information from the {self.provider}'s resource server"
-        )
         response = self._user_info_request(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
