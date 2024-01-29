@@ -23,17 +23,24 @@ _SECRET_KEY = generate_secret()
 _SECRET_KEY2 = generate_secret()
 
 
-def test_with_jwt_existence():
+@pytest.fixture
+def mock_all_cookies(monkeypatch):
     data = _TestData()
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"": ""})
-        cookie = Cookies(request=req, response=res)
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
+    monkeypatch.setattr(
+        target=Cookies, name="all", value={data.jwt_cookie_name: data.encrypted_jwt}
+    )
+
+
+def test_with_jwt_existence(mock_all_cookies):
+    data = _TestData()
+    req = OAuthRequest(scope={"type": "http"})
+    res = OAuthResponse(content={"": ""})
+    cookies = Cookies(request=req, response=res)
+    assert cookies.all == {data.jwt_cookie_name: data.encrypted_jwt}
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         handler = JWTHandler(
             request=req,
             response=res,
@@ -41,11 +48,12 @@ def test_with_jwt_existence():
             debug=True,
             logger=data.logger,
         )
-        handler.get_jwt()  #
+        handler.get_jwt()
 
 
 def test_with_altered_jwe_secret():
     data = _TestData()
+
     with patch.object(
         OAuthRequest,
         attribute="cookies",

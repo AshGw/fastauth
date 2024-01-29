@@ -31,9 +31,7 @@ class JWTHandler:
         self.cookie = Cookies(request=request, response=response)
 
     def get_jwt(self) -> OAuthResponse:
-        encrypted_jwt: Optional[str] = self.cookie.get(
-            name_cookie(name=CookiesData.JWT.name)
-        )
+        encrypted_jwt = self._get_jwt_cookie()
         if encrypted_jwt:
             try:
                 jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
@@ -46,6 +44,9 @@ class JWTHandler:
         return OAuthResponse(
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
+
+    def _get_jwt_cookie(self) -> Optional[str]:
+        return self.cookie.get(name_cookie(name=CookiesData.JWT.name))
 
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
         err = JSONWebTokenTampering(error=error)
