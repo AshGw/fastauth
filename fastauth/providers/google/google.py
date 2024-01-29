@@ -19,7 +19,7 @@ from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
-from fastauth.utils import log_action
+from fastauth.log import log_action
 
 SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
 
