@@ -11,6 +11,7 @@ from fastauth.responses import OAuthResponse
 from fastauth.cookies import Cookie
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
+from fastauth.exceptions import JSONWebTokenTampering
 
 
 class JWTHandler:
@@ -47,6 +48,7 @@ class JWTHandler:
         )
 
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
+        err = JSONWebTokenTampering(error=error)
         if self.debug:
-            raise error
-        self.logger.warning(error)
+            raise err
+        self.logger.warning(err)

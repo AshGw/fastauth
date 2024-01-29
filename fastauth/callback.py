@@ -23,6 +23,7 @@ class _CallbackBase:
         secret: str,
         logger: Logger,
         request: OAuthRequest,
+        jwt_max_age: int,
         debug: bool,
     ) -> None:
         self.code = code
@@ -31,6 +32,7 @@ class _CallbackBase:
         self.logger = logger
         self.state = state
         self.debug = debug
+        self.jwt_max_age = jwt_max_age
         self.success_response = OAuthRedirectResponse(post_signin_uri)
         self.error_response = OAuthRedirectResponse(error_uri)
         self.cookie = Cookie(request=request, response=self.success_response)
@@ -56,8 +58,7 @@ class _CallbackBase:
             return None
         return code_verifier
 
-    def set_jwt(self, user_info: UserInfo) -> None:
-        max_age: int = CookiesData.JWT.max_age
+    def set_jwt(self, user_info: UserInfo, max_age: int) -> None:
         self.cookie.set(
             key=name_cookie(name=CookiesData.JWT.name),
             value=encipher_user_info(
@@ -85,6 +86,7 @@ class Callback(_CallbackBase):
         state: str,
         secret: str,
         logger: Logger,
+        jwt_max_age: int,
         request: OAuthRequest,
         debug: bool,
     ) -> None:
@@ -96,6 +98,7 @@ class Callback(_CallbackBase):
             state=state,
             secret=secret,
             logger=logger,
+            jwt_max_age=jwt_max_age,
             request=request,
             debug=debug,
         )
@@ -119,6 +122,6 @@ class Callback(_CallbackBase):
         user_info: Optional[UserInfo] = self.get_user_info()
         if not user_info:
             return self.error_response
-        self.set_jwt(user_info=user_info)
+        self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
         self.set_csrf_token()
         return self.success_response

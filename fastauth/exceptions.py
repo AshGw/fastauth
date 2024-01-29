@@ -1,5 +1,6 @@
 from fastauth._types import ProviderResponse
 from pydantic import ValidationError
+from jose.exceptions import JOSEError  # type: ignore
 
 
 class WrongKeyLength(Exception):
@@ -80,4 +81,17 @@ class InvalidUserInfoAccessRequest(Exception):
             self.display = (
                 self.display + f"{provider} response: {provider_response_data}"
             )
+        super().__init__(self.display)
+
+
+class JSONWebTokenTampering(Exception):
+    def __init__(
+        self,
+        *,
+        error: JOSEError,
+    ) -> None:
+        self.display = (
+            f"Error during JWT deciphering, possible tampering or use of an invalid key.\n"
+            f"Error details: {error}"
+        )
         super().__init__(self.display)
