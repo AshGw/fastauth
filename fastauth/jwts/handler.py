@@ -45,7 +45,7 @@ class JWTHandler:
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
 
-    def _get_jwt_cookie(self) -> Optional[str]:
+    def _get_jwt_cookie(self) -> Optional[str]:  # pragma: no cover
         return self.cookie.get(name_cookie(name=CookiesData.JWT.name))
 
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
