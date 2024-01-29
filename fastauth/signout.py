@@ -15,21 +15,22 @@ class Signout:
         self,
         *,
         post_signout_uri: str,
+        request: OAuthRequest,
         secret: str,
         error_uri: str,
         logger: Logger,
-        request: OAuthRequest,
         debug: bool,
-        domain: str | None = None,
     ):
         self.post_signout_uri = post_signout_uri
         self.error_uri = error_uri
-        self.logger = logger
         self.request = request
-        self.domain = domain
         self.secret = secret
+        self.logger = logger
         self.debug = debug
         self.success_response = OAuthRedirectResponse(self.post_signout_uri)
+        self.failure_response = OAuthRedirectResponse(
+            url=self.error_uri, status_code=StatusCode.BAD_REQUEST
+        )
         self.cookie = Cookie(request=request, response=self.success_response)
 
     def __call__(self) -> OAuthRedirectResponse:
@@ -39,12 +40,10 @@ class Signout:
                 decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
             except JWTError as e:
                 error = JSONWebTokenTampering(error=e)
+                self.logger.warning(error)
                 if self.debug:
                     raise error
-                self.logger.warning(error)
-                return OAuthRedirectResponse(
-                    url=self.error_uri, status_code=StatusCode.BAD_REQUEST
-                )
+                return self.failure_response
 
         cookies: List[str] = [
             CookiesData.State.name,
