@@ -1,20 +1,30 @@
+alias i:= install
+alias l:= lint
+alias c:= coverage
+alias cn:= clean
+alias t:= test
+alias f:= format
+alias h:= set-hooks
+alias d:= serve-docs
+alias b:= build-docs
+
 @help:
     just --list
 
-@i:
+@install:
     chmod +x ./scripts/install
     ./scripts/install
 
-@l:
+@lint:
     ./scripts/lint
 
-@f:
+@format:
     ./scripts/format
 
-@t:
+@test:
     ./scripts/test
 
-@cov:
+@coverage:
     ./scripts/coverage
 
 @clean:
