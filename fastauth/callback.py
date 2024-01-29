@@ -1,7 +1,7 @@
 from logging import Logger
 from fastauth.providers.base import Provider
 from fastauth.data import CookiesData
-from fastauth.cookies import Cookie
+from fastauth.cookies import Cookies
 from fastauth.utils import name_cookie, gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
@@ -35,7 +35,7 @@ class _CallbackBase:
         self.jwt_max_age = jwt_max_age
         self.success_response = OAuthRedirectResponse(post_signin_uri)
         self.error_response = OAuthRedirectResponse(error_uri)
-        self.cookie = Cookie(request=request, response=self.success_response)
+        self.cookie = Cookies(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
         if self.cookie.get(name_cookie(name=CookiesData.State.name)) != self.state:

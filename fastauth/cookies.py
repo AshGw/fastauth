@@ -1,9 +1,9 @@
 from fastauth.requests import OAuthRequest
 from fastauth._types import OAuthBaseResponse
-from typing import Optional, Literal
+from typing import Optional, Literal, Dict
 
 
-class Cookie:
+class Cookies:
     _http_only = True
     _samesite: Literal["lax", "strict", "none"] = "lax"
     _domain = None
@@ -16,6 +16,10 @@ class Cookie:
     ) -> None:
         self.request = request
         self.response = response
+
+    @property
+    def all(self) -> Dict[str, str]:
+        return self.request.cookies
 
     def set(
         self,

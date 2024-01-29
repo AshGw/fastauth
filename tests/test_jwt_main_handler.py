@@ -1,15 +1,18 @@
 from __future__ import annotations
-import logging
 
+import logging
 import pytest
+
 from dataclasses import dataclass
 from unittest.mock import patch
+
 from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
-from jose.exceptions import JWEError, JWEParseError  # type: ignore
+from fastauth.exceptions import JSONWebTokenTampering
 from fastauth.data import CookiesData
 from fastauth.utils import name_cookie
+from fastauth.cookies import Cookies
 from fastauth.jwts.operations import encipher_user_info
 from fastauth._types import UserInfo, ViewableJWT
 from fastauth.data import StatusCode
@@ -29,6 +32,7 @@ def test_with_jwt_existence():
     ):
         req = OAuthRequest(scope={"type": "http"})
         res = OAuthResponse(content={"": ""})
+        cookie = Cookies(request=req, response=res)
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
         handler = JWTHandler(
             request=req,
@@ -50,7 +54,7 @@ def test_with_altered_jwe_secret():
         req = OAuthRequest(scope={"type": "http"})
         res = OAuthResponse(content={"": ""})
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
-        with pytest.raises(JWEError):
+        with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
                 request=req,
                 response=res,
@@ -73,7 +77,7 @@ def test_with_altered_jwe():
         res = OAuthResponse(content={"": ""})
 
         assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt[:-1]}
-        with pytest.raises(JWEParseError):
+        with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
                 request=req,
                 response=res,

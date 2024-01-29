@@ -1,6 +1,6 @@
 from fastauth.providers.base import Provider
 from fastauth.data import CookiesData
-from fastauth.cookies import Cookie
+from fastauth.cookies import Cookies
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.utils import gen_oauth_params
@@ -15,7 +15,7 @@ class Authorize:
             code_challenge=self.oauth_params.code_challenge,
             code_challenge_method=self.oauth_params.code_challenge_method,
         )
-        self.cookie = Cookie(request=request, response=self.grant_redirection_response)
+        self.cookie = Cookies(request=request, response=self.grant_redirection_response)
 
     def set_state_cookie(self) -> None:
         self.cookie.set(

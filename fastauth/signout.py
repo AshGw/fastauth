@@ -1,7 +1,7 @@
 from logging import Logger
 from typing import List
 from fastauth.data import CookiesData, StatusCode
-from fastauth.cookies import Cookie
+from fastauth.cookies import Cookies
 from fastauth.utils import name_cookie
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
@@ -31,7 +31,7 @@ class Signout:
         self.failure_response = OAuthRedirectResponse(
             url=self.error_uri, status_code=StatusCode.BAD_REQUEST
         )
-        self.cookie = Cookie(request=request, response=self.success_response)
+        self.cookie = Cookies(request=request, response=self.success_response)
 
     def __call__(self) -> OAuthRedirectResponse:
         encrypted_jwt = self.cookie.get(name_cookie(name=CookiesData.JWT.name))
