@@ -9,7 +9,7 @@ from unittest.mock import patch
 from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
-from fastauth.exceptions import JSONWebTokenTampering
+from fastauth.exceptions import JSONWebTokenTampering, WrongKeyLength
 from fastauth.data import CookiesData
 from fastauth.utils import name_cookie
 from fastauth.cookies import Cookies
@@ -31,10 +31,22 @@ def mock_all_cookies(monkeypatch):
     )
 
 
-def test_with_jwt_existence(mock_all_cookies):
-    data = _TestData()
-    req = OAuthRequest(scope={"type": "http"})
-    res = OAuthResponse(content={"": ""})
+@pytest.fixture
+def req():
+    return OAuthRequest(scope={"type": "http"})
+
+
+@pytest.fixture
+def res():
+    return OAuthResponse(content={"": ""})
+
+
+@pytest.fixture
+def data():
+    return _TestData()
+
+
+def test_with_jwt_existence(data, mock_all_cookies, req, res):
     cookies = Cookies(request=req, response=res)
     assert cookies.all == {data.jwt_cookie_name: data.encrypted_jwt}
     with patch(
@@ -51,17 +63,11 @@ def test_with_jwt_existence(mock_all_cookies):
         handler.get_jwt()
 
 
-def test_with_altered_jwe_secret():
-    data = _TestData()
-
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"": ""})
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
+def test_with_wrong_jwe_secret(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
                 request=req,
@@ -72,35 +78,42 @@ def test_with_altered_jwe_secret():
             ).get_jwt()
 
 
-def test_with_altered_jwe():
-    data = _TestData()
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {
-            data.jwt_cookie_name: data.encrypted_jwt[:-1]
-        },  # alter the last char
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"": ""})
-
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt[:-1]}
-        with pytest.raises(JSONWebTokenTampering):
+def test_with_invalid_jwe_secret(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
+        with pytest.raises(WrongKeyLength):
             JWTHandler(
                 request=req,
                 response=res,
-                secret=_SECRET_KEY2,
+                secret="invalid",
                 debug=True,
                 logger=data.logger,
             ).get_jwt()
 
 
-def test_with_no_jwt():
-    data = _TestData()
-    with patch.object(OAuthRequest, attribute="cookies", new_callable=lambda: {}):
-        req = OAuthRequest(scope={"type": "http"})
-        res = OAuthResponse(content={"": ""})
-        assert req.cookies.get(data.jwt_cookie_name) is None
+def test_with_altered_jwe(data, req, res):
+    altered_jwe = data.encrypted_jwt[:-1]
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = altered_jwe
+        with pytest.raises(JSONWebTokenTampering):
+            JWTHandler(
+                request=req,
+                response=res,
+                secret=_SECRET_KEY,
+                debug=True,
+                logger=data.logger,
+            ).get_jwt()
+
+
+def test_with_no_jwt(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = None
         handler = JWTHandler(
             request=req,
             response=res,

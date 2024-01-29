@@ -21,7 +21,7 @@ class SchemaValidationError(Exception):
         self.display = (
             f"Error during {resource} validation for {provider}. "
             f"The defined schema does not match the received JSON data. "
-            f"Error details: {validation_error}\n"
+            f"Error details: {validation_error}"
         )
         if debug:
             self.display = (
@@ -91,7 +91,7 @@ class JSONWebTokenTampering(Exception):
         error: JOSEError,
     ) -> None:
         self.display = (
-            f"Error during JWT deciphering, possible tampering or use of an invalid key.\n"
+            f"Error during JWT deciphering, possible tampering or use of an invalid key. "
             f"Error details: {error}"
         )
         super().__init__(self.display)
