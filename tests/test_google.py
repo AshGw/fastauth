@@ -72,7 +72,7 @@ def valid_user_data() -> Dict[str, Any]:
 
 def test_token_acquisition(op, google, google_debug) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._access_token_request"
+        "fastauth.providers.google.google.Google._request_access_token"
     ) as mock_request:
         mock_response = Mock()
         # invalid auth code, raise in debug
@@ -129,7 +129,7 @@ def test_token_acquisition(op, google, google_debug) -> None:
 
 def test_user_info_acquisition(valid_user_data, google, google_debug) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._user_info_request"
+        "fastauth.providers.google.google.Google._request_user_info"
     ) as mock_request:
         mock_response = Mock()
 
