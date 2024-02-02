@@ -1,4 +1,4 @@
-import validators # type: ignore
+import validators  # type: ignore
 from fastauth.data import OAuthURLs
 
 

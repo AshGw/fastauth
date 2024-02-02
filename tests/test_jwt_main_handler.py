@@ -1,17 +1,20 @@
 from __future__ import annotations
-import logging
 
+import logging
 import pytest
+
 from dataclasses import dataclass
 from unittest.mock import patch
+
 from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
-from jose.exceptions import JWEError, JWEParseError # type: ignore
-from fastauth.data import Cookies
-from fastauth.utils import auth_cookie_name
+from fastauth.exceptions import JSONWebTokenTampering, WrongKeyLength
+from fastauth.data import CookiesData
+from fastauth.utils import name_cookie
+from fastauth.cookies import Cookies
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.types import UserInfo, ViewableJWT
+from fastauth._types import UserInfo, ViewableJWT
 from fastauth.data import StatusCode
 from fastauth.responses import OAuthResponse
 
@@ -20,60 +23,103 @@ _SECRET_KEY = generate_secret()
 _SECRET_KEY2 = generate_secret()
 
 
-def test_with_jwt_existence():
+@pytest.fixture
+def mock_all_cookies(monkeypatch):
     data = _TestData()
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
+    monkeypatch.setattr(
+        target=Cookies, name="all", value={data.jwt_cookie_name: data.encrypted_jwt}
+    )
+
+
+@pytest.fixture
+def req():
+    return OAuthRequest(scope={"type": "http"})
+
+
+@pytest.fixture
+def res():
+    return OAuthResponse(content={"": ""})
+
+
+@pytest.fixture
+def data():
+    return _TestData()
+
+
+def test_with_jwt_existence(data, mock_all_cookies, req, res):
+    cookies = Cookies(request=req, response=res)
+    assert cookies.all == {data.jwt_cookie_name: data.encrypted_jwt}
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         handler = JWTHandler(
-            req=req, secret=_SECRET_KEY, debug=True, logger=data.logger
+            request=req,
+            response=res,
+            secret=_SECRET_KEY,
+            debug=True,
+            logger=data.logger,
         )
-        handler.get_jwt()  #
+        handler.get_jwt()
 
 
-def test_with_altered_jwe_secret():
-    data = _TestData()
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {data.jwt_cookie_name: data.encrypted_jwt},
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt}
-        with pytest.raises(JWEError):
+def test_with_wrong_jwe_secret(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
+        with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
-                req=req, secret=_SECRET_KEY2, debug=True, logger=data.logger
+                request=req,
+                response=res,
+                secret=_SECRET_KEY2,
+                debug=True,
+                logger=data.logger,
             ).get_jwt()
 
 
-def test_with_altered_jwe():
-    data = _TestData()
-    with patch.object(
-        OAuthRequest,
-        attribute="cookies",
-        new_callable=lambda: {
-            data.jwt_cookie_name: data.encrypted_jwt[:-1]
-        },  # alter the last char
-    ):
-        req = OAuthRequest(scope={"type": "http"})
-        assert req.cookies == {data.jwt_cookie_name: data.encrypted_jwt[:-1]}
-        with pytest.raises(JWEParseError):
+def test_with_invalid_jwe_secret(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = data.encrypted_jwt
+        with pytest.raises(WrongKeyLength):
             JWTHandler(
-                req=req, secret=_SECRET_KEY2, debug=True, logger=data.logger
+                request=req,
+                response=res,
+                secret="invalid",
+                debug=True,
+                logger=data.logger,
             ).get_jwt()
 
 
-def test_with_no_jwt():
-    data = _TestData()
-    with patch.object(OAuthRequest, attribute="cookies", new_callable=lambda: {}):
-        req = OAuthRequest(scope={"type": "http"})
-        assert req.cookies.get(data.jwt_cookie_name) is None
+def test_with_altered_jwe(data, req, res):
+    altered_jwe = data.encrypted_jwt[:-1]
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = altered_jwe
+        with pytest.raises(JSONWebTokenTampering):
+            JWTHandler(
+                request=req,
+                response=res,
+                secret=_SECRET_KEY,
+                debug=True,
+                logger=data.logger,
+            ).get_jwt()
+
+
+def test_with_no_jwt(data, req, res):
+    with patch(
+        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+    ) as mocked_get_jwt_cookie:
+        mocked_get_jwt_cookie.return_value = None
         handler = JWTHandler(
-            req=req, secret=_SECRET_KEY, debug=True, logger=data.logger
+            request=req,
+            response=res,
+            secret=_SECRET_KEY,
+            debug=True,
+            logger=data.logger,
         )
         actual_response = handler.get_jwt()
         expected_response = OAuthResponse(
@@ -86,9 +132,9 @@ def test_with_no_jwt():
 
 @dataclass
 class _TestData:
-    logger = logging.Logger("fastauth")
+    logger = logging.Logger(__name__)
     debug = False
-    jwt_cookie_name = auth_cookie_name(cookie_name=Cookies.JWT.name)
+    jwt_cookie_name = name_cookie(name=CookiesData.JWT.name)
     encrypted_jwt = encipher_user_info(
         user_info=UserInfo(
             avatar="...",

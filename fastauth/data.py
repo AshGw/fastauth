@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Cookies:
+class CookiesData:
     class JWT:
         name: str = "jwt"
         max_age: int = 60 * 60 * 24 * 7  # 7 days # through the whole session
@@ -60,3 +60,4 @@ class StatusCode:
     OK = 200
     CREATED = 201
     UNAUTHORIZED = 401
+    BAD_REQUEST = 400

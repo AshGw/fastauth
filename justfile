@@ -1,3 +1,13 @@
+alias i:= install
+alias l:= lint
+alias c:= coverage
+alias cn:= clean
+alias t:= test
+alias f:= format
+alias h:= set-hooks
+alias d:= serve-docs
+alias b:= build-docs
+
 @help:
     just --list
 
@@ -8,25 +18,21 @@
 @lint:
     ./scripts/lint
 
-
 @format:
     ./scripts/format
-
-@clean:
-    ./scripts/clean
-
-@coverage:
-    ./scripts/coverage
 
 @test:
     ./scripts/test
 
-@set-pre-push:
-    ./scripts/pre-push
+@coverage:
+    ./scripts/coverage
 
-@set-pre-commit:
+@clean:
+    ./scripts/clean
+
+@set-hooks:
     ./scripts/pre-commit
-
+    ./scripts/pre-push
 
 @serve-app:
     uvicorn app.app:app --reload --port=6969
@@ -37,5 +43,5 @@
 @build-docs:
     mkdocs build
 
-@sys-info:
-  @echo "Running on {{arch()}} machine".
+@info:
+  echo "Running on {{arch()}} machine".

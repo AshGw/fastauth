@@ -1,35 +1,38 @@
 from typing import Optional
-from fastauth.types import JWT, ViewableJWT
 from logging import Logger
 
 from jose.exceptions import JOSEError  # type: ignore
 
-from fastauth.data import Cookies
-from fastauth.utils import auth_cookie_name
+from fastauth._types import JWT, ViewableJWT
+from fastauth.data import CookiesData
+from fastauth.utils import name_cookie
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
+from fastauth._types import OAuthBaseResponse
+from fastauth.cookies import Cookies
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
+from fastauth.exceptions import JSONWebTokenTampering
 
 
 class JWTHandler:
     def __init__(
         self,
         *,
-        req: OAuthRequest,
+        request: OAuthRequest,
+        response: OAuthBaseResponse,
         secret: str,
         logger: Logger,
         debug: bool,
     ) -> None:
         self.logger = logger
-        self.req = req
+        self.request = request
         self.secret = secret
         self.debug = debug
+        self.cookie = Cookies(request=request, response=response)
 
     def get_jwt(self) -> OAuthResponse:
-        encrypted_jwt: Optional[str] = self.req.cookies.get(
-            auth_cookie_name(cookie_name=Cookies.JWT.name)
-        )
+        encrypted_jwt = self._get_jwt_cookie()
         if encrypted_jwt:
             try:
                 jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
@@ -43,7 +46,11 @@ class JWTHandler:
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
 
+    def _get_jwt_cookie(self) -> Optional[str]:  # pragma: no cover
+        return self.cookie.get(name_cookie(name=CookiesData.JWT.name))
+
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
+        err = JSONWebTokenTampering(error=error)
+        self.logger.warning(err)
         if self.debug:
-            raise error
-        self.logger.warning(error)
+            raise err

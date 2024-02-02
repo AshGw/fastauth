@@ -35,6 +35,7 @@ fastapi = "^0.93.0"
 python-jose = { version = "^3.1.0", extras = ["cryptography"] }
 httpx = "^0.23.2"
 email-validator = "^2.1.0.post1"
+overrides = "^7.6.0"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.0"
@@ -129,6 +130,16 @@ omit = [
     'fastauth\exceptions.py',
     'fastauth\authorize.py', # all related to the frameworks' native Request object
     'fastauth\providers\spotify\schemas.py', # TODO: remove when testing them
+    'fastauth\log.py\', # TODO: remove when testing them'
+    # purge all below till basis is set
+    'fastauth\signout.py', # TODO: remove when testing them
+    'fastauth\signin.py', # TODO: remove when testing them
+    'fastauth\oauth2\flow.py  ', # TODO: remove when testing them
+    'fastauth\log.py', # TODO: remove when testing them
+    'fastauth\callback.py', # TODO: remove when testing them
+    'fastauth\cookies.py', # TODO: remove when testing them
+    'fastauth\oauth2\flow.py', # TODO: remove when testing them
+
 
 
 ]

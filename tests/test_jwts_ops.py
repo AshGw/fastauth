@@ -10,6 +10,8 @@ from fastauth.jwts.operations import (
 from fastauth.jwts.helpers import generate_secret
 from dataclasses import dataclass
 
+NOW = datetime.utcnow()
+
 
 def test_all():
     data = _TestData()
@@ -31,9 +33,6 @@ def test_all():
     assert decrypted_payload["iss"] == data.iss
     assert decrypted_payload["sub"] == data.sub
     assert decrypted_payload["iat"] <= decrypted_payload["exp"]
-
-
-NOW = datetime.utcnow()
 
 
 @dataclass

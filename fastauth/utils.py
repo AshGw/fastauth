@@ -1,13 +1,12 @@
-from fastauth.providers.base import Provider
 from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
-from typing import Optional, Dict
-from fastauth.types import OAuthParams, QueryParams
+from fastauth._types import OAuthParams, QueryParams
+from typing import Optional
 
 
-def auth_cookie_name(*, cookie_name: str) -> str:
-    return "fastauth" + "." + cookie_name
+def name_cookie(*, name: str) -> str:
+    return "fastauth" + "." + name
 
 
 def gen_oauth_params() -> OAuthParams:
@@ -29,25 +28,6 @@ def querify_kwargs(kwargs: Optional[QueryParams] = None) -> str:
         return ""
     query_string = "&".join([f"{key}={value}" for key, value in sorted(kwargs.items())])
     return f"&{query_string}"
-
-
-def token_request_payload(
-    *,
-    provider: Provider,
-    **kwargs: str,
-) -> QueryParams:
-    extra_args: Dict[str, str] = {
-        key: value for _, (key, value) in enumerate(kwargs.items(), start=1)
-    }
-    qp: QueryParams = {
-        "grant_type": provider.grant_type,
-        "client_id": provider.client_id,
-        "client_secret": provider.client_secret,
-        "redirect_uri": provider.redirect_uri,
-        **extra_args,
-    }
-
-    return qp
 
 
 def base_redirect_url(

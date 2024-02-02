@@ -46,13 +46,6 @@ class OAuth2Base(ABC):
         ...
 
     @abstractmethod
-    def set_jwt(self) -> None:
-        ...
-
-    @abstractmethod
-    def set_csrf_token(self) -> None:
-        ...
-
-    @abstractmethod
-    def set_router(self) -> APIRouter:
+    @property
+    def get_router(self) -> APIRouter:
         ...

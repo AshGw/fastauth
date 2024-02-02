@@ -3,23 +3,25 @@ from jose.jwt import decode as decode_jwt
 from jose.jwt import ALGORITHMS
 from jose.jwe import encrypt, decrypt  # type: ignore
 from datetime import datetime, timedelta
-from fastauth.data import Cookies
+from fastauth.data import CookiesData
 from fastauth.jwts.helpers import validate_key
-from fastauth.types import JWT, UserInfo
+from fastauth._types import JWT, UserInfo
 
-JWT_MAX_AGE = Cookies.JWT.max_age
+JWT_MAX_AGE = CookiesData.JWT.max_age
 JWT_ALGORITHM = ALGORITHMS.HS256
 JWE_ALGORITHM = ALGORITHMS.A256GCM
 ISSUER = "fastauth"
 SUBJECT = "client"
 
 
-def encipher_user_info(user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE) -> str:
+def encipher_user_info(
+    user_info: UserInfo, key: str, max_age: int = JWT_MAX_AGE
+) -> str:
     """
     Encrypts a given user-info payload and returns an encrypted JWT.
     :param user_info: The UserInfo payload
     :param key: The secret key for the entire oauth flow
-    :param exp: expiry date of jwt
+    :param max_age: how long in seconds till the JWT is marked expired
     :raises: JOSEError
     :return: The encrypted JWT
     """
@@ -30,7 +32,7 @@ def encipher_user_info(user_info: UserInfo, key: str, exp: int = JWT_MAX_AGE) ->
             iss=ISSUER,
             sub=SUBJECT,
             iat=now,
-            exp=now + timedelta(seconds=exp),
+            exp=now + timedelta(seconds=max_age),
             user_info=user_info,
         ),
         key=key[:32],

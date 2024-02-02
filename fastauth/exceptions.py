@@ -1,5 +1,6 @@
-from fastauth.types import ProviderResponse
+from fastauth._types import ProviderResponse
 from pydantic import ValidationError
+from jose.exceptions import JOSEError  # type: ignore
 
 
 class WrongKeyLength(Exception):
@@ -20,7 +21,7 @@ class SchemaValidationError(Exception):
         self.display = (
             f"Error during {resource} validation for {provider}. "
             f"The defined schema does not match the received JSON data. "
-            f"Error details: {validation_error}\n"
+            f"Error details: {validation_error}"
         )
         if debug:
             self.display = (
@@ -34,6 +35,12 @@ class InvalidState(Exception):
         self.display = (
             "The received state does not match the expected state, possible tampering"
         )
+        super().__init__(self.display)
+
+
+class CodeVerifierNotFound(Exception):
+    def __init__(self) -> None:
+        self.display = "The code verifier could not be retrieved from the cookie, the user might have deleted the cookie"
         super().__init__(self.display)
 
 
@@ -68,11 +75,23 @@ class InvalidUserInfoAccessRequest(Exception):
     ) -> None:
         self.display = (
             "The request for the resource is invalid, "
-            "it's either due to an invalid/expired `access_token` "
-            "or the wrong `Content-Type` header. "
+            "usually due to an invalid/expired `access_token` "
         )
         if debug:
             self.display = (
                 self.display + f"{provider} response: {provider_response_data}"
             )
+        super().__init__(self.display)
+
+
+class JSONWebTokenTampering(Exception):
+    def __init__(
+        self,
+        *,
+        error: JOSEError,
+    ) -> None:
+        self.display = (
+            f"Error during JWT deciphering, possible tampering or use of an invalid key. "
+            f"Error details: {error}"
+        )
         super().__init__(self.display)

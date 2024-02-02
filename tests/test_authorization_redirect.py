@@ -1,42 +1,10 @@
+from .utils import MockProvider
 from fastauth.grant_redirect import AuthGrantRedirect
-from fastauth.providers.base import Provider
+
 from logging import getLogger
 
-logger = getLogger("...")
 
-
-class MockProvider(Provider):
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        redirect_uri: str,
-        debug: bool,
-    ):
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            redirect_uri=redirect_uri,
-            provider="mock",
-            authorizationUrl="https://accounts.exmaple.com/authorize",
-            tokenUrl="https://accounts.exmaple.com/api/token",
-            userInfo="https://api.exmaple.com/v1/me",
-            debug=debug,
-            logger=logger,
-        )
-
-    def redirect(
-        self, *, state: str, code_challenge: str, code_challenge_method: str
-    ):  # pragma: no cover
-        ...
-
-    def get_access_token(
-        self, *, code_verifier: str, code: str, state: str
-    ):  # pragma: no cover
-        ...
-
-    def get_user_info(self, access_token: str):  # pragma: no cover
-        ...
+logger = getLogger(__name__)
 
 
 def test_oauth_redirect_url():
@@ -45,6 +13,7 @@ def test_oauth_redirect_url():
         client_secret="client_secret",
         redirect_uri="https://mysite.com/auth/callback/mock",
         debug=True,
+        logger=logger,
     )
     redirect = AuthGrantRedirect(
         provider=pv,
