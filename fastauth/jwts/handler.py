@@ -8,6 +8,7 @@ from fastauth.data import CookiesData
 from fastauth.utils import name_cookie
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
+from fastauth._types import OAuthBaseResponse
 from fastauth.cookies import Cookies
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
@@ -19,7 +20,7 @@ class JWTHandler:
         self,
         *,
         request: OAuthRequest,
-        response: OAuthResponse,
+        response: OAuthBaseResponse,
         secret: str,
         logger: Logger,
         debug: bool,

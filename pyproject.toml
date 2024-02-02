@@ -130,6 +130,7 @@ omit = [
     'fastauth\exceptions.py',
     'fastauth\authorize.py', # all related to the frameworks' native Request object
     'fastauth\providers\spotify\schemas.py', # TODO: remove when testing them
+    'fastauth\log.py\', # TODO: remove when testing them
 
 
 ]
