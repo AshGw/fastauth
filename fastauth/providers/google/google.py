@@ -66,7 +66,7 @@ class Google(Provider):
     def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
-        response = self._access_token_request(
+        response = self._request_access_token(
             code_verifier=code_verifier, code=code, state=state
         )
 
@@ -102,7 +102,7 @@ class Google(Provider):
     @log_action
     @override
     def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
-        response = self._user_info_request(access_token=access_token)
+        response = self._request_user_info(access_token=access_token)
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
                 provider=self.provider,
