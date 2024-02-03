@@ -12,8 +12,8 @@ from fastauth.requests import OAuthRequest
 from fastauth.signin import SignIn
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
-from fastauth.log import logger as authlogger
 from fastauth.jwts.handler import JWTHandler
+from fastauth.defaults import Defaults
 
 
 class OAuth2(OAuth2Base):
@@ -22,7 +22,6 @@ class OAuth2(OAuth2Base):
         *,
         provider: Provider,
         secret: str,
-        debug: bool = True,
         signin_uri: str = "/auth/signin",
         signout_url: str = "/auth/signout",
         callback_uri: str = "/auth/callback",
@@ -32,8 +31,9 @@ class OAuth2(OAuth2Base):
         post_signout_uri: str = "/auth/out",  # TODO: change
         error_uri: str = "/auth/error",
         jwt_max_age: int = CookiesData.JWT.max_age,
-        logger: Logger = authlogger,
-        on_signin: Optional[SignIn] = None,
+        logger: Logger = Defaults.get_logger(),
+        debug: bool = Defaults.get_debug(),
+        signin_callback: Optional[SignIn] = None,
     ) -> None:
         super().__init__(
             provider=provider,
@@ -50,6 +50,7 @@ class OAuth2(OAuth2Base):
             jwt_max_age=jwt_max_age,
             logger=logger,
         )
+        self.signin_callback = signin_callback
 
     @property
     def router(self) -> APIRouter:

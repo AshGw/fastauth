@@ -141,8 +141,7 @@ omit = [
     'fastauth\callback.py', # TODO: remove when testing them
     'fastauth\cookies.py', # TODO: remove when testing them
     'fastauth\oauth2\flow.py', # TODO: remove when testing them
-
-
+    'fastauth\defaults.py', # TODO: remove when testing them
 
 ]
 
