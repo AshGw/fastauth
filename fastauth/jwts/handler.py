@@ -5,7 +5,6 @@ from jose.exceptions import JOSEError
 
 from fastauth._types import JWT, ViewableJWT
 from fastauth.data import CookiesData
-from fastauth.utils import name_cookie
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
 from fastauth._types import OAuthBaseResponse
@@ -47,7 +46,7 @@ class JWTHandler:
         )
 
     def _get_jwt_cookie(self) -> Optional[str]:  # pragma: no cover
-        return self.cookie.get(name_cookie(name=CookiesData.JWT.name))
+        return self.cookie.get(CookiesData.JWT.name)
 
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
         err = JSONWebTokenTampering(error=error)
