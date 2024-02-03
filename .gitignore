@@ -14,4 +14,4 @@ poetry.lock
 site/
 .idea/
 *.env
-app/
+../playground/app/
