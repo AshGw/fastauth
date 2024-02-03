@@ -13,7 +13,15 @@ class Defaults:
     _debug: ClassVar[bool] = True
 
     @classmethod
-    def defaults(cls) -> DefaultParams:
+    def get_logger(cls) -> Logger:
+        return cls._logger
+
+    @classmethod
+    def get_debug(cls) -> bool:
+        return cls._debug
+
+    @classmethod
+    def get_defaults(cls) -> DefaultParams:
         return DefaultParams(debug=cls._debug, logger=cls._logger)
 
     @classmethod
