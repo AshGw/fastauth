@@ -63,8 +63,6 @@ class Google(Provider):
         response = self._request_access_token(
             code_verifier=code_verifier, code=code, state=state
         )
-        if self.debug:
-            raise ValueError
 
         response_data: ProviderJSONResponse = response.json()
 

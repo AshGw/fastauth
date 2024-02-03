@@ -9,11 +9,11 @@ class Config:
     debug: ClassVar[bool] = True
 
     @classmethod
-    def get_default_configs(cls) -> _DefaultParams:
+    def get_defaults(cls) -> _DefaultParams:
         return _DefaultParams(debug=cls.debug, logger=cls.logger)
 
     @classmethod
-    def set_default_configs(cls, debug: bool, logger: Logger) -> None:
+    def set_defaults(cls, debug: bool, logger: Logger) -> None:
         cls.debug = debug
         cls.logger = logger
 
