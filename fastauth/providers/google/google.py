@@ -4,7 +4,6 @@ from pydantic import ValidationError
 
 from fastauth._types import ProviderJSONResponse
 
-from fastauth.defaults import Defaults
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
     serialize_user_info,
@@ -30,7 +29,6 @@ class Google(Provider):
         client_id: str,
         client_secret: str,
         redirect_uri: str,
-
     ):
         super().__init__(
             client_id=client_id,
