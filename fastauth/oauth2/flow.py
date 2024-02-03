@@ -1,6 +1,6 @@
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from overrides import override
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
@@ -8,7 +8,7 @@ from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
-from fastauth.signin import SignIn
+from fastauth.callbacks.signin import SignIn
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
 from fastauth.jwts.handler import JWTHandler
@@ -40,11 +40,11 @@ class OAuth2(OAuth2Base):
             jwt_uri=jwt_uri,
             csrf_token_uri=csrf_token_uri,
             post_signin_uri=post_signin_uri,
+            signin_callback=signin_callback,
             post_signout_uri=post_signout_uri,
             error_uri=error_uri,
             jwt_max_age=jwt_max_age,
         )
-        self.signin_callback = signin_callback
 
     @property
     def router(self) -> APIRouter:
@@ -59,10 +59,8 @@ class OAuth2(OAuth2Base):
         @self.router.get(self.callback_uri + "/" + self.provider.provider)
         async def callback(
             req: OAuthRequest,
-            code: Annotated[
-                str, "valid for 15 minutes max"
-            ],  # TODO: change this to Query
-            state: Annotated[str, "valid for 15 minutes max"],
+            code: str = Query(...),
+            state: str = Query(...),
         ) -> OAuthRedirectResponse:
             return Callback(
                 code=code,

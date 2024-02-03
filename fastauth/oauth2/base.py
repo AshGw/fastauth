@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import Optional
+from fastauth.callbacks.signin import SignIn
 from fastauth.config import Config
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
@@ -16,6 +18,7 @@ class OAuth2Base(ABC, Config):
         jwt_uri: str,
         csrf_token_uri: str,
         post_signin_uri: str,
+        signin_callback: Optional[SignIn] = None,
         post_signout_uri: str,
         error_uri: str,
         jwt_max_age: int,
@@ -31,6 +34,7 @@ class OAuth2Base(ABC, Config):
         self.error_uri = error_uri
         self.jwt_max_age = jwt_max_age
         self.secret = secret
+        self.signin_callback = signin_callback
         self.auth_route = APIRouter()
         self.activate()
 
