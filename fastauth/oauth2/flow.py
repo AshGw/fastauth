@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter
 from overrides import override
@@ -10,6 +10,7 @@ from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import OAuthBaseResponse
+from fastauth.signin import SignIn
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
 from fastauth.log import logger as authlogger
@@ -31,6 +32,7 @@ class OAuth2(OAuth2Base):
         post_signin_uri: str = "/",
         post_signout_uri: str = "/",
         error_uri: str = "/",
+        on_signin: Optional[SignIn] = None,
         jwt_max_age: int = CookiesData.JWT.max_age,
         logger: Logger = authlogger,
     ) -> None:
