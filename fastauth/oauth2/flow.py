@@ -28,8 +28,8 @@ class OAuth2(OAuth2Base):
         callback_uri: str = "/auth/callback",
         jwt_uri: str = "/auth/jwt",
         csrf_token_uri: str = "/auth/csrf-token",
-        post_signin_uri: str = "/auth/out",  # TODO: change
-        post_signout_uri: str = "/auth/in",  # TODO: change
+        post_signin_uri: str = "/auth/in",  # TODO: change
+        post_signout_uri: str = "/auth/out",  # TODO: change
         error_uri: str = "/auth/error",
         jwt_max_age: int = CookiesData.JWT.max_age,
         logger: Logger = authlogger,

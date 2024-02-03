@@ -35,7 +35,7 @@ class _CallbackBase:
         self.jwt_max_age = jwt_max_age
         self.__base_url = get_base_url(request)
         self.success_response = OAuthRedirectResponse(
-            url=self.__base_url + post_signin_uri
+            url=self.__base_url + "post_signin_uri"
         )
         self.error_response = OAuthRedirectResponse(url=self.__base_url + error_uri)
         self.cookie = Cookies(request=request, response=self.success_response)
