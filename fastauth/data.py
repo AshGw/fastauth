@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class CookiesData:
     class JWT:
         name: str = "jwt"
-        max_age: int = 60 * 60 * 24 * 7  # 7 days # through the whole session
+        max_age: int = 60 * 60 * 24 * 7  # 7 days
 
     class CSRFToken:
         name: str = "csrf-token"
