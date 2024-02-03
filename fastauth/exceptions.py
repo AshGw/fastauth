@@ -1,6 +1,6 @@
 from fastauth._types import ProviderResponse
 from pydantic import ValidationError
-from jose.exceptions import JOSEError  # type: ignore
+from jose.exceptions import JOSEError
 
 
 class WrongKeyLength(Exception):
