@@ -28,12 +28,12 @@ class OAuth2(OAuth2Base):
         callback_uri: str = "/auth/callback",
         jwt_uri: str = "/auth/jwt",
         csrf_token_uri: str = "/auth/csrf-token",
-        post_signin_uri: str = "/out",  # TODO: change
-        post_signout_uri: str = "/in",  # TODO: change
+        post_signin_uri: str = "/auth/out",  # TODO: change
+        post_signout_uri: str = "/auth/in",  # TODO: change
         error_uri: str = "/auth/error",
-        on_signin: Optional[SignIn] = None,
         jwt_max_age: int = CookiesData.JWT.max_age,
         logger: Logger = authlogger,
+        on_signin: Optional[SignIn] = None,
     ) -> None:
         super().__init__(
             provider=provider,
