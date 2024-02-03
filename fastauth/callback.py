@@ -3,7 +3,6 @@ from fastauth.providers.base import Provider
 from fastauth.data import CookiesData
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token, get_base_url
-
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import encipher_user_info
