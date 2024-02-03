@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter
 from overrides import override
@@ -33,7 +33,7 @@ class OAuth2(OAuth2Base):
         jwt_max_age: int = CookiesData.JWT.max_age,
         logger: Logger = Defaults.get_logger(),
         debug: bool = Defaults.get_debug(),
-        signin_callback: SignIn,
+        signin_callback: Optional[SignIn] = None,
     ) -> None:
         super().__init__(
             provider=provider,

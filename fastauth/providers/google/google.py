@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from fastauth._types import ProviderJSONResponse
 
+from fastauth.defaults import Defaults
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
     serialize_user_info,
@@ -19,7 +20,7 @@ from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
-from fastauth.log import log_action, logger as flogger
+from fastauth.log import log_action
 
 SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
 
@@ -30,8 +31,8 @@ class Google(Provider):
         client_id: str,
         client_secret: str,
         redirect_uri: str,
-        debug: bool = True,
-        logger: Logger = flogger,
+        debug: bool = Defaults.get_debug(),
+        logger: Logger = Defaults.get_logger(),
     ):
         super().__init__(
             client_id=client_id,
