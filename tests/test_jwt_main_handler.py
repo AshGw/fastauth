@@ -3,8 +3,8 @@ from __future__ import annotations
 import logging
 import pytest
 
-from dataclasses import dataclass
 from unittest.mock import patch
+from _pytest.monkeypatch import MonkeyPatch
 
 from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
@@ -19,34 +19,34 @@ from fastauth.data import StatusCode
 from fastauth.responses import OAuthResponse
 
 
-_SECRET_KEY = generate_secret()
-_SECRET_KEY2 = generate_secret()
+SECRET_KEY = generate_secret()
+SECRET_KEY2 = generate_secret()
 
 
 @pytest.fixture
-def mock_all_cookies(monkeypatch):
-    data = _TestData()
+def mock_all_cookies(monkeypatch: MonkeyPatch) -> None:
+    data = TestData()
     monkeypatch.setattr(
         target=Cookies, name="all", value={data.jwt_cookie_name: data.encrypted_jwt}
     )
 
 
 @pytest.fixture
-def req():
+def req() -> OAuthRequest:
     return OAuthRequest(scope={"type": "http"})
 
 
 @pytest.fixture
-def res():
+def res() -> OAuthResponse:
     return OAuthResponse(content={"": ""})
 
 
 @pytest.fixture
-def data():
-    return _TestData()
+def data() -> TestData:
+    return TestData()
 
 
-def test_with_jwt_existence(data, mock_all_cookies, req, res):
+def test_with_jwt_existence(data, mock_all_cookies, req, res) -> None:
     cookies = Cookies(request=req, response=res)
     assert cookies.all == {data.jwt_cookie_name: data.encrypted_jwt}
     with patch(
@@ -56,14 +56,14 @@ def test_with_jwt_existence(data, mock_all_cookies, req, res):
         handler = JWTHandler(
             request=req,
             response=res,
-            secret=_SECRET_KEY,
+            secret=SECRET_KEY,
             debug=True,
             logger=data.logger,
         )
         handler.get_jwt()
 
 
-def test_with_wrong_jwe_secret(data, req, res):
+def test_with_wrong_jwe_secret(data, req, res) -> None:
     with patch(
         "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
     ) as mocked_get_jwt_cookie:
@@ -72,13 +72,13 @@ def test_with_wrong_jwe_secret(data, req, res):
             JWTHandler(
                 request=req,
                 response=res,
-                secret=_SECRET_KEY2,
+                secret=SECRET_KEY2,
                 debug=True,
                 logger=data.logger,
             ).get_jwt()
 
 
-def test_with_invalid_jwe_secret(data, req, res):
+def test_with_invalid_jwe_secret(data, req, res) -> None:
     with patch(
         "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
     ) as mocked_get_jwt_cookie:
@@ -93,8 +93,8 @@ def test_with_invalid_jwe_secret(data, req, res):
             ).get_jwt()
 
 
-def test_with_altered_jwe(data, req, res):
-    altered_jwe = data.encrypted_jwt[:-1]
+def test_with_altered_jwe(data, req, res) -> None:
+    altered_jwe = data.encrypted_jwt[:-1]  # alter a char
     with patch(
         "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
     ) as mocked_get_jwt_cookie:
@@ -103,13 +103,13 @@ def test_with_altered_jwe(data, req, res):
             JWTHandler(
                 request=req,
                 response=res,
-                secret=_SECRET_KEY,
+                secret=SECRET_KEY,
                 debug=True,
                 logger=data.logger,
             ).get_jwt()
 
 
-def test_with_no_jwt(data, req, res):
+def test_with_no_jwt(data, req, res) -> None:
     with patch(
         "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
     ) as mocked_get_jwt_cookie:
@@ -117,7 +117,7 @@ def test_with_no_jwt(data, req, res):
         handler = JWTHandler(
             request=req,
             response=res,
-            secret=_SECRET_KEY,
+            secret=SECRET_KEY,
             debug=True,
             logger=data.logger,
         )
@@ -130,8 +130,7 @@ def test_with_no_jwt(data, req, res):
         assert actual_response.status_code == expected_response.status_code
 
 
-@dataclass
-class _TestData:
+class TestData:
     logger = logging.Logger(__name__)
     debug = False
     jwt_cookie_name = name_cookie(name=CookiesData.JWT.name)
@@ -142,5 +141,5 @@ class _TestData:
             user_id="...",
             email="...",
         ),
-        key=_SECRET_KEY,
+        key=SECRET_KEY,
     )

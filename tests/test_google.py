@@ -59,11 +59,11 @@ def op() -> OAuthParams:
 @pytest.fixture
 def valid_user_data() -> Dict[str, Any]:
     return GoogleUserJSONData(
-        email="example@gmail.com",
+        email="example@gmail.com",  # type: ignore
         verified_email=True,
         given_name="John",
         family_name="Doe",
-        picture="https://example.com/hosted/pic",
+        picture="https://example.com/hosted/pic",  # type: ignore
         locale="en",
         id="123",
         name="John Doe",
@@ -193,11 +193,11 @@ def test_serialize(valid_user_data) -> None:
     with pytest.raises(ValidationError):
         serialize_user_info(
             GoogleUserJSONData(
-                email="example@gmail",  # invalid email
+                email="example@gmail",  # type: ignore   # invalid email
                 verified_email=True,
                 given_name="John",
                 family_name="Doe",
-                picture="htps://example.com/hosted/pic",  # not an actual HTTP(s) URL
+                picture="htps://example.com/hosted/pic",  # type: ignore   # not an actual HTTP(s) URL
                 locale="en",
                 id="123",
                 name="John Doe",
@@ -205,7 +205,7 @@ def test_serialize(valid_user_data) -> None:
         )
 
 
-def test_invalid_authorization_code(op, google) -> None:
+def test_invalid_authorization_code(op: OAuthParams, google: Google) -> None:
     assert (
         google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="invalid"
@@ -214,6 +214,6 @@ def test_invalid_authorization_code(op, google) -> None:
     )
 
 
-def test_invalid_access_token(google) -> None:
+def test_invalid_access_token(google: Google) -> None:
     user_info = google.get_user_info(access_token="...")
     assert user_info is None

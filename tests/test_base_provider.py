@@ -4,7 +4,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-def test_base_redirect_url():
+def test_base_redirect_url() -> None:
     mp = MockProvider(
         client_id="client_id",
         client_secret="client_secret",
