@@ -2,6 +2,7 @@ from logging import Logger
 from typing import List
 from fastauth.data import CookiesData, StatusCode
 from fastauth.cookies import Cookies
+from fastauth.utils import get_base_url
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import decipher_jwt
@@ -26,9 +27,12 @@ class Signout:
         self.secret = secret
         self.logger = logger
         self.debug = debug
-        self.success_response = OAuthRedirectResponse(self.post_signout_uri)
+        self.__base_url = get_base_url(request)
+        self.success_response = OAuthRedirectResponse(
+            url=self.__base_url + self.post_signout_uri
+        )
         self.failure_response = OAuthRedirectResponse(
-            url=self.error_uri, status_code=StatusCode.BAD_REQUEST
+            url=self.__base_url + self.error_uri, status_code=StatusCode.BAD_REQUEST
         )
         self.cookie = Cookies(request=request, response=self.success_response)
 
