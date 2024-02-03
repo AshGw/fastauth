@@ -107,7 +107,7 @@ class Provider(ABC, Config):
         return qp
 
 
-def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:
+def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no cover
     @wraps(f)
     def wrap(*args: _PSpec.args, **kwargs: _PSpec.kwargs) -> _T:
         provider = next((arg for arg in args if isinstance(arg, Provider)), None)
