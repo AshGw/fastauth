@@ -6,6 +6,7 @@ from fastauth.utils import gen_csrf_token, get_base_url
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import encipher_user_info
+from fastauth.signin import SignIn
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
 from fastauth._types import UserInfo
@@ -24,6 +25,7 @@ class _CallbackBase:
         logger: Logger,
         request: OAuthRequest,
         jwt_max_age: int,
+        signin_callback: Optional[SignIn],
         debug: bool,
     ) -> None:
         self.code = code
@@ -33,6 +35,7 @@ class _CallbackBase:
         self.state = state
         self.debug = debug
         self.jwt_max_age = jwt_max_age
+        self.signin_callback = signin_callback
         self.__base_url = get_base_url(request)
         self.success_response = OAuthRedirectResponse(
             url=self.__base_url + post_signin_uri
@@ -88,6 +91,7 @@ class Callback(_CallbackBase):
         secret: str,
         logger: Logger,
         jwt_max_age: int,
+        signin_callback: Optional[SignIn],
         request: OAuthRequest,
         debug: bool,
     ) -> None:
@@ -100,6 +104,7 @@ class Callback(_CallbackBase):
             secret=secret,
             logger=logger,
             jwt_max_age=jwt_max_age,
+            signin_callback=signin_callback,
             request=request,
             debug=debug,
         )
@@ -125,4 +130,6 @@ class Callback(_CallbackBase):
             return self.error_response
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
         self.set_csrf_token()
+        if self.signin_callback:
+            self.signin_callback(user_info=user_info)
         return self.success_response

@@ -71,6 +71,7 @@ class OAuth2(OAuth2Base):
                 debug=self.debug,
                 provider=self.provider,
                 post_signin_uri=self.post_signin_uri,
+                signin_callback=self.signin_callback,
                 secret=self.secret,
                 logger=self.logger,
                 error_uri=self.error_uri,
