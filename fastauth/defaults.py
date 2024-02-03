@@ -1,20 +1,22 @@
 from logging import Logger
-from typing import NamedTuple
+from typing import NamedTuple, ClassVar
 from fastauth.log import logger as flogger
 
 
-class DefaultPararms(NamedTuple):
+class DefaultParams(NamedTuple):
     debug: bool
     logger: Logger
 
 
 class Defaults:
-    _logger: Logger = flogger
-    _debug: bool = True
+    _logger: ClassVar[Logger] = flogger
+    _debug: ClassVar[bool] = True
 
-    def get_defaults(self) -> DefaultPararms:
-        return DefaultPararms(debug=self._debug, logger=self._logger)
+    @classmethod
+    def defaults(cls) -> DefaultParams:
+        return DefaultParams(debug=cls._debug, logger=cls._logger)
 
-    def set_defaults(self, debug: bool, logger: Logger) -> None:
-        self._debug = debug
-        self._logger = logger
+    @classmethod
+    def set_defaults(cls, debug: bool, logger: Logger) -> None:
+        cls._debug = debug
+        cls._logger = logger
