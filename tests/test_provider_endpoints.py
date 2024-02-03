@@ -2,7 +2,7 @@ import validators  # type: ignore
 from fastauth.data import OAuthURLs
 
 
-def test_urls():
+def test_urls() -> None:
     providers = [
         OAuthURLs.Google,
         OAuthURLs.GitHub,

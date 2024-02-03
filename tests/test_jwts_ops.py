@@ -13,9 +13,8 @@ from dataclasses import dataclass
 NOW = datetime.utcnow()
 
 
-def test_all():
-    data = _TestData()
-
+def test_all() -> None:
+    data = TestData()
     user_info = UserInfo(
         name=data.name,
         email=data.email,
@@ -36,7 +35,7 @@ def test_all():
 
 
 @dataclass
-class _TestData:
+class TestData:
     __test__ = False
     secret_key = generate_secret()
     name = "John doe"

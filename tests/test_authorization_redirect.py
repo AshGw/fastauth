@@ -7,7 +7,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-def test_oauth_redirect_url():
+def test_oauth_redirect_url() -> None:
     pv = MockProvider(
         client_id="client_id",
         client_secret="client_secret",

@@ -1,5 +1,5 @@
 import pytest
-from typing import cast
+from typing import cast, Dict, Any
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -20,6 +20,7 @@ from fastauth.exceptions import (
     SchemaValidationError,
 )
 from fastauth.utils import gen_oauth_params
+from fastauth._types import OAuthParams
 
 load_dotenv()
 
@@ -29,7 +30,7 @@ redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 
 @pytest.fixture
-def google_debug():
+def google_debug() -> Google:
     return Google(
         client_id=client_id,
         client_secret=client_secret,
@@ -40,7 +41,7 @@ def google_debug():
 
 
 @pytest.fixture
-def google():
+def google() -> Google:
     return Google(
         client_id=client_id,
         client_secret=client_secret,
@@ -51,27 +52,27 @@ def google():
 
 
 @pytest.fixture
-def op():
+def op() -> OAuthParams:
     return gen_oauth_params()
 
 
 @pytest.fixture
-def JSON_valid_user_data():
+def valid_user_data() -> Dict[str, Any]:
     return GoogleUserJSONData(
-        email="example@gmail.com",
+        email="example@gmail.com",  # type: ignore
         verified_email=True,
         given_name="John",
         family_name="Doe",
-        picture="https://example.com/hosted/pic",
+        picture="https://example.com/hosted/pic",  # type: ignore
         locale="en",
         id="123",
         name="John Doe",
     ).dict()
 
 
-def test_token_acquisition(op, google, google_debug):
+def test_token_acquisition(op, google, google_debug) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._access_token_request"
+        "fastauth.providers.google.google.Google._request_access_token"
     ) as mock_request:
         mock_response = Mock()
         # invalid auth code, raise in debug
@@ -84,7 +85,7 @@ def test_token_acquisition(op, google, google_debug):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         assert (
-            google_debug._access_token_request(
+            google_debug._request_access_token(
                 code_verifier="..", code="..", state=".."
             ).status_code
             in SUCCESS_STATUS_CODES
@@ -126,9 +127,9 @@ def test_token_acquisition(op, google, google_debug):
         )
 
 
-def test_user_info_acquisition(JSON_valid_user_data, google, google_debug):
+def test_user_info_acquisition(valid_user_data, google, google_debug) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._user_info_request"
+        "fastauth.providers.google.google.Google._request_user_info"
     ) as mock_request:
         mock_response = Mock()
 
@@ -142,14 +143,14 @@ def test_user_info_acquisition(JSON_valid_user_data, google, google_debug):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         assert (
-            google_debug._user_info_request(access_token="valid_one").status_code
+            google_debug._request_user_info(access_token="valid_one").status_code
             in SUCCESS_STATUS_CODES
         )
 
-        mock_response.json.return_value = JSON_valid_user_data
+        mock_response.json.return_value = valid_user_data
         mock_request.return_value = mock_response
         assert google.get_user_info(access_token="valid_one") == serialize_user_info(
-            google_debug._user_info_request(access_token="valid_one").json()
+            google_debug._request_user_info(access_token="valid_one").json()
         )
 
         # What if in 2077 google changes the way they send their data ?
@@ -170,9 +171,9 @@ def test_user_info_acquisition(JSON_valid_user_data, google, google_debug):
         assert google.get_user_info(access_token="valid_one") is None
 
 
-def test_serialize(JSON_valid_user_data):
+def test_serialize(valid_user_data) -> None:
     # Example data
-    valid_data = JSON_valid_user_data
+    valid_data = valid_user_data
     # Expected result
     expected_result = {
         "user_id": "123",
@@ -192,11 +193,11 @@ def test_serialize(JSON_valid_user_data):
     with pytest.raises(ValidationError):
         serialize_user_info(
             GoogleUserJSONData(
-                email="example@gmail",  # invalid email
+                email="example@gmail",  # type: ignore   # invalid email
                 verified_email=True,
                 given_name="John",
                 family_name="Doe",
-                picture="htps://example.com/hosted/pic",  # not an actual HTTP(s) URL
+                picture="htps://example.com/hosted/pic",  # type: ignore   # not an actual HTTP(s) URL
                 locale="en",
                 id="123",
                 name="John Doe",
@@ -204,7 +205,7 @@ def test_serialize(JSON_valid_user_data):
         )
 
 
-def test_invalid_authorization_code(op, google):
+def test_invalid_authorization_code(op: OAuthParams, google: Google) -> None:
     assert (
         google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="invalid"
@@ -213,6 +214,6 @@ def test_invalid_authorization_code(op, google):
     )
 
 
-def test_invalid_access_token(google):
+def test_invalid_access_token(google: Google) -> None:
     user_info = google.get_user_info(access_token="...")
     assert user_info is None

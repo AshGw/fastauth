@@ -3,13 +3,13 @@ from fastauth import utils
 from fastauth._types import QueryParams
 
 
-def test_auth_cookie_name():
+def test_auth_cookie_name() -> None:
     c_name = uuid4().hex
     result = utils.name_cookie(name=c_name)
     assert result == "fastauth." + c_name
 
 
-def test_csrf():
+def test_csrf() -> None:
     token = utils.gen_csrf_token()
     assert len(token) == 84
     assert isinstance(token, str)

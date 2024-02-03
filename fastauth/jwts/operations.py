@@ -1,7 +1,7 @@
-from jose.jwt import encode as encode_jwt  # type: ignore
+from jose.jwt import encode as encode_jwt
 from jose.jwt import decode as decode_jwt
 from jose.jwt import ALGORITHMS
-from jose.jwe import encrypt, decrypt  # type: ignore
+from jose.jwe import encrypt, decrypt
 from datetime import datetime, timedelta
 from fastauth.data import CookiesData
 from fastauth.jwts.helpers import validate_key

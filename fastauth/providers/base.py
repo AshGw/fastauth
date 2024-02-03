@@ -56,7 +56,7 @@ class Provider(ABC):
         ...
 
     @final
-    def _access_token_request(
+    def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
     ) -> HttpxResponse:
         return post(
@@ -71,7 +71,7 @@ class Provider(ABC):
         )
 
     @final
-    def _user_info_request(self, *, access_token: str) -> HttpxResponse:
+    def _request_user_info(self, *, access_token: str) -> HttpxResponse:
         return get(
             url=self.userInfo,
             headers={

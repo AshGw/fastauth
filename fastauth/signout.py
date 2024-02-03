@@ -7,7 +7,7 @@ from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
-from jose.exceptions import JWTError  # type: ignore
+from jose.exceptions import JWTError
 
 
 class Signout:

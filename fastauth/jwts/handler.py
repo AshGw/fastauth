@@ -1,7 +1,7 @@
 from typing import Optional
 from logging import Logger
 
-from jose.exceptions import JOSEError  # type: ignore
+from jose.exceptions import JOSEError
 
 from fastauth._types import JWT, ViewableJWT
 from fastauth.data import CookiesData
