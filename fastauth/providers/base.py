@@ -1,14 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Final
-from logging import Logger
+from functools import wraps
+from typing import Dict, final, Final, TypeVar, ParamSpec, Callable, Optional
+
 from httpx import post, get
 from httpx import Response as HttpxResponse
+
 from fastauth.responses import OAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams
-from typing import Dict, final
+from fastauth.config import Config
 
 
-class Provider(ABC):
+_T = TypeVar("_T")
+_PSpec = ParamSpec("_PSpec")
+
+
+class Provider(ABC, Config):
     """
     you would inherit from this base class to create your own provider
     """
@@ -26,8 +32,6 @@ class Provider(ABC):
         authorizationUrl: str,
         tokenUrl: str,
         userInfo: str,
-        debug: bool,
-        logger: Logger,
     ) -> None:
         self.provider = provider
         self.client_id = client_id
@@ -36,8 +40,6 @@ class Provider(ABC):
         self.authorizationUrl = authorizationUrl
         self.tokenUrl = tokenUrl
         self.userInfo = userInfo
-        self.debug = debug
-        self.logger = logger
 
     @abstractmethod
     def authorize(
@@ -103,3 +105,38 @@ class Provider(ABC):
         }
 
         return qp
+
+
+def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:
+    @wraps(f)
+    def wrap(*args: _PSpec.args, **kwargs: _PSpec.kwargs) -> _T:
+        provider = next((arg for arg in args if isinstance(arg, Provider)), None)
+        if not provider:
+            raise RuntimeError(
+                f"{f.__qualname__}: Can only log members of the {Provider} class"
+            )
+        if f.__name__ == provider.authorize.__name__:
+            provider.logger.info(
+                f"Redirecting the client to the resource owner via"
+                f" {provider.provider} authorization server"
+            )
+            return f(*args, **kwargs)
+
+        if f.__name__ == provider.get_access_token.__name__:
+            provider.logger.info(
+                f"Requesting the access token from {provider.provider} "
+                f"authorization server"
+            )
+            return f(*args, **kwargs)
+
+        if f.__name__ == provider.get_user_info.__name__:
+            provider.logger.info(
+                f"Requesting user information from {provider.provider} "
+                f"resource server"
+            )
+            return f(*args, **kwargs)
+        raise RuntimeError(
+            f"{f.__qualname__}: No logging implementation was found for this method"
+        )
+
+    return wrap

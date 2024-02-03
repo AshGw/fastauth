@@ -1,16 +1,15 @@
 from abc import ABC, abstractmethod
-from logging import Logger
+from fastauth.config import Config
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
 
 
-class OAuth2Base(ABC):
+class OAuth2Base(ABC, Config):
     def __init__(
         self,
         *,
         provider: Provider,
         secret: str,
-        debug: bool,
         signin_uri: str,
         signout_url: str,
         callback_uri: str,
@@ -20,7 +19,6 @@ class OAuth2Base(ABC):
         post_signout_uri: str,
         error_uri: str,
         jwt_max_age: int,
-        logger: Logger,
     ) -> None:
         self.provider = provider
         self.signin_uri = signin_uri
@@ -32,10 +30,7 @@ class OAuth2Base(ABC):
         self.csrf_token_uri = csrf_token_uri
         self.error_uri = error_uri
         self.jwt_max_age = jwt_max_age
-        self.logger = logger
         self.secret = secret
-        self.debug = debug
-
         self.auth_route = APIRouter()
         self.activate()
 
