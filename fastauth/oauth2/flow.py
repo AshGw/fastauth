@@ -53,9 +53,8 @@ class OAuth2(OAuth2Base):
         )
 
     @property
-    @override
-    def get_router(self) -> APIRouter:
-        return self.auth_route
+    def router(self) -> APIRouter:
+        return self.get_router()
 
     @override
     def on_signin(self) -> None:
