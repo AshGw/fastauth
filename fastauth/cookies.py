@@ -1,6 +1,7 @@
 from fastauth.requests import OAuthRequest
 from fastauth._types import OAuthBaseResponse
 from typing import Optional, Literal, Dict
+from fastauth.utils import name_cookie
 
 
 class Cookies:
@@ -29,7 +30,7 @@ class Cookies:
         max_age: Optional[int],
     ) -> None:
         self.response.set_cookie(
-            key=key,
+            key=name_cookie(name=key),
             value=value,
             max_age=max_age,
             path=self._path,
@@ -44,7 +45,7 @@ class Cookies:
         key: str,
     ) -> None:
         return self.response.delete_cookie(
-            key=key,
+            key=name_cookie(name=key),
             path=self._path,
             domain=self._domain,
             secure=self._is_secure(),
@@ -53,7 +54,7 @@ class Cookies:
         )
 
     def get(self, key: str) -> Optional[str]:
-        return self.request.cookies.get(key)
+        return self.request.cookies.get(name_cookie(name=key))
 
     def _is_secure(self) -> bool:
         return self.request.url.is_secure

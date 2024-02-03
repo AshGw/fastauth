@@ -2,7 +2,7 @@ from logging import Logger
 from fastauth.providers.base import Provider
 from fastauth.data import CookiesData
 from fastauth.cookies import Cookies
-from fastauth.utils import name_cookie, gen_csrf_token
+from fastauth.utils import gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import encipher_user_info
@@ -38,7 +38,7 @@ class _CallbackBase:
         self.cookie = Cookies(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
-        if self.cookie.get(name_cookie(name=CookiesData.State.name)) != self.state:
+        if self.cookie.get(CookiesData.State.name) != self.state:
             err = InvalidState()
             self.logger.error(err)
             if self.debug:
@@ -47,9 +47,7 @@ class _CallbackBase:
         return True
 
     def _get_code_verifier(self) -> Optional[str]:
-        code_verifier: Optional[str] = self.cookie.get(
-            name_cookie(name=CookiesData.Codeverifier.name)
-        )
+        code_verifier: Optional[str] = self.cookie.get(CookiesData.Codeverifier.name)
         if code_verifier is None:
             err = CodeVerifierNotFound()
             self.logger.error(err)
@@ -60,7 +58,7 @@ class _CallbackBase:
 
     def set_jwt(self, user_info: UserInfo, max_age: int) -> None:
         self.cookie.set(
-            key=name_cookie(name=CookiesData.JWT.name),
+            key=CookiesData.JWT.name,
             value=encipher_user_info(
                 user_info=user_info, key=self.secret, max_age=max_age
             ),
@@ -69,7 +67,7 @@ class _CallbackBase:
 
     def set_csrf_token(self) -> None:
         self.cookie.set(
-            key=name_cookie(name=CookiesData.CSRFToken.name),
+            key=CookiesData.CSRFToken.name,
             value=gen_csrf_token(),
             max_age=CookiesData.CSRFToken.max_age,
         )
