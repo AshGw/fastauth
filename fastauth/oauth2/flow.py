@@ -1,7 +1,6 @@
-from logging import Logger
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from overrides import override
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
@@ -9,11 +8,10 @@ from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
-from fastauth.signin import SignIn
+from fastauth.callbacks.signin import SignIn
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
 from fastauth.jwts.handler import JWTHandler
-from fastauth.defaults import Defaults
 
 
 class OAuth2(OAuth2Base):
@@ -31,24 +29,21 @@ class OAuth2(OAuth2Base):
         post_signout_uri: str = "/auth/out",  # TODO: change
         error_uri: str = "/auth/error",
         jwt_max_age: int = CookiesData.JWT.max_age,
-        logger: Logger = Defaults.get_logger(),
-        debug: bool = Defaults.get_debug(),
         signin_callback: Optional[SignIn] = None,
     ) -> None:
         super().__init__(
             provider=provider,
             secret=secret,
-            debug=debug,
             signin_uri=signin_uri + "/" + provider.provider,
             signout_url=signout_url,
             callback_uri=callback_uri,
             jwt_uri=jwt_uri,
             csrf_token_uri=csrf_token_uri,
             post_signin_uri=post_signin_uri,
+            signin_callback=signin_callback,
             post_signout_uri=post_signout_uri,
             error_uri=error_uri,
             jwt_max_age=jwt_max_age,
-            logger=logger,
         )
         self.signin_callback = signin_callback
 
@@ -65,10 +60,8 @@ class OAuth2(OAuth2Base):
         @self.router.get(self.callback_uri + "/" + self.provider.provider)
         async def callback(
             req: OAuthRequest,
-            code: Annotated[
-                str, "valid for 15 minutes max"
-            ],  # TODO: change this to Query
-            state: Annotated[str, "valid for 15 minutes max"],
+            code: str = Query(...),
+            state: str = Query(...),
         ) -> OAuthRedirectResponse:
             return Callback(
                 code=code,
@@ -77,6 +70,7 @@ class OAuth2(OAuth2Base):
                 debug=self.debug,
                 provider=self.provider,
                 post_signin_uri=self.post_signin_uri,
+                signin_callback=self.signin_callback,
                 secret=self.secret,
                 logger=self.logger,
                 error_uri=self.error_uri,

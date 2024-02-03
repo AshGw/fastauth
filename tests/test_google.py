@@ -3,7 +3,6 @@ from typing import cast, Dict, Any
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from logging import getLogger
 from dotenv import load_dotenv
 from os import getenv
 
@@ -21,6 +20,7 @@ from fastauth.exceptions import (
 )
 from fastauth.utils import gen_oauth_params
 from fastauth._types import OAuthParams
+from fastauth.config import Config
 
 load_dotenv()
 
@@ -30,24 +30,11 @@ redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 
 @pytest.fixture
-def google_debug() -> Google:
-    return Google(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri,
-        logger=getLogger("..."),
-        debug=True,
-    )
-
-
-@pytest.fixture
 def google() -> Google:
     return Google(
         client_id=client_id,
         client_secret=client_secret,
         redirect_uri=redirect_uri,
-        logger=getLogger("..."),
-        debug=False,
     )
 
 
@@ -70,14 +57,16 @@ def valid_user_data() -> Dict[str, Any]:
     ).dict()
 
 
-def test_token_acquisition(op, google, google_debug) -> None:
+def test_token_acquisition(op, google) -> None:
     with patch(
         "fastauth.providers.google.google.Google._request_access_token"
     ) as mock_request:
+        Config.debug = True
         mock_response = Mock()
         # invalid auth code, raise in debug
         with pytest.raises(InvalidTokenAcquisitionRequest):
-            google_debug.get_access_token(
+            Config.debug = True
+            google.get_access_token(
                 state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
 
@@ -85,7 +74,7 @@ def test_token_acquisition(op, google, google_debug) -> None:
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         assert (
-            google_debug._request_access_token(
+            google._request_access_token(
                 code_verifier="..", code="..", state=".."
             ).status_code
             in SUCCESS_STATUS_CODES
@@ -107,18 +96,19 @@ def test_token_acquisition(op, google, google_debug) -> None:
         }
         # valid access token JSON data should raise no errors
         mock_response.json.return_value = valid_token_response
-        google_debug.get_access_token(
+        google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="invalid"
         )
         # with invalid access token JSON data should raise in debug
         mock_response.json.return_value = invalid_token_response
         with pytest.raises(SchemaValidationError):
-            google_debug.get_access_token(
+            google.get_access_token(
                 state=op.state, code_verifier=op.code_verifier, code="invalid"
             )
 
         # with invalid access token JSON data should return None in normal mode
         mock_response.json.return_value = invalid_token_response
+        Config.debug = False
         assert (
             google.get_access_token(
                 state=op.state, code_verifier=op.code_verifier, code="invalid"
@@ -127,30 +117,33 @@ def test_token_acquisition(op, google, google_debug) -> None:
         )
 
 
-def test_user_info_acquisition(valid_user_data, google, google_debug) -> None:
+def test_user_info_acquisition(valid_user_data, google) -> None:
     with patch(
         "fastauth.providers.google.google.Google._request_user_info"
     ) as mock_request:
         mock_response = Mock()
-
+        Config.debug = True
         with pytest.raises(
             InvalidUserInfoAccessRequest
         ):  # invalid auth code before patching
-            google_debug.get_user_info(access_token="invalid")
+            google.get_user_info(access_token="invalid")
         # in normal mode this should return None
+        Config.debug = False
         assert google.get_user_info(access_token="invalid") is None
         # ok how about a success ?
         mock_response.status_code = 200
         mock_request.return_value = mock_response
+        Config.debug = True
         assert (
-            google_debug._request_user_info(access_token="valid_one").status_code
+            google._request_user_info(access_token="valid_one").status_code
             in SUCCESS_STATUS_CODES
         )
 
         mock_response.json.return_value = valid_user_data
         mock_request.return_value = mock_response
+        Config.debug = False
         assert google.get_user_info(access_token="valid_one") == serialize_user_info(
-            google_debug._request_user_info(access_token="valid_one").json()
+            google._request_user_info(access_token="valid_one").json()
         )
 
         # What if in 2077 google changes the way they send their data ?
@@ -166,8 +159,10 @@ def test_user_info_acquisition(valid_user_data, google, google_debug) -> None:
         }
         mock_request.return_value = mock_response
         with pytest.raises(SchemaValidationError):  # raise in debug
-            google_debug.get_user_info(access_token="valid_one")
+            Config.debug = True
+            google.get_user_info(access_token="valid_one")
         # no info if normal
+        Config.debug = False
         assert google.get_user_info(access_token="valid_one") is None
 
 
@@ -206,6 +201,7 @@ def test_serialize(valid_user_data) -> None:
 
 
 def test_invalid_authorization_code(op: OAuthParams, google: Google) -> None:
+    Config.debug = False
     assert (
         google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="invalid"
@@ -215,5 +211,6 @@ def test_invalid_authorization_code(op: OAuthParams, google: Google) -> None:
 
 
 def test_invalid_access_token(google: Google) -> None:
+    Config.debug = False
     user_info = google.get_user_info(access_token="...")
     assert user_info is None

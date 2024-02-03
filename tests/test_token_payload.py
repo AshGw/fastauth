@@ -1,6 +1,4 @@
 import pytest
-from fastauth.log import logger
-from logging import Logger
 from fastauth._types import QueryParams
 from .utils import MockProvider
 
@@ -11,8 +9,6 @@ def p() -> "Provider":
         client_id="client_id",
         redirect_uri="https://example.com/redirect",
         client_secret="client_secret",
-        debug=True,
-        logger=logger,
     )
 
 
@@ -37,15 +33,11 @@ class Provider(MockProvider):
         client_id: str,
         redirect_uri: str,
         client_secret: str,
-        debug: bool,
-        logger: Logger,
     ) -> None:
         super().__init__(
             client_id=client_id,
             redirect_uri=redirect_uri,
             client_secret=client_secret,
-            debug=debug,
-            logger=logger,
         )
 
     @property
