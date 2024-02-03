@@ -1,7 +1,4 @@
 from .utils import MockProvider
-from logging import getLogger
-
-logger = getLogger(__name__)
 
 
 def test_base_redirect_url() -> None:
@@ -9,8 +6,6 @@ def test_base_redirect_url() -> None:
         client_id="client_id",
         client_secret="client_secret",
         redirect_uri="https://example.com",
-        debug=True,
-        logger=logger,
     )
     payload = mp._token_request_payload(
         code="code",

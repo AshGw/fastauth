@@ -1,7 +1,6 @@
 from fastauth._types import UserInfo
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
-from logging import Logger
 
 
 class MockProvider(Provider):
@@ -10,8 +9,6 @@ class MockProvider(Provider):
         client_id: str,
         client_secret: str,
         redirect_uri: str,
-        debug: bool,
-        logger: Logger,
     ):
         super().__init__(
             client_id=client_id,
@@ -21,8 +18,6 @@ class MockProvider(Provider):
             authorizationUrl="https://accounts.exmaple.com/authorize",
             tokenUrl="https://accounts.exmaple.com/api/token",
             userInfo="https://api.exmaple.com/v1/me",
-            debug=debug,
-            logger=logger,
         )
 
     def authorize(

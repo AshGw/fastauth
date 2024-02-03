@@ -1,19 +1,12 @@
 from .utils import MockProvider
 from fastauth.grant_redirect import AuthGrantRedirect
 
-from logging import getLogger
-
-
-logger = getLogger(__name__)
-
 
 def test_oauth_redirect_url() -> None:
     pv = MockProvider(
         client_id="client_id",
         client_secret="client_secret",
         redirect_uri="https://mysite.com/auth/callback/mock",
-        debug=True,
-        logger=logger,
     )
     redirect = AuthGrantRedirect(
         provider=pv,
