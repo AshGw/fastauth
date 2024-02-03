@@ -10,7 +10,6 @@ from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
 from fastauth.signin import SignIn
-from fastauth._types import UserInfo
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
 from fastauth.log import logger as authlogger
@@ -34,7 +33,7 @@ class OAuth2(OAuth2Base):
         error_uri: str = "/auth/error",
         jwt_max_age: int = CookiesData.JWT.max_age,
         logger: Logger = authlogger,
-        on_signin: SignIn[UserInfo],
+        signin_callback: SignIn,
     ) -> None:
         super().__init__(
             provider=provider,
@@ -51,7 +50,7 @@ class OAuth2(OAuth2Base):
             jwt_max_age=jwt_max_age,
             logger=logger,
         )
-        self.on_signin = on_signin
+        self.signin_callback = signin_callback
 
     @property
     def router(self) -> APIRouter:
