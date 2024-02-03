@@ -35,7 +35,9 @@ class OAuth2Base(ABC):
         self.logger = logger
         self.secret = secret
         self.debug = debug
+
         self.auth_route = APIRouter()
+        self.activate()
 
     @abstractmethod
     def on_signin(self) -> None:
@@ -45,5 +47,10 @@ class OAuth2Base(ABC):
     def on_signout(self) -> None:
         ...
 
-    def get_router(self) -> APIRouter:
+    @abstractmethod
+    def jwt(self) -> None:
+        ...
+
+    @abstractmethod
+    def activate(self) -> None:
         ...
