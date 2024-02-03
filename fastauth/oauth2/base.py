@@ -45,7 +45,5 @@ class OAuth2Base(ABC):
     def on_signout(self) -> None:
         ...
 
-    @abstractmethod
-    @property
     def get_router(self) -> APIRouter:
         ...
