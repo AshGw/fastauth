@@ -4,8 +4,9 @@ from jose.jwt import ALGORITHMS
 from jose.jwe import encrypt, decrypt
 from datetime import datetime, timedelta
 from fastauth.data import CookiesData
-from fastauth.jwts.helpers import validate_key
-from fastauth._types import JWT, UserInfo
+from fastauth.jwts.helpers import validate_secret_key
+from fastauth._types import JWT, UserInfo, FallbackSecrets
+from typing import Optional
 
 JWT_MAX_AGE = CookiesData.JWT.max_age
 JWT_ALGORITHM = ALGORITHMS.HS256
@@ -15,7 +16,10 @@ SUBJECT = "client"
 
 
 def encipher_user_info(
-    user_info: UserInfo, key: str, max_age: int = JWT_MAX_AGE
+    user_info: UserInfo,
+    key: str,
+    max_age: int = JWT_MAX_AGE,
+    fallback_secrets: Optional[FallbackSecrets] = None,
 ) -> str:
     """
     Encrypts a given user-info payload and returns an encrypted JWT.
@@ -25,7 +29,7 @@ def encipher_user_info(
     :raises: JOSEError
     :return: The encrypted JWT
     """
-    validate_key(key)
+    key = validate_secret_key(key)
     now = datetime.utcnow()
     plain_jwt: str = encode_jwt(
         claims=JWT(
@@ -35,9 +39,10 @@ def encipher_user_info(
             exp=now + timedelta(seconds=max_age),
             user_info=user_info,
         ),
-        key=key[:32],
+        key=key,
         algorithm=JWT_ALGORITHM,
     )
+
     encrypted_jwt: str = (
         encrypt(
             plaintext=plain_jwt.encode(),
@@ -59,7 +64,7 @@ def decipher_jwt(encrypted_jwt: str, key: str) -> JWT:
     :raises: JOSEError
     :return: JWT
     """
-    validate_key(key)
+    validate_secret_key(key)
     decrypted_jwt: str = decrypt(jwe_str=encrypted_jwt, key=key).rstrip(b"=").decode()
     jwt: JWT = decode_jwt(
         token=decrypted_jwt,

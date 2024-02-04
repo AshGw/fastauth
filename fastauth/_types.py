@@ -55,6 +55,14 @@ class OAuthParams(NamedTuple):
     code_challenge_method: str
 
 
+class FallbackSecrets(NamedTuple):
+    secret_1: str
+    secret_2: str
+    secret_3: str
+    secret_4: str
+    secret_5: str
+
+
 @runtime_checkable
 class Callbacks(Protocol):
     def on_signin(

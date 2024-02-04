@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 from overrides import override
+from fastauth._types import FallbackSecrets
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
@@ -20,6 +21,7 @@ class OAuth2(OAuth2Base):
         *,
         provider: Provider,
         secret: str,
+        fallback_secrets: Optional[FallbackSecrets] = None,
         signin_uri: str = "/auth/signin",
         signout_url: str = "/auth/signout",
         callback_uri: str = "/auth/callback",
@@ -34,6 +36,7 @@ class OAuth2(OAuth2Base):
         super().__init__(
             provider=provider,
             secret=secret,
+            fallback_secrets=fallback_secrets,
             signin_uri=signin_uri + "/" + provider.provider,
             signout_url=signout_url,
             callback_uri=callback_uri,
@@ -45,7 +48,6 @@ class OAuth2(OAuth2Base):
             error_uri=error_uri,
             jwt_max_age=jwt_max_age,
         )
-        self.signin_callback = signin_callback
 
     @property
     def router(self) -> APIRouter:
@@ -67,6 +69,7 @@ class OAuth2(OAuth2Base):
                 code=code,
                 request=req,
                 state=state,
+                fallback_secrets=self.fallback_secrets,
                 debug=self.debug,
                 provider=self.provider,
                 post_signin_uri=self.post_signin_uri,

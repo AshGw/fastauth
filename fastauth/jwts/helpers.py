@@ -9,6 +9,7 @@ def generate_secret() -> str:
     return urandom(16).hex()
 
 
-def validate_key(key: str) -> None:
+def validate_secret_key(key: str) -> str:
     if len(key) != 32:
         raise WrongKeyLength()
+    return key[:32]
