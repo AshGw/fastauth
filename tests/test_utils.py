@@ -11,7 +11,7 @@ def test_auth_cookie_name() -> None:
 
 def test_csrf() -> None:
     token = utils.gen_csrf_token()
-    assert len(token) == 84
+    assert len(token) == 128
     assert isinstance(token, str)
 
 
