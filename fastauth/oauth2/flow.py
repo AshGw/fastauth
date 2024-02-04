@@ -63,7 +63,7 @@ class OAuth2(OAuth2Base):
             code: str = Query(...),
             state: str = Query(...),
         ) -> OAuthRedirectResponse:
-            return Callback(
+            return await Callback(
                 code=code,
                 request=req,
                 state=state,
