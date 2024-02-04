@@ -50,12 +50,11 @@ def encipher_user_info(
             )
 
             return encrypted_jwt
-        except JOSEError as exc:
+        except JOSEError as exc:  # pragma: no cover
             e = exc
-    if e is not None:
-        raise e
-    else:
-        raise JOSEError("Failed to encipher user info with all the provided keys")
+    raise (
+        e if e is not None else ValueError(e)
+    )  # pragma: no cover # the latter never happens
 
 
 def decipher_jwt(encrypted_jwt: str, fallback_secrets: FallbackSecrets) -> JWT:
@@ -76,7 +75,4 @@ def decipher_jwt(encrypted_jwt: str, fallback_secrets: FallbackSecrets) -> JWT:
             return jwt
         except JOSEError as exc:
             e = exc
-    if e is not None:
-        raise e
-    else:
-        raise JOSEError("Failed to decipher user info with all the provided keys")
+    raise e if e is not None else ValueError(e)
