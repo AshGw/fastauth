@@ -7,7 +7,7 @@ from fastauth._types import JWT, ViewableJWT
 from fastauth.data import CookiesData
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
-from fastauth._types import OAuthBaseResponse
+from fastauth._types import OAuthBaseResponse, FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.data import StatusCode
@@ -20,13 +20,13 @@ class JWTHandler:
         *,
         request: OAuthRequest,
         response: OAuthBaseResponse,
-        secret: str,
+        fallback_secrets: FallbackSecrets,
         logger: Logger,
         debug: bool,
     ) -> None:
         self.logger = logger
         self.request = request
-        self.secret = secret
+        self.fallback_secrets = fallback_secrets
         self.debug = debug
         self.cookie = Cookies(request=request, response=response)
 
@@ -34,7 +34,9 @@ class JWTHandler:
         encrypted_jwt = self._get_jwt_cookie()
         if encrypted_jwt:
             try:
-                jwt: JWT = decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
+                jwt: JWT = decipher_jwt(
+                    encrypted_jwt=encrypted_jwt, fallback_secrets=self.fallback_secrets
+                )
                 return OAuthResponse(
                     content=ViewableJWT(jwt=jwt), status_code=StatusCode.OK
                 )

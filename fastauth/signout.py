@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import List
 from fastauth.data import CookiesData, StatusCode
+from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.utils import get_base_url
 from fastauth.responses import OAuthRedirectResponse
@@ -16,7 +17,7 @@ class Signout:
         *,
         post_signout_uri: str,
         request: OAuthRequest,
-        secret: str,
+        fallback_secrets: FallbackSecrets,
         error_uri: str,
         logger: Logger,
         debug: bool,
@@ -24,7 +25,7 @@ class Signout:
         self.post_signout_uri = post_signout_uri
         self.error_uri = error_uri
         self.request = request
-        self.secret = secret
+        self.fallback_secrets = fallback_secrets
         self.logger = logger
         self.debug = debug
         self.__base_url = get_base_url(request)
@@ -40,7 +41,9 @@ class Signout:
         encrypted_jwt = self.cookie.get(CookiesData.JWT.name)
         if encrypted_jwt:
             try:
-                decipher_jwt(encrypted_jwt=encrypted_jwt, key=self.secret)
+                decipher_jwt(
+                    encrypted_jwt=encrypted_jwt, fallback_secrets=self.fallback_secrets
+                )
             except JWTError as e:
                 error = JSONWebTokenTampering(error=e)
                 self.logger.warning(error)

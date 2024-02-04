@@ -22,8 +22,7 @@ class _CallbackBase:
         error_uri: str,
         code: str,
         state: str,
-        secret: str,
-        fallback_secrets: Optional[FallbackSecrets],
+        fallback_secrets: FallbackSecrets,
         logger: Logger,
         request: OAuthRequest,
         jwt_max_age: int,
@@ -32,7 +31,6 @@ class _CallbackBase:
     ) -> None:
         self.code = code
         self.provider = provider
-        self.secret = secret
         self.fallback_secrets = fallback_secrets
         self.logger = logger
         self.state = state
@@ -70,7 +68,6 @@ class _CallbackBase:
             key=CookiesData.JWT.name,
             value=encipher_user_info(
                 user_info=user_info,
-                key=self.secret,
                 max_age=max_age,
                 fallback_secrets=self.fallback_secrets,
             ),
@@ -94,8 +91,7 @@ class Callback(_CallbackBase):
         error_uri: str,
         code: str,
         state: str,
-        secret: str,
-        fallback_secrets: Optional[FallbackSecrets],
+        fallback_secrets: FallbackSecrets,
         logger: Logger,
         jwt_max_age: int,
         signin_callback: Optional[SignIn],
@@ -108,7 +104,6 @@ class Callback(_CallbackBase):
             error_uri=error_uri,
             code=code,
             state=state,
-            secret=secret,
             fallback_secrets=fallback_secrets,
             logger=logger,
             jwt_max_age=jwt_max_age,
