@@ -11,14 +11,9 @@ from typing import (
     MutableMapping,
     Mapping,
     Union,
-    Protocol,
-    runtime_checkable,
-    ParamSpec,
 )
 
 _F = TypeVar("_F", bound=Callable[..., Any])
-
-_PSpec = ParamSpec("_PSpec")
 
 QueryParams = MutableMapping[str, str]
 
@@ -61,16 +56,3 @@ class FallbackSecrets(NamedTuple):
     secret_3: str
     secret_4: str
     secret_5: str
-
-
-@runtime_checkable
-class Callbacks(Protocol):
-    def on_signin(
-        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
-    ) -> None:
-        ...
-
-    def sign_out(
-        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
-    ) -> None:
-        ...
