@@ -32,7 +32,7 @@ class UserInfo(TypedDict):
     user_id: str
     email: str
     name: str
-    avatar: Optional[str]  # some do not have an avatar make it optional
+    avatar: Optional[str]  # some do not have an avatar
 
 
 class JWT(TypedDict):
