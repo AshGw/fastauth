@@ -35,6 +35,9 @@ def secrets():
 
 @pytest.fixture
 def invalid_secrets():
+    """
+    invalid as in not the same ones intended for use
+    """
     return FallbackSecrets(
         secret_1=generate_secret(),
         secret_2=generate_secret(),

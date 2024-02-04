@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from fastauth._types import FallbackSecrets
 from fastauth.jwts.operations import (
     encipher_user_info,
     decipher_jwt,
@@ -22,9 +23,11 @@ def test_all() -> None:
         avatar=data.avatar,
     )
 
-    encrypted_jwt = encipher_user_info(user_info, data.secret_key, data.jwt_max_age)
+    encrypted_jwt = encipher_user_info(
+        user_info, data.fallback_secrets, data.jwt_max_age
+    )
 
-    decrypted_payload = decipher_jwt(encrypted_jwt, data.secret_key)
+    decrypted_payload = decipher_jwt(encrypted_jwt, data.fallback_secrets)
     assert decrypted_payload["user_info"]["name"] == data.name
     assert decrypted_payload["user_info"]["avatar"] == data.avatar
     assert decrypted_payload["user_info"]["user_id"] == data.user_id
@@ -37,7 +40,13 @@ def test_all() -> None:
 @dataclass
 class TestData:
     __test__ = False
-    secret_key = generate_secret()
+    fallback_secrets = FallbackSecrets(
+        secret_1=generate_secret(),
+        secret_2=generate_secret(),
+        secret_3=generate_secret(),
+        secret_4=generate_secret(),
+        secret_5=generate_secret(),
+    )
     name = "John doe"
     email = "johndoe@example.com"
     user_id = "123"
