@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 from overrides import override
+from fastauth._types import FallbackSecrets
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
@@ -19,7 +20,7 @@ class OAuth2(OAuth2Base):
         self,
         *,
         provider: Provider,
-        secret: str,
+        fallback_secrets: FallbackSecrets,
         signin_uri: str = "/auth/signin",
         signout_url: str = "/auth/signout",
         callback_uri: str = "/auth/callback",
@@ -33,7 +34,7 @@ class OAuth2(OAuth2Base):
     ) -> None:
         super().__init__(
             provider=provider,
-            secret=secret,
+            fallback_secrets=fallback_secrets,
             signin_uri=signin_uri + "/" + provider.provider,
             signout_url=signout_url,
             callback_uri=callback_uri,
@@ -45,7 +46,6 @@ class OAuth2(OAuth2Base):
             error_uri=error_uri,
             jwt_max_age=jwt_max_age,
         )
-        self.signin_callback = signin_callback
 
     @property
     def router(self) -> APIRouter:
@@ -67,11 +67,11 @@ class OAuth2(OAuth2Base):
                 code=code,
                 request=req,
                 state=state,
+                fallback_secrets=self.fallback_secrets,
                 debug=self.debug,
                 provider=self.provider,
                 post_signin_uri=self.post_signin_uri,
                 signin_callback=self.signin_callback,
-                secret=self.secret,
                 logger=self.logger,
                 error_uri=self.error_uri,
                 jwt_max_age=self.jwt_max_age,
@@ -84,10 +84,10 @@ class OAuth2(OAuth2Base):
             return Signout(
                 post_signout_uri=self.post_signout_uri,
                 request=request,
-                secret=self.secret,
                 error_uri=self.error_uri,
                 logger=self.logger,
                 debug=self.debug,
+                fallback_secrets=self.fallback_secrets,
             )()
 
     @override
@@ -97,7 +97,7 @@ class OAuth2(OAuth2Base):
             return JWTHandler(
                 request=request,
                 response=response,
-                secret=self.secret,
+                fallback_secrets=self.fallback_secrets,
                 logger=self.logger,
                 debug=self.debug,
             ).get_jwt()

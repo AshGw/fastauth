@@ -1,6 +1,6 @@
 import pytest
 from string import ascii_letters, digits
-from fastauth.jwts.helpers import generate_secret, validate_key
+from fastauth.jwts.helpers import generate_secret, validate_secret_key
 from fastauth.exceptions import WrongKeyLength
 
 
@@ -17,10 +17,12 @@ def test_generate_secret() -> None:
 
 def test_check_key_length_valid():
     key = "a" * 32
-    validate_key(key)
+    validate_secret_key(key)
 
 
 def test_check_key_length_invalid():
-    key = "short_key"
+    key = "a" * 32
+    key1 = validate_secret_key(key)
+    key2 = validate_secret_key(key1)[:-1]
     with pytest.raises(WrongKeyLength):
-        validate_key(key)
+        validate_secret_key(key2)
