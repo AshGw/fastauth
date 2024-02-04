@@ -112,23 +112,23 @@ class Callback(_CallbackBase):
             debug=debug,
         )
 
-    def get_user_info(self) -> Optional[UserInfo]:
+    async def get_user_info(self) -> Optional[UserInfo]:
         valid_state: bool = self._is_state_valid()
         if not valid_state:
             return None
         code_verifier: Optional[str] = self._get_code_verifier()
         if code_verifier is None:
             return None
-        access_token: Optional[str] = self.provider.get_access_token(
+        access_token: Optional[str] = await self.provider.get_access_token(
             code_verifier=code_verifier, code=self.code, state=self.state
         )
         if access_token is None:
             return None
-        user_info: Optional[UserInfo] = self.provider.get_user_info(access_token)
+        user_info: Optional[UserInfo] = await self.provider.get_user_info(access_token)
         return user_info
 
-    def __call__(self) -> OAuthRedirectResponse:
-        user_info: Optional[UserInfo] = self.get_user_info()
+    async def __call__(self) -> OAuthRedirectResponse:
+        user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)

@@ -41,7 +41,7 @@ class Provider(ABC, Config):
         self.userInfo = userInfo
 
     @abstractmethod
-    async def authorize(
+    def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:
         ...
