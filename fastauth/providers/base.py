@@ -8,14 +8,13 @@ from typing import (
     ParamSpec,
     Callable,
     Optional,
-    Any,
     NamedTuple,
 )
 
 from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
-from fastauth._types import UserInfo, QueryParams
+from fastauth._types import UserInfo, QueryParams, ProviderJSONResponse
 from fastauth.config import Config
 
 
@@ -157,4 +156,4 @@ def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no c
 
 class HTTPXResponseData(NamedTuple):
     status_code: int
-    json: Dict[Any, Any]
+    json: ProviderJSONResponse

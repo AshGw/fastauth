@@ -63,20 +63,18 @@ class Google(Provider):
             code_verifier=code_verifier, code=code, state=state
         )
 
-        response_data: ProviderJSONResponse = response.json
-
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
                 provider=self.provider,
                 debug=True,
-                provider_response_data=response_data,
+                provider_response_data=response.json,
             )
             self.logger.warning(token_acquisition_error)
             if self.debug:
                 raise token_acquisition_error
             return None
         try:
-            access_token: str = serialize_access_token(response_data)
+            access_token: str = serialize_access_token(response.json)
             self.logger.info(f"Access token acquired successfully from {self.provider}")
             return access_token
         except ValidationError as ve:
@@ -85,7 +83,7 @@ class Google(Provider):
                 resource="access token",
                 validation_error=ve,
                 debug=self.debug,
-                provider_response_data=response_data,
+                provider_response_data=response.json,
             )
             self.logger.warning(schema_error)
             if self.debug:
@@ -95,19 +93,18 @@ class Google(Provider):
     @override
     async def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         response = await self._request_user_info(access_token=access_token)
-        json_response = response.json
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
                 provider=self.provider,
                 debug=True,
-                provider_response_data=json_response,
+                provider_response_data=response.json,
             )
             self.logger.warning(resource_access_error)
             if self.debug:
                 raise resource_access_error
             return None
 
-        provider_response_data: ProviderJSONResponse = json_response
+        provider_response_data: ProviderJSONResponse = response.json
 
         try:
             user_info: GoogleUserInfo = serialize_user_info(provider_response_data)
