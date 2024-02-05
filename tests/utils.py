@@ -32,7 +32,7 @@ class MockProvider(Provider):
         _ = await self._request_access_token(
             code_verifier=code_verifier, code=code, state=state
         )
-        return "none"
+        return "..."
 
     async def get_user_info(
         self, _access_token: str
