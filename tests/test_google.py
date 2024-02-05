@@ -32,48 +32,6 @@ client_secret: str = cast(str, getenv("GOOGLE_CLIENT_SECRET"))
 redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 
-@pytest.fixture
-def google() -> Google:
-    return Google(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri,
-    )
-
-
-@pytest.fixture
-def op() -> OAuthParams:
-    return gen_oauth_params()
-
-
-@pytest.fixture
-def valid_user_data() -> Dict[str, Any]:
-    return GoogleUserJSONData(
-        email="example@gmail.com",  # type: ignore
-        verified_email=True,
-        given_name="John",
-        family_name="Doe",
-        picture="https://example.com/hosted/pic",  # type: ignore
-        locale="en",
-        id="123",
-        name="John Doe",
-    ).dict()
-
-
-@pytest.fixture
-def invalid_user_data() -> Dict[str, str]:
-    return {
-        "id": "123",
-        "email": "not@gmail",  #
-        "verified_email": True,
-        "name": "John Doe",
-        "given_name": "John",
-        "family_name": "Doe",
-        "picture": "htps://lh3.googleusercontent.com/a/abc",  #
-        "locale": "en",
-    }
-
-
 @pytest.mark.asyncio
 async def test_user_info_acquisition(valid_user_data, google) -> None:
     with patch(
@@ -183,3 +141,45 @@ def test_serialize(valid_user_data) -> None:
                 name="John Doe",
             ).dict()
         )
+
+
+@pytest.fixture
+def google() -> Google:
+    return Google(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+    )
+
+
+@pytest.fixture
+def op() -> OAuthParams:
+    return gen_oauth_params()
+
+
+@pytest.fixture
+def valid_user_data() -> Dict[str, Any]:
+    return GoogleUserJSONData(
+        email="example@gmail.com",  # type: ignore
+        verified_email=True,
+        given_name="John",
+        family_name="Doe",
+        picture="https://example.com/hosted/pic",  # type: ignore
+        locale="en",
+        id="123",
+        name="John Doe",
+    ).dict()
+
+
+@pytest.fixture
+def invalid_user_data() -> Dict[str, str]:
+    return {
+        "id": "123",
+        "email": "not@gmail",  #
+        "verified_email": True,
+        "name": "John Doe",
+        "given_name": "John",
+        "family_name": "Doe",
+        "picture": "htps://lh3.googleusercontent.com/a/abc",  #
+        "locale": "en",
+    }
