@@ -11,14 +11,9 @@ from typing import (
     MutableMapping,
     Mapping,
     Union,
-    Protocol,
-    runtime_checkable,
-    ParamSpec,
 )
 
 _F = TypeVar("_F", bound=Callable[..., Any])
-
-_PSpec = ParamSpec("_PSpec")
 
 QueryParams = MutableMapping[str, str]
 
@@ -29,6 +24,12 @@ ProviderResponse = Union[ProviderJSONResponse, str]
 OAuthBaseResponse = Union[OAuthRedirectResponse, OAuthResponse]
 
 
+class ProviderResponseData(NamedTuple):
+    status_code: int
+    json: ProviderJSONResponse
+    text: str
+
+
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]
 
@@ -37,7 +38,7 @@ class UserInfo(TypedDict):
     user_id: str
     email: str
     name: str
-    avatar: Optional[str]  # some do not have an avatar make it optional
+    avatar: Optional[str]  # some do not have an avatar
 
 
 class JWT(TypedDict):
@@ -61,16 +62,3 @@ class FallbackSecrets(NamedTuple):
     secret_3: str
     secret_4: str
     secret_5: str
-
-
-@runtime_checkable
-class Callbacks(Protocol):
-    def on_signin(
-        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
-    ) -> None:
-        ...
-
-    def sign_out(
-        self, user_info: UserInfo, args: _PSpec.args, kwargs: _PSpec.kwargs
-    ) -> None:
-        ...

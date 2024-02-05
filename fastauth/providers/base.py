@@ -1,12 +1,19 @@
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Dict, final, Final, TypeVar, ParamSpec, Callable, Optional
+from typing import (
+    Dict,
+    final,
+    Final,
+    TypeVar,
+    ParamSpec,
+    Callable,
+    Optional,
+)
 
-from httpx import post, get
-from httpx import Response as HttpxResponse
+from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
-from fastauth._types import UserInfo, QueryParams
+from fastauth._types import UserInfo, QueryParams, ProviderResponseData
 from fastauth.config import Config
 
 
@@ -48,39 +55,47 @@ class Provider(ABC, Config):
         ...
 
     @abstractmethod
-    def get_access_token(
+    async def get_access_token(
         self, *, code_verifier: str, code: str, state: str
     ) -> Optional[str]:
         ...
 
     @abstractmethod
-    def get_user_info(self, access_token: str) -> Optional[UserInfo]:
+    async def get_user_info(self, access_token: str) -> Optional[UserInfo]:
         ...
 
     @final
-    def _request_access_token(
+    async def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
-    ) -> HttpxResponse:
-        return post(
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-            url=self.tokenUrl,
-            data=self._token_request_payload(
-                code=code,
-                state=state,
-                code_verifier=code_verifier,
-                **kwargs,
-            ),
-        )
+    ) -> "ProviderResponseData":
+        async with AsyncClient() as client:
+            res = await client.post(
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                url=self.tokenUrl,
+                data=self._token_request_payload(
+                    code=code,
+                    state=state,
+                    code_verifier=code_verifier,
+                    **kwargs,
+                ),
+            )
+            return ProviderResponseData(
+                status_code=res.status_code, json=res.json(), text=res.text
+            )
 
     @final
-    def _request_user_info(self, *, access_token: str) -> HttpxResponse:
-        return get(
-            url=self.userInfo,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {access_token}",
-            },
-        )
+    async def _request_user_info(self, *, access_token: str) -> "ProviderResponseData":
+        async with AsyncClient() as client:
+            res = await client.get(
+                url=self.userInfo,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {access_token}",
+                },
+            )
+            return ProviderResponseData(
+                status_code=res.status_code, json=res.json(), text=res.text
+            )
 
     @final
     def _token_request_payload(
