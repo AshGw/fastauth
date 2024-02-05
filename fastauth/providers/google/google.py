@@ -2,7 +2,6 @@ from typing import Optional
 from overrides import override
 from pydantic import ValidationError
 
-from fastauth._types import ProviderJSONResponse
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
@@ -104,10 +103,8 @@ class Google(Provider):
                 raise resource_access_error
             return None
 
-        provider_response_data: ProviderJSONResponse = response.json
-
         try:
-            user_info: GoogleUserInfo = serialize_user_info(provider_response_data)
+            user_info = serialize_user_info(response.json)
             self.logger.info(
                 f"User information acquired successfully from " f"{self.provider}"
             )
@@ -119,7 +116,7 @@ class Google(Provider):
                 resource="user information",
                 validation_error=ve,
                 debug=True,
-                provider_response_data=provider_response_data,
+                provider_response_data=response.json,
             )
             self.logger.critical(schema_validation_error)
             if self.debug:

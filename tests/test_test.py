@@ -10,10 +10,7 @@ from os import getenv
 
 
 from fastauth.providers.google.google import Google
-from fastauth.providers.google.schemas import (
-    GoogleUserJSONData,
-)
-from fastauth.config import Config
+from fastauth.providers.google.schemas import GoogleUserJSONData, serialize_user_info
 
 load_dotenv()
 
@@ -52,14 +49,12 @@ async def test_user_info_acquisition(valid_user_data, google) -> None:
     ) as mock_inf_request:
         mock_response = AsyncMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = valid_user_data
+        mock_response.json = valid_user_data
         mock_inf_request.return_value = mock_response
-        _ = await google._request_user_info(access_token="...")
-        json = _.json
-        status = _.status_code
+        _request_info = await google._request_user_info(access_token="...")
+        json = _request_info.json
+        status = _request_info.status_code
         assert json == valid_user_data
         assert status == 200
-        Config.debug = True
-        _2 = await google.get_user_info(access_token="...")
-        xx = _2.keys()
-        assert xx == json.keys()
+        user_info = await google.get_user_info(access_token="...")
+        assert user_info == serialize_user_info(json)
