@@ -14,7 +14,7 @@ from fastauth.exceptions import (
     InvalidUserInfoAccessRequest,
     SchemaValidationError,
 )
-from fastauth.providers.base import Provider, log_action
+from fastauth.providers.base import Provider
 from fastauth.data import OAuthURLs, StatusCode
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
@@ -40,7 +40,6 @@ class Google(Provider):
             provider=OAuthURLs.Google.__name__.lower(),
         )
 
-    @log_action
     @override
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
@@ -56,7 +55,6 @@ class Google(Provider):
             flowName="GeneralOAuthFlow",
         )()
 
-    @log_action
     @override
     async def get_access_token(
         self, *, code_verifier: str, code: str, state: str
@@ -94,7 +92,6 @@ class Google(Provider):
                 raise schema_error
             return None
 
-    @log_action
     @override
     async def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         response = await self._request_user_info(access_token=access_token)
