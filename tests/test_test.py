@@ -55,7 +55,7 @@ async def test_user_info_acquisition(valid_user_data, google) -> None:
         mock_response.json.return_value = valid_user_data
         mock_inf_request.return_value = mock_response
         _ = await google._request_user_info(access_token="...")
-        json = await _.json()
+        json = _.json
         status = _.status_code
         assert json == valid_user_data
         assert status == 200

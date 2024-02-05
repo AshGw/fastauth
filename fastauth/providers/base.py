@@ -1,8 +1,18 @@
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Dict, final, Final, TypeVar, ParamSpec, Callable, Optional
+from typing import (
+    Dict,
+    final,
+    Final,
+    TypeVar,
+    ParamSpec,
+    Callable,
+    Optional,
+    Any,
+    NamedTuple,
+)
 
-from httpx import AsyncClient, Response as HttpxResponse
+from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams
@@ -59,9 +69,9 @@ class Provider(ABC, Config):
     @final
     async def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
-    ) -> HttpxResponse:
+    ) -> "HTTPXResponseData":
         async with AsyncClient() as client:
-            return await client.post(
+            res = await client.post(
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
                 url=self.tokenUrl,
                 data=self._token_request_payload(
@@ -71,17 +81,19 @@ class Provider(ABC, Config):
                     **kwargs,
                 ),
             )
+            return HTTPXResponseData(status_code=res.status_code, json=res.json())
 
     @final
-    async def _request_user_info(self, *, access_token: str) -> HttpxResponse:
+    async def _request_user_info(self, *, access_token: str) -> "HTTPXResponseData":
         async with AsyncClient() as client:
-            return await client.get(
+            res = await client.get(
                 url=self.userInfo,
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {access_token}",
                 },
             )
+            return HTTPXResponseData(status_code=res.status_code, json=res.json())
 
     @final
     def _token_request_payload(
@@ -141,3 +153,8 @@ def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no c
         )
 
     return wrap
+
+
+class HTTPXResponseData(NamedTuple):
+    status_code: int
+    json: Dict[Any, Any]

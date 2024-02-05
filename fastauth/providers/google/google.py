@@ -63,7 +63,7 @@ class Google(Provider):
             code_verifier=code_verifier, code=code, state=state
         )
 
-        response_data: ProviderJSONResponse = response.json()
+        response_data: ProviderJSONResponse = response.json
 
         if response.status_code not in SUCCESS_STATUS_CODES:
             token_acquisition_error = InvalidTokenAcquisitionRequest(
@@ -95,7 +95,7 @@ class Google(Provider):
     @override
     async def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         response = await self._request_user_info(access_token=access_token)
-        json_response = response.json()
+        json_response = response.json
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
                 provider=self.provider,
