@@ -24,6 +24,12 @@ ProviderResponse = Union[ProviderJSONResponse, str]
 OAuthBaseResponse = Union[OAuthRedirectResponse, OAuthResponse]
 
 
+class ProviderResponseData(NamedTuple):
+    status_code: int
+    json: ProviderJSONResponse
+    text: str
+
+
 class ViewableJWT(TypedDict):
     jwt: Optional[JWT]
 

@@ -8,13 +8,12 @@ from typing import (
     ParamSpec,
     Callable,
     Optional,
-    NamedTuple,
 )
 
 from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
-from fastauth._types import UserInfo, QueryParams, ProviderJSONResponse
+from fastauth._types import UserInfo, QueryParams, ProviderResponseData
 from fastauth.config import Config
 
 
@@ -68,7 +67,7 @@ class Provider(ABC, Config):
     @final
     async def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
-    ) -> "HTTPXResponseData":
+    ) -> "ProviderResponseData":
         async with AsyncClient() as client:
             res = await client.post(
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -80,10 +79,12 @@ class Provider(ABC, Config):
                     **kwargs,
                 ),
             )
-            return HTTPXResponseData(status_code=res.status_code, json=res.json())
+            return ProviderResponseData(
+                status_code=res.status_code, json=res.json(), text=res.text
+            )
 
     @final
-    async def _request_user_info(self, *, access_token: str) -> "HTTPXResponseData":
+    async def _request_user_info(self, *, access_token: str) -> "ProviderResponseData":
         async with AsyncClient() as client:
             res = await client.get(
                 url=self.userInfo,
@@ -92,7 +93,9 @@ class Provider(ABC, Config):
                     "Authorization": f"Bearer {access_token}",
                 },
             )
-            return HTTPXResponseData(status_code=res.status_code, json=res.json())
+            return ProviderResponseData(
+                status_code=res.status_code, json=res.json(), text=res.text
+            )
 
     @final
     def _token_request_payload(
@@ -152,8 +155,3 @@ def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no c
         )
 
     return wrap
-
-
-class HTTPXResponseData(NamedTuple):
-    status_code: int
-    json: ProviderJSONResponse
