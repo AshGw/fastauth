@@ -1,8 +1,9 @@
+import pytest
+
 from unittest.mock import AsyncMock
 from unittest.mock import patch
 
 
-import pytest
 from typing import cast, Dict, Any
 
 from dotenv import load_dotenv
@@ -39,7 +40,7 @@ async def test_valid_token_acquisition(valid_token_response, op, google) -> None
         "fastauth.providers.google.google.Google._request_access_token"
     ) as mock_token_request:
         mock_response = AsyncMock()
-        mock_response.status_code = 200
+        mock_response.status_code = StatusCode.OK
         mock_response.json = valid_token_response
         mock_token_request.return_value = mock_response
         _result = await google._request_access_token(
@@ -50,7 +51,7 @@ async def test_valid_token_acquisition(valid_token_response, op, google) -> None
         json = _result.json
         status = _result.status_code
         assert json == valid_token_response
-        assert status == 200
+        assert status == StatusCode.OK
         token = await google.get_access_token(
             state=op.state,
             code_verifier=op.code_verifier,
@@ -65,7 +66,7 @@ async def test_invalid_token_acquisition(invalid_token_response, op, google) -> 
         "fastauth.providers.google.google.Google._request_access_token"
     ) as mock_token_request:
         mock_response = AsyncMock()
-        mock_response.status_code = 200
+        mock_response.status_code = StatusCode.OK
         mock_response.json = invalid_token_response
         mock_token_request.return_value = mock_response
         _result = await google._request_access_token(
@@ -76,7 +77,7 @@ async def test_invalid_token_acquisition(invalid_token_response, op, google) -> 
         json = _result.json
         status = _result.status_code
         assert json == invalid_token_response
-        assert status == 200
+        assert status == StatusCode.OK
         Config.debug = True  # raise in debug
         with pytest.raises(SchemaValidationError):
             _ = await google.get_access_token(
@@ -101,14 +102,14 @@ async def test_valid_user_info_acquisition(valid_user_data, google) -> None:
         "fastauth.providers.google.google.Google._request_user_info"
     ) as mock_inf_request:
         mock_response = AsyncMock()
-        mock_response.status_code = 200
+        mock_response.status_code = StatusCode.OK
         mock_response.json = valid_user_data
         mock_inf_request.return_value = mock_response
-        _request_info = await google._request_user_info(access_token="...")
-        json = _request_info.json
-        status = _request_info.status_code
+        _result = await google._request_user_info(access_token="...")
+        json = _result.json
+        status = _result.status_code
         assert json == valid_user_data
-        assert status == 200
+        assert status == StatusCode.OK
         user_info = await google.get_user_info(access_token="...")
         assert user_info == serialize_user_info(json)
 
@@ -119,14 +120,14 @@ async def test_invalid_user_info_acquisition(invalid_user_data, google) -> None:
         "fastauth.providers.google.google.Google._request_user_info"
     ) as mock_inf_request:
         mock_response = AsyncMock()
-        mock_response.status_code = 200
+        mock_response.status_code = StatusCode.OK
         mock_response.json = invalid_user_data
         mock_inf_request.return_value = mock_response
-        _request_info = await google._request_user_info(access_token="...")
-        json = _request_info.json
-        status = _request_info.status_code
+        _result = await google._request_user_info(access_token="...")
+        json = _result.json
+        status = _result.status_code
         assert json == invalid_user_data
-        assert status == 200
+        assert status == StatusCode.OK
         Config.debug = True  # raise in debug
         with pytest.raises(SchemaValidationError):
             _ = await google.get_user_info(access_token="valid_one")
@@ -170,8 +171,7 @@ async def test_user_info_invalid_token_debug(google):
 @pytest.mark.asyncio
 async def test_user_info_invalid_token_normal(google):
     Config.debug = False
-    _ = await google.get_user_info(access_token="...")
-    assert _ is None
+    assert await google.get_user_info(access_token="...") is None
 
 
 def test_serialize_user_info(valid_user_data) -> None:
@@ -189,7 +189,7 @@ def test_serialize_user_info(valid_user_data) -> None:
         },
     }
     assert serialize_user_info(valid_data) == expected_result
-    # now if data is invalid e.g avatar is not presented as a URL then
+    # avatar is not presented as a URL then
 
     with pytest.raises(ValidationError):
         serialize_user_info(
