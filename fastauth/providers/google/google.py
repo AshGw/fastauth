@@ -95,18 +95,19 @@ class Google(Provider):
     @override
     async def get_user_info(self, access_token: str) -> Optional[GoogleUserInfo]:
         response = await self._request_user_info(access_token=access_token)
+        json_response = response.json()
         if response.status_code not in SUCCESS_STATUS_CODES:
             resource_access_error = InvalidUserInfoAccessRequest(
                 provider=self.provider,
                 debug=True,
-                provider_response_data=response.json(),
+                provider_response_data=json_response,
             )
             self.logger.warning(resource_access_error)
             if self.debug:
                 raise resource_access_error
             return None
 
-        provider_response_data: ProviderJSONResponse = response.json()
+        provider_response_data: ProviderJSONResponse = json_response
 
         try:
             user_info: GoogleUserInfo = serialize_user_info(provider_response_data)

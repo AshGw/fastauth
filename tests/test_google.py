@@ -13,6 +13,7 @@ from fastauth.providers.google.schemas import (
 from pydantic import ValidationError
 from fastauth.exceptions import (
     InvalidUserInfoAccessRequest,
+    InvalidTokenAcquisitionRequest,
 )
 from fastauth.data import StatusCode
 from fastauth.utils import gen_oauth_params
@@ -91,10 +92,19 @@ async def test_invalid_authorization_code(op: OAuthParams, google: Google) -> No
     Config.debug = False
     assert (
         await google.get_access_token(
-            state=op.state, code_verifier=op.code_verifier, code="invalid"
+            state=op.state, code_verifier=op.code_verifier, code="..."
         )
         is None
     )
+
+
+@pytest.mark.asyncio
+async def test_invalid_authorization_code(op: OAuthParams, google: Google) -> None:
+    Config.debug = True
+    with pytest.raises(InvalidTokenAcquisitionRequest):
+        _ = await google.get_access_token(
+            state=op.state, code_verifier=op.code_verifier, code="..."
+        )
 
 
 @pytest.mark.asyncio

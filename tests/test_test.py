@@ -3,6 +3,7 @@ import pytest
 import pytest
 from typing import cast, Dict, Any
 from unittest.mock import AsyncMock
+from unittest.mock import patch
 
 from dotenv import load_dotenv
 from os import getenv
@@ -12,6 +13,7 @@ from fastauth.providers.google.google import Google
 from fastauth.providers.google.schemas import (
     GoogleUserJSONData,
 )
+from fastauth.config import Config
 
 load_dotenv()
 
@@ -43,14 +45,21 @@ def valid_user_data() -> Dict[str, Any]:
     ).dict()
 
 
-@pytest.fixture()
-def user_info_request_mocker(mocker):
-    async_mock = AsyncMock()
-    mocker.patch("fastauth.providers.google.google.Google._request_user_info")
-    return async_mock
-
-
 @pytest.mark.asyncio
-async def test_sum(user_info_request_mocker, google, valid_user_data):
-    user_info_request_mocker.return_value = valid_user_data
-    result = await google._request_user_info(access_token="invalid")
+async def test_user_info_acquisition(valid_user_data, google) -> None:
+    with patch(
+        "fastauth.providers.google.google.Google._request_user_info"
+    ) as mock_inf_request:
+        mock_response = AsyncMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = valid_user_data
+        mock_inf_request.return_value = mock_response
+        _ = await google._request_user_info(access_token="...")
+        json = await _.json()
+        status = _.status_code
+        assert json == valid_user_data
+        assert status == 200
+        Config.debug = True
+        _2 = await google.get_user_info(access_token="...")
+        xx = _2.keys()
+        assert xx == json.keys()
