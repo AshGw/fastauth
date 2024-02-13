@@ -1,4 +1,5 @@
 # Priority labels
+
 - name: "Priority: Critical"
   color: ee0701
   description: "This should be dealt with ASAP. Not fixing this issue would be a serious error."
@@ -13,6 +14,7 @@
   description: "Nice addition, maybe... someday..."
 
 # Type labels
+
 - name: "Type: Bug"
   color: ee0701
   description: "Inconsistencies or issues which will cause a problem for users or implementors."
@@ -33,6 +35,7 @@
   description: "Generic maintenance tasks, e.g., package updates."
 
 # Additional markers
+
 - name: "Security"
   color: ee0701
   description: "Marks an security issues that needs to be resolved asap."
@@ -50,6 +53,7 @@
   description: "A feature is no longer wanted/needed (remove/deprecate it)"
 
 # Ongoing Status labels
+
 - name: "Status: Triage"
   color: fbca04
   description: "This issue needs to be triaged."
@@ -76,6 +80,7 @@
   description: "Progress on this issue is currently not possible."
 
 # Resolution Status labels
+
 - name: "Resolution: By Design"
   color: e6e6e6
   description: "The behavior reported in the issue is actually correct."
@@ -105,6 +110,7 @@
   description: "This has been added to the project."
 
 # Bots
+
 - name: ":blue_heart:"
   color: ffffff
   description: "Renovate"
