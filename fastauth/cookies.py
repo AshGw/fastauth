@@ -1,14 +1,15 @@
 from fastauth.requests import OAuthRequest
 from fastauth._types import OAuthBaseResponse
-from typing import Optional, Literal, Dict
+from typing import Optional, Literal, Dict, final, Final
 from fastauth.utils import name_cookie
 
 
+@final
 class Cookies:
-    _http_only = True
-    _samesite: Literal["lax", "strict", "none"] = "lax"
-    _domain = None
-    _path = "/"
+    _http_only: Final[bool] = True
+    _samesite: Final[Literal["lax", "strict", "none"]] = "lax"
+    _domain: Final = None
+    _path: Final[str] = "/"
 
     def __init__(
         self,
