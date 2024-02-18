@@ -3,12 +3,16 @@ from pydantic import ValidationError
 from jose.exceptions import JOSEError
 
 
-class WrongKeyLength(Exception):
+class FastAuthError(Exception):
+    """base exc for all"""
+
+
+class WrongKeyLength(FastAuthError):
     def __init__(self) -> None:
         super().__init__("Key length must be exactly 32 bit")
 
 
-class SchemaValidationError(Exception):
+class SchemaValidationError(FastAuthError):
     def __init__(
         self,
         *,
@@ -30,7 +34,7 @@ class SchemaValidationError(Exception):
         super().__init__(self.display)
 
 
-class InvalidState(Exception):
+class InvalidState(FastAuthError):
     def __init__(self) -> None:
         self.display = (
             "The received state does not match the expected state, possible tampering"
@@ -38,13 +42,13 @@ class InvalidState(Exception):
         super().__init__(self.display)
 
 
-class CodeVerifierNotFound(Exception):
+class CodeVerifierNotFound(FastAuthError):
     def __init__(self) -> None:
         self.display = "The code verifier could not be retrieved from the cookie, the user might have deleted the cookie"
         super().__init__(self.display)
 
 
-class InvalidCodeVerifier(Exception):
+class InvalidCodeVerifier(FastAuthError):
     def __init__(self) -> None:
         self.display = (
             "The received code verifier does not match the expected code verifier,"
@@ -53,7 +57,7 @@ class InvalidCodeVerifier(Exception):
         super().__init__(self.display)
 
 
-class InvalidTokenAcquisitionRequest(Exception):
+class InvalidTokenAcquisitionRequest(FastAuthError):
     def __init__(
         self, *, provider: str, debug: bool, provider_response_data: ProviderResponse
     ) -> None:
@@ -69,7 +73,7 @@ class InvalidTokenAcquisitionRequest(Exception):
         super().__init__(self.display)
 
 
-class InvalidUserInfoAccessRequest(Exception):
+class InvalidUserInfoAccessRequest(FastAuthError):
     def __init__(
         self, *, provider: str, debug: bool, provider_response_data: ProviderResponse
     ) -> None:
@@ -84,7 +88,7 @@ class InvalidUserInfoAccessRequest(Exception):
         super().__init__(self.display)
 
 
-class JSONWebTokenTampering(Exception):
+class JSONWebTokenTampering(FastAuthError):
     def __init__(
         self,
         *,
