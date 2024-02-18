@@ -9,7 +9,7 @@ from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
-from fastauth.callbacks.signin import SignIn
+from fastauth.signin import SignIn
 from fastauth.oauth2.base import OAuth2Base
 from fastauth.data import CookiesData
 from fastauth.jwts.handler import JWTHandler

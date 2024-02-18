@@ -7,7 +7,7 @@ from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import FallbackSecrets
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.callbacks.signin import SignIn
+from fastauth.signin import SignIn
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
 from fastauth._types import UserInfo
