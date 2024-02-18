@@ -9,17 +9,17 @@ from fastauth.jwts.helpers import validate_secret_key
 from fastauth._types import JWT, UserInfo, FallbackSecrets
 from typing import Optional, Final
 
-_JWT_MAX_AGE: Final = CookiesData.JWT.max_age
-_JWT_ALGORITHM: Final = ALGORITHMS.HS256
-_JWE_ALGORITHM: Final = ALGORITHMS.A256GCM
-_ISSUER: Final = "fastauth"
-_SUBJECT: Final = "client"
+JWT_MAX_AGE: Final = CookiesData.JWT.max_age
+JWT_ALGORITHM: Final = ALGORITHMS.HS256
+JWE_ALGORITHM: Final = ALGORITHMS.A256GCM
+ISSUER: Final = "fastauth"
+SUBJECT: Final = "client"
 
 
 def encipher_user_info(
     user_info: UserInfo,
     fallback_secrets: FallbackSecrets,
-    max_age: int = _JWT_MAX_AGE,
+    max_age: int = JWT_MAX_AGE,
 ) -> str:
     now = datetime.utcnow()
     e: Optional[JOSEError] = None
@@ -28,14 +28,14 @@ def encipher_user_info(
         try:
             plain_jwt: str = encode_jwt(
                 claims=JWT(
-                    iss=_ISSUER,
-                    sub=_SUBJECT,
+                    iss=ISSUER,
+                    sub=SUBJECT,
                     iat=now,
                     exp=now + timedelta(seconds=max_age),
                     user_info=user_info,
                 ),
                 key=key,
-                algorithm=_JWT_ALGORITHM,
+                algorithm=JWT_ALGORITHM,
             )
 
             encrypted_jwt: str = (
@@ -43,7 +43,7 @@ def encipher_user_info(
                     plaintext=plain_jwt.encode(),
                     key=key,
                     algorithm=ALGORITHMS.DIR,
-                    encryption=_JWE_ALGORITHM,
+                    encryption=JWE_ALGORITHM,
                 )
                 .rstrip(b"=")
                 .decode()
@@ -68,9 +68,9 @@ def decipher_jwt(encrypted_jwt: str, fallback_secrets: FallbackSecrets) -> JWT:
             jwt: JWT = decode_jwt(
                 token=decrypted_jwt,
                 key=key,
-                algorithms=_JWT_ALGORITHM,
-                issuer=_ISSUER,
-                subject=_SUBJECT,
+                algorithms=JWT_ALGORITHM,
+                issuer=ISSUER,
+                subject=SUBJECT,
             )
             return jwt
         except JOSEError as exc:
