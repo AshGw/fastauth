@@ -24,7 +24,7 @@ from fastauth.exceptions import (
 )
 from fastauth.data import StatusCode
 from fastauth.utils import gen_oauth_params
-from fastauth._types import OAuthParams
+from fastauth._types import GrantSecurityParams
 from fastauth.config import FastAuthConfig
 
 load_dotenv()
@@ -136,7 +136,7 @@ async def test_invalid_user_info_acquisition(invalid_user_data, google) -> None:
 
 
 @pytest.mark.asyncio
-async def test_invalid_op_normal(op: OAuthParams, google: Google) -> None:
+async def test_invalid_op_normal(op: GrantSecurityParams, google: Google) -> None:
     FastAuthConfig.debug = False
     assert (
         await google.get_access_token(
@@ -147,7 +147,7 @@ async def test_invalid_op_normal(op: OAuthParams, google: Google) -> None:
 
 
 @pytest.mark.asyncio
-async def test_invalid_op_debug(op: OAuthParams, google: Google) -> None:
+async def test_invalid_op_debug(op: GrantSecurityParams, google: Google) -> None:
     FastAuthConfig.debug = True
     with pytest.raises(InvalidTokenAcquisitionRequest):
         _ = await google.get_access_token(
@@ -216,7 +216,7 @@ def google() -> Google:
 
 
 @pytest.fixture
-def op() -> OAuthParams:
+def op() -> GrantSecurityParams:
     return gen_oauth_params()
 
 

@@ -1,7 +1,7 @@
 from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
-from fastauth._types import OAuthParams, QueryParams
+from fastauth._types import GrantSecurityParams, QueryParams
 from fastauth.requests import OAuthRequest
 from typing import Optional
 
@@ -16,14 +16,16 @@ def get_base_url(request: OAuthRequest) -> str:  # pragma: no cover  # TODO: tes
     return url[:-1] if url.endswith("/") else url
 
 
-def gen_oauth_params() -> OAuthParams:
+def gen_oauth_params() -> GrantSecurityParams:
     state: str = token_urlsafe(96)[:128]
     code_verifier = token_urlsafe(96)[:128]
     code_challenge = urlsafe_b64encode(
         sha256(code_verifier.encode("ascii")).digest()
     ).decode("ascii")[:-1]
     code_challenge_method = "S256"
-    return OAuthParams(state, code_verifier, code_challenge, code_challenge_method)
+    return GrantSecurityParams(
+        state, code_verifier, code_challenge, code_challenge_method
+    )
 
 
 def gen_csrf_token() -> str:
