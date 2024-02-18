@@ -25,7 +25,7 @@ from fastauth.exceptions import (
 from fastauth.data import StatusCode
 from fastauth.utils import gen_oauth_params
 from fastauth._types import OAuthParams
-from fastauth.config import Config
+from fastauth.config import FastAuthConfig
 
 load_dotenv()
 
@@ -78,14 +78,14 @@ async def test_invalid_token_acquisition(invalid_token_response, op, google) -> 
         status = _result.status_code
         assert json == invalid_token_response
         assert status == StatusCode.OK
-        Config.debug = True  # raise in debug
+        FastAuthConfig.debug = True  # raise in debug
         with pytest.raises(SchemaValidationError):
             _ = await google.get_access_token(
                 state=op.state,
                 code_verifier=op.code_verifier,
                 code="...",
             )
-        Config.debug = False  # hush in normal
+        FastAuthConfig.debug = False  # hush in normal
         assert (
             await google.get_access_token(
                 state=op.state,
@@ -128,16 +128,16 @@ async def test_invalid_user_info_acquisition(invalid_user_data, google) -> None:
         status = _result.status_code
         assert json == invalid_user_data
         assert status == StatusCode.OK
-        Config.debug = True  # raise in debug
+        FastAuthConfig.debug = True  # raise in debug
         with pytest.raises(SchemaValidationError):
             _ = await google.get_user_info(access_token="valid_one")
-        Config.debug = False  # hush in  normal
+        FastAuthConfig.debug = False  # hush in  normal
         assert await google.get_user_info(access_token="valid_one") is None
 
 
 @pytest.mark.asyncio
 async def test_invalid_op_normal(op: OAuthParams, google: Google) -> None:
-    Config.debug = False
+    FastAuthConfig.debug = False
     assert (
         await google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="..."
@@ -148,7 +148,7 @@ async def test_invalid_op_normal(op: OAuthParams, google: Google) -> None:
 
 @pytest.mark.asyncio
 async def test_invalid_op_debug(op: OAuthParams, google: Google) -> None:
-    Config.debug = True
+    FastAuthConfig.debug = True
     with pytest.raises(InvalidTokenAcquisitionRequest):
         _ = await google.get_access_token(
             state=op.state, code_verifier=op.code_verifier, code="..."
@@ -163,14 +163,14 @@ async def test_is_unauthorized(google):
 
 @pytest.mark.asyncio
 async def test_user_info_invalid_token_debug(google):
-    Config.debug = True
+    FastAuthConfig.debug = True
     with pytest.raises(InvalidUserInfoAccessRequest):
         _ = await google.get_user_info(access_token="...")
 
 
 @pytest.mark.asyncio
 async def test_user_info_invalid_token_normal(google):
-    Config.debug = False
+    FastAuthConfig.debug = False
     assert await google.get_user_info(access_token="...") is None
 
 

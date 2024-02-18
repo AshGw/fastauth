@@ -14,14 +14,14 @@ from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData
-from fastauth.config import Config
+from fastauth.config import FastAuthConfig
 
 
 _T = TypeVar("_T")
 _PSpec = ParamSpec("_PSpec")
 
 
-class Provider(ABC, Config):
+class Provider(ABC, FastAuthConfig):
     """
     you would inherit from this base class to create your own provider
     """

@@ -4,7 +4,7 @@ from typing import NamedTuple, ClassVar
 from fastauth.log import logger as flogger
 
 
-class Config:
+class FastAuthConfig:
     logger: ClassVar[Logger] = flogger
     debug: ClassVar[bool] = True
 
