@@ -13,7 +13,7 @@ from typing import (
 from httpx import AsyncClient
 
 from fastauth.responses import OAuthRedirectResponse
-from fastauth._types import UserInfo, QueryParams, ProviderResponseData
+from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
 
 
@@ -57,7 +57,7 @@ class Provider(ABC, FastAuthConfig):
     @abstractmethod
     async def get_access_token(
         self, *, code_verifier: str, code: str, state: str
-    ) -> Optional[str]:
+    ) -> Optional[AccessToken]:
         ...
 
     @abstractmethod

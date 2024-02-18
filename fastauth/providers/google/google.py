@@ -2,6 +2,7 @@ from typing import Optional
 from overrides import override
 from pydantic import ValidationError
 
+from fastauth._types import AccessToken
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
@@ -57,7 +58,7 @@ class Google(Provider):
     @override
     async def get_access_token(
         self, *, code_verifier: str, code: str, state: str
-    ) -> Optional[str]:
+    ) -> Optional[AccessToken]:
         response = await self._request_access_token(
             code_verifier=code_verifier, code=code, state=state
         )
@@ -75,7 +76,7 @@ class Google(Provider):
         try:
             access_token: str = serialize_access_token(response.json)
             self.logger.info(f"Access token acquired successfully from {self.provider}")
-            return access_token
+            return AccessToken(access_token)
         except ValidationError as ve:
             schema_error = SchemaValidationError(
                 provider=self.provider,

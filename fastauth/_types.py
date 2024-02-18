@@ -7,6 +7,7 @@ from typing import (
     TypeVar,
     NamedTuple,
     TypedDict,
+    NewType,
     Optional,
     MutableMapping,
     Mapping,
@@ -14,6 +15,9 @@ from typing import (
 )
 
 _F = TypeVar("_F", bound=Callable[..., Any])
+
+
+AccessToken = NewType("AccessToken", str)
 
 QueryParams = MutableMapping[str, str]
 

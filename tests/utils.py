@@ -1,5 +1,5 @@
 from typing import Optional
-from fastauth._types import UserInfo
+from fastauth._types import UserInfo, AccessToken
 from fastauth.providers.base import Provider
 from fastauth.responses import OAuthRedirectResponse
 
@@ -28,11 +28,11 @@ class MockProvider(Provider):
 
     async def get_access_token(
         self, *, code_verifier: str, code: str, state: str
-    ) -> Optional[str]:  # pragma: no cover
+    ) -> Optional[AccessToken]:  # pragma: no cover
         _ = await self._request_access_token(
             code_verifier=code_verifier, code=code, state=state
         )
-        return "..."
+        return AccessToken("...")
 
     async def get_user_info(
         self, _access_token: str

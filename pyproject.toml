@@ -128,7 +128,7 @@ precision = 2
 omit = [
     'fastauth\__main__.py',
     'tests\test_base_redirect.py',
-    'fastauth\oauth2\base.py', # metaclass to be ignored
+    'fastauth\flow\base.py', # metaclass to be ignored
     'fastauth\exceptions.py',
     'fastauth\authorize.py', # all related to the frameworks' native Request object
     'fastauth\providers\spotify\schemas.py', # TODO: remove when testing them
@@ -136,7 +136,8 @@ omit = [
     # purge all below till basis is set
     'fastauth\signout.py', # TODO: remove when testing them
     'fastauth\signin.py', # TODO: remove when testing them
-    'fastauth\oauth2\flow.py  ', # TODO: remove when testing them
+    'fastauth\flow\flow.py  ', # TODO: remove when testing them
+    'fastauth\oauth2.py  ', # TODO: remove when testing them
     'fastauth\log.py', # TODO: remove when testing them
     'fastauth\callback.py', # TODO: remove when testing them
     'fastauth\cookies.py', # TODO: remove when testing them
