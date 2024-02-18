@@ -6,7 +6,7 @@ from fastapi import APIRouter
 
 from fastauth.providers.base import Provider
 from fastauth._types import FallbackSecrets
-from fastauth.signin import SignIn
+from fastauth.signin import SignInCallback
 from fastauth.data import CookiesData
 from fastauth.flow.flow import OAuth2
 from fastauth.log import logger as flogger
@@ -16,7 +16,7 @@ from fastauth.config import FastAuthConfig
 def OAuthOptions(
     provider: Provider,
     fallback_secrets: FallbackSecrets,
-    signin_callback: SignIn,
+    signin_callback: SignInCallback,
     signin_uri: str = "/auth/signin",
     signout_url: str = "/auth/signout",
     callback_uri: str = "/auth/callback",

@@ -4,6 +4,6 @@ from fastauth._types import UserInfo
 
 
 @runtime_checkable
-class SignIn(Protocol):
+class SignInCallback(Protocol):
     async def __call__(self, user_info: UserInfo) -> None:
         ...

@@ -7,7 +7,7 @@ from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.signin import SignIn
+from fastauth.signin import SignInCallback
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
 from fastauth._types import UserInfo
@@ -26,7 +26,7 @@ class _CallbackBase:
         logger: Logger,
         request: OAuthRequest,
         jwt_max_age: int,
-        signin_callback: Optional[SignIn],
+        signin_callback: Optional[SignInCallback],
         debug: bool,
     ) -> None:
         self.code = code
@@ -94,7 +94,7 @@ class Callback(_CallbackBase):
         fallback_secrets: FallbackSecrets,
         logger: Logger,
         jwt_max_age: int,
-        signin_callback: Optional[SignIn],
+        signin_callback: Optional[SignInCallback],
         request: OAuthRequest,
         debug: bool,
     ) -> None:

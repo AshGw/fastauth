@@ -9,7 +9,7 @@ from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
-from fastauth.signin import SignIn
+from fastauth.signin import SignInCallback
 from fastauth.flow.base import OAuth2Base
 from fastauth.jwts.handler import JWTHandler
 
@@ -29,7 +29,7 @@ class OAuth2(OAuth2Base):
         post_signout_uri: str,
         error_uri: str,
         jwt_max_age: int,
-        signin_callback: Optional[SignIn],
+        signin_callback: Optional[SignInCallback],
     ) -> None:
         super().__init__(
             provider=provider,
