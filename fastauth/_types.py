@@ -7,6 +7,7 @@ from typing import (
     TypeVar,
     NamedTuple,
     TypedDict,
+    NewType,
     Optional,
     MutableMapping,
     Mapping,
@@ -14,6 +15,9 @@ from typing import (
 )
 
 _F = TypeVar("_F", bound=Callable[..., Any])
+
+
+AccessToken = NewType("AccessToken", str)
 
 QueryParams = MutableMapping[str, str]
 
@@ -31,6 +35,12 @@ class ProviderResponseData(NamedTuple):
 
 
 class ViewableJWT(TypedDict):
+    """
+    What the user will see when navigating to the
+    jwt endpoint, they should get a JSON object, which is {jwt: null}
+    if they're not authenticated, and a non null value if they are.
+    """
+
     jwt: Optional[JWT]
 
 
@@ -49,7 +59,7 @@ class JWT(TypedDict):
     user_info: UserInfo
 
 
-class OAuthParams(NamedTuple):
+class GrantSecurityParams(NamedTuple):
     state: str
     code_verifier: str
     code_challenge: str

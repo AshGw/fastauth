@@ -5,9 +5,9 @@ from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token, get_base_url
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
-from fastauth._types import FallbackSecrets
+from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.callbacks.signin import SignIn
+from fastauth.signin import SignIn
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
 from fastauth._types import UserInfo
@@ -119,7 +119,7 @@ class Callback(_CallbackBase):
         code_verifier: Optional[str] = self._get_code_verifier()
         if code_verifier is None:
             return None
-        access_token: Optional[str] = await self.provider.get_access_token(
+        access_token: Optional[AccessToken] = await self.provider.get_access_token(
             code_verifier=code_verifier, code=self.code, state=self.state
         )
         if access_token is None:
@@ -134,5 +134,5 @@ class Callback(_CallbackBase):
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
         self.set_csrf_token()
         if self.signin_callback:
-            self.signin_callback(user_info=user_info)
+            await self.signin_callback(user_info=user_info)
         return self.success_response

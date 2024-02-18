@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from fastauth._types import FallbackSecrets
-from fastauth.callbacks.signin import SignIn
-from fastauth.config import Config
+from fastauth.signin import SignIn
+from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
 
 
-class OAuth2Base(ABC, Config):
+class OAuth2Base(ABC, FastAuthConfig):
     def __init__(
         self,
         *,

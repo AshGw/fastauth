@@ -1,13 +1,13 @@
 import pytest
 
 from fastauth.utils import gen_oauth_params
-from fastauth._types import OAuthParams
+from fastauth._types import GrantSecurityParams
 from hashlib import sha256
 from base64 import urlsafe_b64encode
 
 
 @pytest.fixture
-def op() -> OAuthParams:
+def op() -> GrantSecurityParams:
     return gen_oauth_params()
 
 
