@@ -10,12 +10,12 @@ from fastauth.jwts.helpers import generate_secret
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.handler import JWTHandler
 from fastauth.exceptions import JSONWebTokenTampering, WrongKeyLength
-from fastauth.data import CookiesData
+from fastauth.const_data import CookieData
 from fastauth.utils import name_cookie
 from fastauth.cookies import Cookies
 from fastauth.jwts.operations import encipher_user_info
 from fastauth._types import UserInfo, ViewableJWT, FallbackSecrets
-from fastauth.data import StatusCode
+from fastauth.const_data import StatusCode
 from fastauth.responses import OAuthResponse
 
 
@@ -167,7 +167,7 @@ def test_with_no_jwt(data, req, res, secrets) -> None:
 
 class TestData:
     logger = logging.Logger(__name__)
-    jwt_cookie_name = name_cookie(name=CookiesData.JWT.name)
+    jwt_cookie_name = name_cookie(name=CookieData.JWT.name)
     encrypted_jwt = encipher_user_info(
         user_info=UserInfo(
             avatar="...",

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, final
 from overrides import override
 from pydantic import ValidationError
 
@@ -15,14 +15,12 @@ from fastauth.exceptions import (
     SchemaValidationError,
 )
 from fastauth.providers.base import Provider
-from fastauth.data import OAuthURLs, StatusCode
+from fastauth.const_data import OAuthURLs, SUCCESS_STATUS_CODES
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.grant_redirect import AuthGrantRedirect
 
 
-SUCCESS_STATUS_CODES = (StatusCode.OK, StatusCode.CREATED)
-
-
+@final
 class Google(Provider):
     def __init__(
         self,

@@ -4,13 +4,13 @@ from logging import Logger
 from jose.exceptions import JOSEError
 
 from fastauth._types import JWT, ViewableJWT
-from fastauth.data import CookiesData
+from fastauth.const_data import CookieData
 from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthResponse
 from fastauth._types import OAuthBaseResponse, FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.jwts.operations import decipher_jwt
-from fastauth.data import StatusCode
+from fastauth.const_data import StatusCode
 from fastauth.exceptions import JSONWebTokenTampering
 
 
@@ -48,7 +48,7 @@ class JWTHandler:
         )
 
     def _get_jwt_cookie(self) -> Optional[str]:  # pragma: no cover
-        return self.cookie.get(CookiesData.JWT.name)
+        return self.cookie.get(CookieData.JWT.name)
 
     def _handle_error(self, error: JOSEError) -> None:  # pragma: no cover
         err = JSONWebTokenTampering(error=error)

@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from fastauth.providers.base import Provider
 from fastauth._types import FallbackSecrets
 from fastauth.signin import SignInCallback
-from fastauth.data import CookiesData
+from fastauth.const_data import CookieData
 from fastauth.flow.flow import OAuth2
 from fastauth.log import logger as flogger
 from fastauth.config import FastAuthConfig
@@ -25,7 +25,7 @@ def OAuthOptions(
     post_signin_uri: str = "/auth/in",
     post_signout_uri: str = "/auth/out",
     error_uri: str = "/auth/error",
-    jwt_max_age: int = CookiesData.JWT.max_age,
+    jwt_max_age: int = CookieData.JWT.max_age,
     debug: bool = True,
     logger: Logger = flogger,
 ) -> APIRouter:

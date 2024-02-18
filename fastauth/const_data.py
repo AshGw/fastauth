@@ -1,8 +1,9 @@
+from typing import Final, FrozenSet
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class CookiesData:
+class CookieData:
     class JWT:
         name: str = "jwt"
         max_age: int = 60 * 60 * 24 * 7  # 7 days
@@ -61,3 +62,8 @@ class StatusCode:
     CREATED = 201
     UNAUTHORIZED = 401
     BAD_REQUEST = 400
+
+
+SUCCESS_STATUS_CODES: Final[FrozenSet[int]] = frozenset(
+    {StatusCode.OK, StatusCode.CREATED}
+)
