@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, final
 
 from fastapi import APIRouter, Query
 from overrides import override
@@ -14,6 +14,7 @@ from fastauth.flow.base import OAuth2Base
 from fastauth.jwts.handler import JWTHandler
 
 
+@final
 class OAuth2(OAuth2Base):
     def __init__(
         self,
