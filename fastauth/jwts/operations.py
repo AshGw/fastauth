@@ -4,16 +4,16 @@ from jose.exceptions import JOSEError
 from jose.jwt import ALGORITHMS
 from jose.jwe import encrypt, decrypt
 from datetime import datetime, timedelta
-from fastauth.data import CookiesData
+from fastauth.const_data import CookieData
 from fastauth.jwts.helpers import validate_secret_key
 from fastauth._types import JWT, UserInfo, FallbackSecrets
-from typing import Optional
+from typing import Optional, Final
 
-JWT_MAX_AGE = CookiesData.JWT.max_age
-JWT_ALGORITHM = ALGORITHMS.HS256
-JWE_ALGORITHM = ALGORITHMS.A256GCM
-ISSUER = "fastauth"
-SUBJECT = "client"
+JWT_MAX_AGE: Final = CookieData.JWT.max_age
+JWT_ALGORITHM: Final = ALGORITHMS.HS256
+JWE_ALGORITHM: Final = ALGORITHMS.A256GCM
+ISSUER: Final = "fastauth"
+SUBJECT: Final = "client"
 
 
 def encipher_user_info(

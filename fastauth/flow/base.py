@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from fastauth._types import FallbackSecrets
-from fastauth.signin import SignIn
+from fastauth.signin import SignInCallback
 from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
@@ -19,7 +19,7 @@ class OAuth2Base(ABC, FastAuthConfig):
         jwt_uri: str,
         csrf_token_uri: str,
         post_signin_uri: str,
-        signin_callback: Optional[SignIn] = None,
+        signin_callback: Optional[SignInCallback] = None,
         post_signout_uri: str,
         error_uri: str,
         jwt_max_age: int,

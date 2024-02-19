@@ -1,6 +1,6 @@
 from logging import Logger
 from typing import List
-from fastauth.data import CookiesData, StatusCode
+from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.utils import get_base_url
@@ -38,7 +38,7 @@ class Signout:
         self.cookie = Cookies(request=request, response=self.success_response)
 
     def __call__(self) -> OAuthRedirectResponse:
-        encrypted_jwt = self.cookie.get(CookiesData.JWT.name)
+        encrypted_jwt = self.cookie.get(CookieData.JWT.name)
         if encrypted_jwt:
             try:
                 decipher_jwt(
@@ -52,10 +52,10 @@ class Signout:
                 return self.failure_response
 
         cookies: List[str] = [
-            CookiesData.State.name,
-            CookiesData.Codeverifier.name,
-            CookiesData.JWT.name,
-            CookiesData.CSRFToken.name,
+            CookieData.State.name,
+            CookieData.Codeverifier.name,
+            CookieData.JWT.name,
+            CookieData.CSRFToken.name,
         ]
         for cookie in cookies:
             self.cookie.delete(

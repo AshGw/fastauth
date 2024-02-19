@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, final
 
 from fastapi import APIRouter, Query
 from overrides import override
@@ -9,28 +9,28 @@ from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
-from fastauth.signin import SignIn
+from fastauth.signin import SignInCallback
 from fastauth.flow.base import OAuth2Base
-from fastauth.data import CookiesData
 from fastauth.jwts.handler import JWTHandler
 
 
+@final
 class OAuth2(OAuth2Base):
     def __init__(
         self,
         *,
         provider: Provider,
         fallback_secrets: FallbackSecrets,
-        signin_uri: str = "/auth/signin",
-        signout_url: str = "/auth/signout",
-        callback_uri: str = "/auth/callback",
-        jwt_uri: str = "/auth/jwt",
-        csrf_token_uri: str = "/auth/csrf-token",
-        post_signin_uri: str = "/auth/in",  # TODO: change
-        post_signout_uri: str = "/auth/out",  # TODO: change
-        error_uri: str = "/auth/error",
-        jwt_max_age: int = CookiesData.JWT.max_age,
-        signin_callback: Optional[SignIn] = None,
+        signin_uri: str,
+        signout_url: str,
+        callback_uri: str,
+        jwt_uri: str,
+        csrf_token_uri: str,
+        post_signin_uri: str,
+        post_signout_uri: str,
+        error_uri: str,
+        jwt_max_age: int,
+        signin_callback: Optional[SignInCallback],
     ) -> None:
         super().__init__(
             provider=provider,
