@@ -6,7 +6,7 @@ from fastauth.frameworks import Framework
 
 
 class FastAuthConfig:
-    framework: Framework
+    framework: ClassVar[Framework]
     logger: ClassVar[Logger] = flogger
     debug: ClassVar[bool] = True
 
