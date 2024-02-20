@@ -12,6 +12,7 @@ from typing import (
 
 from httpx import AsyncClient
 
+from fastauth.utils import base_redirect_url
 from fastauth.responses import OAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
@@ -120,6 +121,27 @@ class Provider(ABC, FastAuthConfig):
         }
 
         return qp
+
+    @final
+    def grant_redirect(
+        self,
+        state: str,
+        code_challenge: str,
+        code_challenge_method: str,
+        **kwargs: str,
+    ) -> OAuthRedirectResponse:
+        # private as it's only here for testing it serves no other purpose
+        self._grant_redirect_url = base_redirect_url(
+            response_type=self.response_type,
+            authorizationUrl=self.authorizationUrl,
+            client_id=self.client_id,
+            redirect_uri=self.redirect_uri,
+            state=state,
+            code_challenge=code_challenge,
+            code_challenge_method=code_challenge_method,
+            kwargs=kwargs,
+        )
+        return OAuthRedirectResponse(url=self._grant_redirect_url)
 
 
 def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no cover
