@@ -10,12 +10,12 @@ from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
 from fastauth.requests import OAuthRequest
 from fastauth.signin import SignInCallback
-from fastauth.flow.base import OAuth2Base
+from fastauth.oauth2_baseflow import OAuth2Base
 from fastauth.jwts.handler import JWTHandler
 
 
 @final
-class OAuth2(OAuth2Base):
+class FastAPIOAuthFlow(OAuth2Base):
     def __init__(
         self,
         *,

@@ -2,7 +2,6 @@ from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
 from fastauth._types import GrantSecurityParams, QueryParams
-from fastauth.requests import OAuthRequest
 from typing import Optional
 
 
@@ -10,9 +9,8 @@ def name_cookie(*, name: str) -> str:
     return "fastauth" + "." + name
 
 
-def get_base_url(request: OAuthRequest) -> str:  # pragma: no cover  # TODO: test it
+def get_slashless_url(url: str) -> str:  # pragma: no cover  # TODO: test it
     """without the trailing slash"""
-    url = str(request.base_url)
     return url[:-1] if url.endswith("/") else url
 
 

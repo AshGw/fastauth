@@ -3,7 +3,7 @@ from logging import Logger
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
-from fastauth.utils import gen_csrf_token, get_base_url
+from fastauth.utils import gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import FallbackSecrets, AccessToken
@@ -15,7 +15,7 @@ from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackSetup:
+class _CallbackCheck:
     def __init__(
         self,
         provider: Provider,
@@ -38,7 +38,7 @@ class _CallbackSetup:
         self.debug = debug
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
-        self.__base_url = get_base_url(request)
+        self.__base_url = request.slashless_base_url()
         self.success_response = OAuthRedirectResponse(
             url=self.__base_url + post_signin_uri
         )
@@ -64,26 +64,8 @@ class _CallbackSetup:
             return None
         return code_verifier
 
-    def set_jwt(self, user_info: UserInfo, max_age: int) -> None:
-        self.cookie.set(
-            key=CookieData.JWT.name,
-            value=encipher_user_info(
-                user_info=user_info,
-                max_age=max_age,
-                fallback_secrets=self.fallback_secrets,
-            ),
-            max_age=max_age,
-        )
 
-    def set_csrf_token(self) -> None:
-        self.cookie.set(
-            key=CookieData.CSRFToken.name,
-            value=gen_csrf_token(),
-            max_age=CookieData.CSRFToken.max_age,
-        )
-
-
-class Callback(_CallbackSetup):
+class Callback(_CallbackCheck):
     def __init__(
         self,
         *,
@@ -111,6 +93,24 @@ class Callback(_CallbackSetup):
             signin_callback=signin_callback,
             request=request,
             debug=debug,
+        )
+
+    def set_jwt(self, user_info: UserInfo, max_age: int) -> None:
+        self.cookie.set(
+            key=CookieData.JWT.name,
+            value=encipher_user_info(
+                user_info=user_info,
+                max_age=max_age,
+                fallback_secrets=self.fallback_secrets,
+            ),
+            max_age=max_age,
+        )
+
+    def set_csrf_token(self) -> None:
+        self.cookie.set(
+            key=CookieData.CSRFToken.name,
+            value=gen_csrf_token(),
+            max_age=CookieData.CSRFToken.max_age,
         )
 
     async def get_user_info(self) -> Optional[UserInfo]:

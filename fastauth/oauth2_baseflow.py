@@ -5,6 +5,8 @@ from fastauth.signin import SignInCallback
 from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
+from fastauth.adapters.fastapi.route import FastAuthRoute
+from fastauth.frameworks import FastAPI
 
 
 class OAuth2Base(ABC, FastAuthConfig):
@@ -36,7 +38,9 @@ class OAuth2Base(ABC, FastAuthConfig):
         self.jwt_max_age = jwt_max_age
         self.fallback_secrets = fallback_secrets
         self.signin_callback = signin_callback
-        self.auth_route = APIRouter()
+        if isinstance(self.framework, FastAPI):
+            self.auth_route = APIRouter()
+            self.auth_route.route_class = FastAuthRoute
         self.activate()
 
     @abstractmethod
