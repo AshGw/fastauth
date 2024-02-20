@@ -1,5 +1,5 @@
-from starlette.requests import Request
+from fastauth.adapters.request import FastAuthRequest
 
 
-class OAuthRequest(Request):
-    pass
+class OAuthRequest(FastAuthRequest):
+    ...
