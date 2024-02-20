@@ -1,10 +1,12 @@
-from typing import Optional, Literal
+from typing import Optional, Literal, Mapping
 from fastapi.responses import Response
+from fastauth.adapters.response import FastAuthResponse, FastAuthRedirectResponse
 from overrides import override
 from datetime import datetime
+from urllib.parse import quote
 
 
-class FastAPIResponse(Response):
+class FastAPIResponse(Response, FastAuthResponse):
     @override
     def set_auth_cookie(
         self,
@@ -48,3 +50,14 @@ class FastAPIResponse(Response):
             httponly=httponly,
             samesite=samesite,
         )
+
+
+class FastAPIRedirectResponse(FastAPIResponse, FastAuthRedirectResponse):
+    def __init__(
+        self,
+        url: str,
+        status_code: int = 307,
+        headers: Optional[Mapping[str, str]] = None,
+    ) -> None:
+        super().__init__(content=b"", status_code=status_code, headers=headers)
+        self.headers["location"] = quote(str(url), safe=":/%#?=@[]!$&'()*+,;")

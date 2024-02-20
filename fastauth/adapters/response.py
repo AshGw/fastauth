@@ -1,5 +1,5 @@
-from typing import Optional, Literal
 from abc import abstractmethod
+from typing import Optional, Literal, Mapping
 from datetime import datetime
 
 
@@ -28,5 +28,15 @@ class FastAuthResponse:
         secure: bool = False,
         httponly: bool = False,
         samesite: Literal["lax", "strict", "none"] = "lax",
+    ) -> None:
+        ...
+
+
+class FastAuthRedirectResponse:
+    def __init__(
+        self,
+        url: str,
+        status_code: int = 307,
+        headers: Optional[Mapping[str, str]] = None,
     ) -> None:
         ...
