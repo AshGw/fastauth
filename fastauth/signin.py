@@ -10,7 +10,7 @@ class SignInCallback(Protocol):
         ...
 
 
-def check_signin_signature(obj: SignInCallback):
+def check_signin_signature(obj: SignInCallback) -> None:
     sig = inspect.signature(obj)
     if not (
         "user_info" in sig.parameters

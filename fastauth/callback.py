@@ -133,6 +133,7 @@ class Callback(_CallbackBase):
             return self.error_response
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
         self.set_csrf_token()
-        check_signin_signature(self.signin_callback)
-        await self.signin_callback(user_info=user_info)
+        if self.signin_callback:
+            check_signin_signature(self.signin_callback)
+            await self.signin_callback(user_info=user_info)
         return self.success_response
