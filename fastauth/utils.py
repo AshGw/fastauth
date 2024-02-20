@@ -16,6 +16,11 @@ def get_base_url(request: OAuthRequest) -> str:  # pragma: no cover  # TODO: tes
     return url[:-1] if url.endswith("/") else url
 
 
+def get_slashless_url(url: str) -> str:  # pragma: no cover  # TODO: test it
+    """without the trailing slash"""
+    return url[:-1] if url.endswith("/") else url
+
+
 def gen_oauth_params() -> GrantSecurityParams:
     state: str = token_urlsafe(96)[:128]
     code_verifier = token_urlsafe(96)[:128]
