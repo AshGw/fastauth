@@ -144,7 +144,10 @@ omit = [
     'fastauth\oauth2\flow.py', # TODO: remove when testing them
     'fastauth\config.py', # TODO: remove when testing them
     'fastauth\callbacks\signin.py', # TODO: remove when testing them
-    'fastauth\compat\constants.py',
+    'fastauth\compat\constants.py', # TODO: remove when testing them
+    'fastauth\adapters\fastapi\request.py', # TODO: remove when testing them
+    'fastauth\adapters\fastapi\route.py', # TODO: remove when testing them
+
 ]
 
 exclude_lines = [

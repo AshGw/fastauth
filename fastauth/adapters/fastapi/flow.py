@@ -16,7 +16,7 @@ from fastauth.jwts.handler import JWTHandler
 
 
 @final
-class OAuth2(OAuth2Base):
+class FastAPIOAuthFlow(OAuth2Base):
     def __init__(
         self,
         *,
