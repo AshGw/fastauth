@@ -8,7 +8,7 @@ class RequestProtocol(Protocol):
     def all_cookies(self) -> Dict[str, str]:
         ...
 
-    def is_secure(self) -> bool:
+    def is_connection_secure(self) -> bool:
         ...
 
     def slashless_base_url(self) -> str:  # petition to add this word to the dictionary
@@ -27,8 +27,8 @@ class FastAuthRequest:
         return self.adaptee.all_cookies()
 
     @property
-    def is_secure(self) -> bool:
-        return self.adaptee.is_secure()
+    def is_connection_secure(self) -> bool:
+        return self.adaptee.is_connection_secure()
 
     @property
     def slashless_base_url(  # petition to add this word to the dictionary

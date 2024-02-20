@@ -3,7 +3,7 @@ from logging import Logger
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
-from fastauth.utils import gen_csrf_token, get_base_url
+from fastauth.utils import gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import FallbackSecrets, AccessToken
@@ -38,7 +38,7 @@ class _CallbackCheck:
         self.debug = debug
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
-        self.__base_url = get_base_url(request)
+        self.__base_url = request.slashless_base_url
         self.success_response = OAuthRedirectResponse(
             url=self.__base_url + post_signin_uri
         )

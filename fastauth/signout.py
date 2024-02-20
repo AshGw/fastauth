@@ -3,7 +3,6 @@ from typing import List
 from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
-from fastauth.utils import get_base_url
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth.jwts.operations import decipher_jwt
@@ -28,7 +27,7 @@ class Signout:
         self.fallback_secrets = fallback_secrets
         self.logger = logger
         self.debug = debug
-        self.__base_url = get_base_url(request)
+        self.__base_url = request.slashless_base_url
         self.success_response = OAuthRedirectResponse(
             url=self.__base_url + self.post_signout_uri
         )

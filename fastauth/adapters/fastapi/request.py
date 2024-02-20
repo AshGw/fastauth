@@ -10,7 +10,7 @@ class FastAPIRequest(Request):
     def all_cookies(self) -> Dict[str, str]:
         return self.cookies
 
-    def is_secure(self) -> bool:
+    def is_connection_secure(self) -> bool:
         return self.url.is_secure
 
     def slashless_base_url(self) -> str:
