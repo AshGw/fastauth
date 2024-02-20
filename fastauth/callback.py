@@ -1,4 +1,5 @@
 from logging import Logger
+
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
@@ -14,7 +15,7 @@ from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackBase:
+class _CallbackSetup:
     def __init__(
         self,
         provider: Provider,
@@ -82,7 +83,7 @@ class _CallbackBase:
         )
 
 
-class Callback(_CallbackBase):
+class Callback(_CallbackSetup):
     def __init__(
         self,
         *,
