@@ -21,7 +21,7 @@ class Cookies:
 
     @property
     def all(self) -> Dict[str, str]:
-        return self.request.all_cookies
+        return self.request.all_cookies()
 
     def set(
         self,
@@ -55,7 +55,7 @@ class Cookies:
         )
 
     def get(self, key: str) -> Optional[str]:
-        return self.request.get_cookie(name_cookie(name=key))
+        return self.request.get_cookie(cookie_name=name_cookie(name=key))
 
     def _is_secure(self) -> bool:
-        return self.request.is_connection_secure
+        return self.request.is_connection_secure()

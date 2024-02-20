@@ -1,5 +1,5 @@
-from fastauth.adapters.request import FastAuthRequest
+from fastauth.adapters.fastapi.request import FastAPIRequest
 
 
-class OAuthRequest(FastAuthRequest):
-    ...
+class OAuthRequest(FastAPIRequest):
+    pass

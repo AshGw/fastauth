@@ -1,10 +1,25 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Callable
 from fastauth._types import FallbackSecrets
 from fastauth.signin import SignInCallback
 from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
+from fastapi.routing import APIRoute
 from fastapi import APIRouter
+from fastauth.requests import FastAPIRequest
+from fastapi import Request, Response
+
+
+class FastAuthRoute(APIRoute):
+    def get_route_handler(self) -> Callable:
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: Request) -> Response:
+            return await original_route_handler(
+                FastAPIRequest(request.scope, request.receive)
+            )
+
+        return custom_route_handler
 
 
 class OAuth2Base(ABC, FastAuthConfig):
@@ -37,6 +52,7 @@ class OAuth2Base(ABC, FastAuthConfig):
         self.fallback_secrets = fallback_secrets
         self.signin_callback = signin_callback
         self.auth_route = APIRouter()
+        self.auth_route.route_class = FastAuthRoute
         self.activate()
 
     @abstractmethod

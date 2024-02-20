@@ -2,9 +2,11 @@ from __future__ import annotations
 from logging import Logger
 from typing import NamedTuple, ClassVar
 from fastauth.log import logger as flogger
+from fastauth.frameworks import Framework
 
 
 class FastAuthConfig:
+    framework: Framework
     logger: ClassVar[Logger] = flogger
     debug: ClassVar[bool] = True
 

@@ -38,7 +38,7 @@ class _CallbackCheck:
         self.debug = debug
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
-        self.__base_url = request.slashless_base_url
+        self.__base_url = request.slashless_base_url()
         self.success_response = OAuthRedirectResponse(
             url=self.__base_url + post_signin_uri
         )
