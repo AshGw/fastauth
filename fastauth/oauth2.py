@@ -31,10 +31,9 @@ def OAuthOptions(
     debug: bool = True,
     logger: Logger = flogger,
 ) -> APIRouter:
-    FastAuthConfig.set_defaults(debug=debug, logger=logger)
+    FastAuthConfig.set_defaults(framework=framework, debug=debug, logger=logger)
     if isinstance(framework, FastAPI):
         auth = FastAPIOAuth2(
-            framework=framework,
             provider=provider,
             fallback_secrets=fallback_secrets,
             signin_callback=signin_callback,

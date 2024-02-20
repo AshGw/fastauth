@@ -6,14 +6,13 @@ from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
 from fastapi import APIRouter
 from fastauth.adapters.fastapi.route import FastAuthRoute
-from fastauth.frameworks import FastAPI, Framework
+from fastauth.frameworks import FastAPI
 
 
 class OAuth2Base(ABC, FastAuthConfig):
     def __init__(
         self,
         *,
-        framework: Framework,
         provider: Provider,
         fallback_secrets: FallbackSecrets,
         signin_uri: str,
@@ -27,7 +26,6 @@ class OAuth2Base(ABC, FastAuthConfig):
         error_uri: str,
         jwt_max_age: int,
     ) -> None:
-        self.framework = framework
         self.provider = provider
         self.signin_uri = signin_uri
         self.signout_uri = signout_url

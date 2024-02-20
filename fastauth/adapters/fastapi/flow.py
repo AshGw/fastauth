@@ -4,7 +4,6 @@ from fastapi import APIRouter, Query
 from overrides import override
 from fastauth._types import FallbackSecrets
 from fastauth.providers.base import Provider
-from fastauth.frameworks import Framework
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
 from fastauth.signout import Signout
@@ -20,7 +19,6 @@ class FastAPIOAuthFlow(OAuth2Base):
     def __init__(
         self,
         *,
-        framework: Framework,
         provider: Provider,
         fallback_secrets: FallbackSecrets,
         signin_uri: str,
@@ -35,7 +33,6 @@ class FastAPIOAuthFlow(OAuth2Base):
         signin_callback: Optional[SignInCallback],
     ) -> None:
         super().__init__(
-            framework=framework,
             provider=provider,
             fallback_secrets=fallback_secrets,
             signin_uri=signin_uri + "/" + provider.provider,

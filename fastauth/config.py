@@ -12,14 +12,18 @@ class FastAuthConfig:
 
     @classmethod
     def get_defaults(cls) -> _DefaultAttrs:
-        return _DefaultAttrs(debug=cls.debug, logger=cls.logger)
+        return _DefaultAttrs(
+            framework=cls.framework, debug=cls.debug, logger=cls.logger
+        )
 
     @classmethod
-    def set_defaults(cls, debug: bool, logger: Logger) -> None:
+    def set_defaults(cls, framework: Framework, debug: bool, logger: Logger) -> None:
+        cls.framework = framework
         cls.debug = debug
         cls.logger = logger
 
 
 class _DefaultAttrs(NamedTuple):
+    framework: Framework
     debug: bool
     logger: Logger
