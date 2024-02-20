@@ -55,16 +55,18 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signin(self) -> None:
         @self.router.get(self.signin_uri)
-        async def authorize(request: FastAPIRequest):
+        async def authorize(request: FastAPIRequest):  # type:ignore
+            # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Authorize(provider=self.provider, request=request)()
 
         @self.router.get(self.callback_uri + "/" + self.provider.provider)
-        async def callback(
+        async def callback(  #  type: ignore
             req: FastAPIRequest,
             code: str = Query(...),
             state: str = Query(...),
         ):
             return await Callback(
+                framework=self.framework,
                 code=code,
                 request=req,
                 state=state,
@@ -81,7 +83,8 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signout(self) -> None:
         @self.router.get(self.signout_uri)
-        def signout(request: FastAPIRequest):
+        def signout(request: FastAPIRequest):  # type: ignore
+            # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Signout(
                 post_signout_uri=self.post_signout_uri,
                 request=request,

@@ -2,6 +2,7 @@ from logging import Logger
 
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
+from fastauth.frameworks import Framework, FastAPI
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token
 from fastauth.adapters.request import FastAuthRequest
@@ -20,6 +21,7 @@ from typing import Optional
 class _CallbackCheck:  # pass in framework later
     def __init__(
         self,
+        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -41,11 +43,16 @@ class _CallbackCheck:  # pass in framework later
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
         self.__base_url = request.slashless_base_url()
-        self.success_response = FastAPIRedirectResponse(
-            url=self.__base_url + post_signin_uri
-        )
-        self.error_response = FastAPIRedirectResponse(url=self.__base_url + error_uri)
-        self.cookie = Cookies(request=request, response=self.success_response)
+        if isinstance(framework, FastAPI):  # TODO: NEEDS EXPORTING
+            self.success_response = FastAPIRedirectResponse(
+                url=self.__base_url + post_signin_uri
+            )
+            self.error_response = FastAPIRedirectResponse(
+                url=self.__base_url + error_uri
+            )
+            self.cookie = Cookies(request=request, response=self.success_response)
+        else:
+            raise NotImplementedError
 
     def _is_state_valid(self) -> bool:
         if self.cookie.get(CookieData.State.name) != self.state:
@@ -71,6 +78,7 @@ class Callback(_CallbackCheck):
     def __init__(
         self,
         *,
+        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -84,6 +92,7 @@ class Callback(_CallbackCheck):
         debug: bool,
     ) -> None:
         super().__init__(
+            framework=framework,
             provider=provider,
             post_signin_uri=post_signin_uri,
             error_uri=error_uri,
