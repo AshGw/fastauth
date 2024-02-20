@@ -106,7 +106,7 @@ class Provider(ABC, FastAuthConfig):
             )
 
     @final
-    async def _request_user_info(self, *, access_token: str) -> "ProviderResponseData":
+    async def _request_user_info(self, *, access_token: str) -> ProviderResponseData:
         async with AsyncClient() as client:
             res = await client.get(
                 url=self.userInfo,
