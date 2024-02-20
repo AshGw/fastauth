@@ -1,4 +1,5 @@
 from logging import Logger
+
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
@@ -7,14 +8,14 @@ from fastauth.responses import OAuthRedirectResponse
 from fastauth.requests import OAuthRequest
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
-from fastauth.signin import SignInCallback
+from fastauth.signin import SignInCallback, check_signin_signature
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
 from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackBase:
+class _CallbackSetup:
     def __init__(
         self,
         provider: Provider,
@@ -82,7 +83,7 @@ class _CallbackBase:
         )
 
 
-class Callback(_CallbackBase):
+class Callback(_CallbackSetup):
     def __init__(
         self,
         *,
@@ -134,5 +135,6 @@ class Callback(_CallbackBase):
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
         self.set_csrf_token()
         if self.signin_callback:
+            check_signin_signature(self.signin_callback)
             await self.signin_callback(user_info=user_info)
         return self.success_response

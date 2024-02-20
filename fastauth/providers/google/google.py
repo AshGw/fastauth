@@ -17,7 +17,6 @@ from fastauth.exceptions import (
 from fastauth.providers.base import Provider
 from fastauth.const_data import OAuthURLs, SUCCESS_STATUS_CODES
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.grant_redirect import AuthGrantRedirect
 
 
 @final
@@ -42,8 +41,7 @@ class Google(Provider):
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:  # pragma: no cover
-        return AuthGrantRedirect(
-            provider=self,
+        return self._grant_redirect(
             state=state,
             code_challenge=code_challenge,
             code_challenge_method=code_challenge_method,
@@ -51,7 +49,7 @@ class Google(Provider):
             service="lso",
             access_type="offline",
             flowName="GeneralOAuthFlow",
-        )()
+        )
 
     @override
     async def get_access_token(
