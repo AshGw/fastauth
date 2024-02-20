@@ -37,26 +37,3 @@ def querify_kwargs(kwargs: Optional[QueryParams] = None) -> str:
         return ""
     query_string = "&".join([f"{key}={value}" for key, value in sorted(kwargs.items())])
     return f"&{query_string}"
-
-
-def base_redirect_url(
-    *,
-    response_type: str,
-    authorizationUrl: str,
-    client_id: str,
-    redirect_uri: str,
-    state: str,
-    code_challenge: str,
-    code_challenge_method: str,
-    kwargs: QueryParams,
-) -> str:
-    return (
-        f"{authorizationUrl}?"
-        f"response_type={response_type}"
-        f"&client_id={client_id}"
-        f"&redirect_uri={redirect_uri}"
-        f"&state={state}"
-        f"&code_challenge={code_challenge}"
-        f"&code_challenge_method={code_challenge_method}"
-        f"{querify_kwargs(kwargs)}"
-    )

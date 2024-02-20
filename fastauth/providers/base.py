@@ -12,7 +12,7 @@ from typing import (
 
 from httpx import AsyncClient
 
-from fastauth.utils import base_redirect_url
+from fastauth.utils import querify_kwargs
 from fastauth.responses import OAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
@@ -64,6 +64,27 @@ class Provider(ABC, FastAuthConfig):
     @abstractmethod
     async def get_user_info(self, access_token: str) -> Optional[UserInfo]:
         ...
+
+    @final
+    def _grant_redirect(
+        self,
+        state: str,
+        code_challenge: str,
+        code_challenge_method: str,
+        **kwargs: str,
+    ) -> OAuthRedirectResponse:
+        # private as it's only here for testing it serves no other purpose
+        self._grant_redirect_url = self._make_grant_url(
+            response_type=self.response_type,
+            authorizationUrl=self.authorizationUrl,
+            client_id=self.client_id,
+            redirect_uri=self.redirect_uri,
+            state=state,
+            code_challenge=code_challenge,
+            code_challenge_method=code_challenge_method,
+            kwargs=kwargs,
+        )
+        return OAuthRedirectResponse(url=self._grant_redirect_url)
 
     @final
     async def _request_access_token(
@@ -123,25 +144,28 @@ class Provider(ABC, FastAuthConfig):
         return qp
 
     @final
-    def grant_redirect(
-        self,
+    @staticmethod
+    def _make_grant_url(
+        *,
+        response_type: str,
+        authorizationUrl: str,
+        client_id: str,
+        redirect_uri: str,
         state: str,
         code_challenge: str,
         code_challenge_method: str,
-        **kwargs: str,
-    ) -> OAuthRedirectResponse:
-        # private as it's only here for testing it serves no other purpose
-        self._grant_redirect_url = base_redirect_url(
-            response_type=self.response_type,
-            authorizationUrl=self.authorizationUrl,
-            client_id=self.client_id,
-            redirect_uri=self.redirect_uri,
-            state=state,
-            code_challenge=code_challenge,
-            code_challenge_method=code_challenge_method,
-            kwargs=kwargs,
+        kwargs: QueryParams,
+    ) -> str:
+        return (
+            f"{authorizationUrl}?"
+            f"response_type={response_type}"
+            f"&client_id={client_id}"
+            f"&redirect_uri={redirect_uri}"
+            f"&state={state}"
+            f"&code_challenge={code_challenge}"
+            f"&code_challenge_method={code_challenge_method}"
+            f"{querify_kwargs(kwargs)}"
         )
-        return OAuthRedirectResponse(url=self._grant_redirect_url)
 
 
 def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no cover

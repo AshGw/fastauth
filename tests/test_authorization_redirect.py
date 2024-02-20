@@ -8,7 +8,7 @@ def test_oauth_redirect_url() -> None:
         redirect_uri="https://mysite.com/auth/callback/mock",
     )
 
-    pv.grant_redirect(
+    pv._grant_redirect(
         state="state",
         code_challenge="code_challenge",
         code_challenge_method="s256",

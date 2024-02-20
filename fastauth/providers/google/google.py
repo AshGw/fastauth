@@ -41,7 +41,7 @@ class Google(Provider):
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
     ) -> OAuthRedirectResponse:  # pragma: no cover
-        return self.grant_redirect(
+        return self._grant_redirect(
             state=state,
             code_challenge=code_challenge,
             code_challenge_method=code_challenge_method,
