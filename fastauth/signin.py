@@ -19,7 +19,3 @@ def check_signin_signature(obj: SignInCallback) -> None:
         raise TypeError(
             f"Given object does not adhere to SignInCallback protocol: {obj}"
         )
-
-
-async def push_to_db(user_info: UserInfo) -> None:
-    print(f"defo pushing {user_info} to db")

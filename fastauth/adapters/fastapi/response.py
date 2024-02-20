@@ -1,4 +1,4 @@
-from typing import Optional, Literal, Mapping
+from typing import Optional, Literal, Mapping, Union
 from fastapi.responses import Response
 from fastauth.adapters.response import FastAuthResponse, FastAuthRedirectResponse
 from overrides import override
@@ -61,3 +61,6 @@ class FastAPIRedirectResponse(FastAPIResponse, FastAuthRedirectResponse):
     ) -> None:
         super().__init__(content=b"", status_code=status_code, headers=headers)
         self.headers["location"] = quote(str(url), safe=":/%#?=@[]!$&'()*+,;")
+
+
+FastAPIBaseResponse = Union[FastAPIResponse, FastAPIRedirectResponse]

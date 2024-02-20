@@ -3,7 +3,8 @@ from typing import List
 from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
+from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
 from fastauth.adapters.request import FastAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
@@ -28,15 +29,15 @@ class Signout:
         self.logger = logger
         self.debug = debug
         self.__base_url = request.slashless_base_url()
-        self.success_response = OAuthRedirectResponse(
+        self.success_response = FastAPIRedirectResponse(
             url=self.__base_url + self.post_signout_uri
         )
-        self.failure_response = OAuthRedirectResponse(
+        self.failure_response = FastAPIRedirectResponse(
             url=self.__base_url + self.error_uri, status_code=StatusCode.BAD_REQUEST
         )
         self.cookie = Cookies(request=request, response=self.success_response)
 
-    def __call__(self) -> OAuthRedirectResponse:
+    def __call__(self) -> FastAuthRedirectResponse:
         encrypted_jwt = self.cookie.get(CookieData.JWT.name)
         if encrypted_jwt:
             try:

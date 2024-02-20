@@ -12,8 +12,10 @@ from typing import (
 
 from httpx import AsyncClient
 
+from fastauth.frameworks import FastAPI
 from fastauth.utils import querify_kwargs
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
+from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
 
@@ -52,7 +54,7 @@ class Provider(ABC, FastAuthConfig):
     @abstractmethod
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:
+    ) -> FastAuthRedirectResponse:
         ...
 
     @abstractmethod
@@ -72,7 +74,7 @@ class Provider(ABC, FastAuthConfig):
         code_challenge: str,
         code_challenge_method: str,
         **kwargs: str,
-    ) -> OAuthRedirectResponse:
+    ) -> FastAuthRedirectResponse:
         # private as it's only here for testing it serves no other purpose
         self._grant_redirect_url = self._make_grant_url(
             response_type=self.response_type,
@@ -84,7 +86,9 @@ class Provider(ABC, FastAuthConfig):
             code_challenge_method=code_challenge_method,
             kwargs=kwargs,
         )
-        return OAuthRedirectResponse(url=self._grant_redirect_url)
+        if isinstance(self.framework, FastAPI):
+            return FastAPIRedirectResponse(url=self._grant_redirect_url)
+        raise NotImplementedError
 
     @final
     async def _request_access_token(

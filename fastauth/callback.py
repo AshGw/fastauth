@@ -4,18 +4,20 @@ from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token
-from fastauth.responses import OAuthRedirectResponse
 from fastauth.adapters.request import FastAuthRequest
+from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
+
 from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackCheck:
+class _CallbackCheck:  # pass in framework later
     def __init__(
         self,
         provider: Provider,
@@ -39,10 +41,10 @@ class _CallbackCheck:
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
         self.__base_url = request.slashless_base_url()
-        self.success_response = OAuthRedirectResponse(
+        self.success_response = FastAPIRedirectResponse(
             url=self.__base_url + post_signin_uri
         )
-        self.error_response = OAuthRedirectResponse(url=self.__base_url + error_uri)
+        self.error_response = FastAPIRedirectResponse(url=self.__base_url + error_uri)
         self.cookie = Cookies(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
@@ -128,7 +130,7 @@ class Callback(_CallbackCheck):
         user_info: Optional[UserInfo] = await self.provider.get_user_info(access_token)
         return user_info
 
-    async def __call__(self) -> OAuthRedirectResponse:
+    async def __call__(self) -> FastAuthRedirectResponse:
         user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response

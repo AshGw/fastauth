@@ -1,7 +1,7 @@
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 from fastauth.utils import gen_oauth_params
 from fastauth.adapters.request import FastAuthRequest
 
@@ -31,7 +31,7 @@ class Authorize:
             max_age=CookieData.Codeverifier.max_age,
         )
 
-    def __call__(self) -> OAuthRedirectResponse:
+    def __call__(self) -> FastAuthRedirectResponse:
         self.set_state_cookie()
         self.set_code_verifier_cookie()
         return self.grant_redirection_response

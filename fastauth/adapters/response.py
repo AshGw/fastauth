@@ -1,10 +1,16 @@
-from abc import abstractmethod
-from typing import Optional, Literal, Mapping
+from typing import Optional, Literal, Mapping, Any
 from datetime import datetime
 
 
 class FastAuthResponse:
-    @abstractmethod
+    def __init__(
+        self,
+        content: Any = None,
+        status_code: int = 200,
+        headers: Optional[Mapping[str, str]] = None,
+    ) -> None:
+        ...
+
     def set_auth_cookie(
         self,
         key: str,
@@ -19,7 +25,6 @@ class FastAuthResponse:
     ) -> None:
         ...
 
-    @abstractmethod
     def delete_auth_cookie(
         self,
         key: str,
@@ -32,11 +37,11 @@ class FastAuthResponse:
         ...
 
 
-class FastAuthRedirectResponse:
+class FastAuthRedirectResponse(FastAuthResponse):
     def __init__(
         self,
         url: str,
         status_code: int = 307,
         headers: Optional[Mapping[str, str]] = None,
     ) -> None:
-        ...
+        super().__init__()

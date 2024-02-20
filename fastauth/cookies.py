@@ -1,5 +1,5 @@
 from fastauth.adapters.request import FastAuthRequest
-from fastauth._types import OAuthBaseResponse
+from fastauth.adapters.response import FastAuthResponse
 from typing import Optional, Literal, Dict, final, Final
 from fastauth.utils import name_cookie
 
@@ -14,7 +14,7 @@ class Cookies:
     def __init__(
         self,
         request: FastAuthRequest,
-        response: OAuthBaseResponse,
+        response: FastAuthResponse,
     ) -> None:
         self.request = request
         self.response = response
@@ -30,7 +30,7 @@ class Cookies:
         value: str,
         max_age: Optional[int],
     ) -> None:
-        self.response.set_cookie(
+        self.response.set_auth_cookie(
             key=name_cookie(name=key),
             value=value,
             max_age=max_age,
@@ -45,7 +45,7 @@ class Cookies:
         self,
         key: str,
     ) -> None:
-        return self.response.delete_cookie(
+        return self.response.delete_auth_cookie(
             key=name_cookie(name=key),
             path=self._path,
             domain=self._domain,
