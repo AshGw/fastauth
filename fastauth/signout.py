@@ -4,7 +4,7 @@ from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.request import FastAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
 from jose.exceptions import JWTError
@@ -15,7 +15,7 @@ class Signout:
         self,
         *,
         post_signout_uri: str,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         fallback_secrets: FallbackSecrets,
         error_uri: str,
         logger: Logger,

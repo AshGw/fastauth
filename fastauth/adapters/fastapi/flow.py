@@ -2,15 +2,16 @@ from typing import Optional, final
 
 from fastapi import APIRouter, Query
 from overrides import override
+
 from fastauth._types import FallbackSecrets
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
 from fastauth.signout import Signout
 from fastauth.responses import OAuthRedirectResponse, OAuthResponse
-from fastauth.requests import OAuthRequest
 from fastauth.signin import SignInCallback
 from fastauth.oauth2_baseflow import OAuth2Base
+from fastauth.adapters.fastapi.request import FastAPIRequest
 from fastauth.jwts.handler import JWTHandler
 
 
@@ -54,12 +55,12 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signin(self) -> None:
         @self.router.get(self.signin_uri)
-        async def authorize(request: OAuthRequest) -> OAuthRedirectResponse:
+        async def authorize(request: FastAPIRequest) -> OAuthRedirectResponse:
             return Authorize(provider=self.provider, request=request)()
 
         @self.router.get(self.callback_uri + "/" + self.provider.provider)
         async def callback(
-            req: OAuthRequest,
+            req: FastAPIRequest,
             code: str = Query(...),
             state: str = Query(...),
         ) -> OAuthRedirectResponse:
@@ -80,7 +81,7 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signout(self) -> None:
         @self.router.get(self.signout_uri)
-        def signout(request: OAuthRequest) -> OAuthRedirectResponse:
+        def signout(request: FastAPIRequest) -> OAuthRedirectResponse:
             return Signout(
                 post_signout_uri=self.post_signout_uri,
                 request=request,
@@ -93,7 +94,7 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def jwt(self) -> None:
         @self.router.get(self.jwt_uri)
-        def get_jwt(request: OAuthRequest, response: OAuthResponse) -> OAuthResponse:
+        def get_jwt(request: FastAPIRequest, response: OAuthResponse) -> OAuthResponse:
             return JWTHandler(
                 request=request,
                 response=response,

@@ -1,4 +1,4 @@
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.request import FastAuthRequest
 from fastauth._types import OAuthBaseResponse
 from typing import Optional, Literal, Dict, final, Final
 from fastauth.utils import name_cookie
@@ -13,7 +13,7 @@ class Cookies:
 
     def __init__(
         self,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         response: OAuthBaseResponse,
     ) -> None:
         self.request = request

@@ -5,7 +5,7 @@ from jose.exceptions import JOSEError
 
 from fastauth._types import JWT, ViewableJWT
 from fastauth.const_data import CookieData
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.request import FastAuthRequest
 from fastauth.responses import OAuthResponse
 from fastauth._types import OAuthBaseResponse, FallbackSecrets
 from fastauth.cookies import Cookies
@@ -18,7 +18,7 @@ class JWTHandler:
     def __init__(
         self,
         *,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         response: OAuthBaseResponse,
         fallback_secrets: FallbackSecrets,
         logger: Logger,

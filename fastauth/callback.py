@@ -5,7 +5,7 @@ from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token
 from fastauth.responses import OAuthRedirectResponse
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.request import FastAuthRequest
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
@@ -25,7 +25,7 @@ class _CallbackCheck:
         state: str,
         fallback_secrets: FallbackSecrets,
         logger: Logger,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
         debug: bool,
@@ -78,7 +78,7 @@ class Callback(_CallbackCheck):
         logger: Logger,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
-        request: OAuthRequest,
+        request: FastAuthRequest,
         debug: bool,
     ) -> None:
         super().__init__(

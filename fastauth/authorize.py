@@ -1,13 +1,13 @@
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.cookies import Cookies
-from fastauth.requests import OAuthRequest
 from fastauth.responses import OAuthRedirectResponse
 from fastauth.utils import gen_oauth_params
+from fastauth.adapters.request import FastAuthRequest
 
 
 class Authorize:
-    def __init__(self, *, provider: Provider, request: OAuthRequest) -> None:
+    def __init__(self, *, provider: Provider, request: FastAuthRequest) -> None:
         self.provider = provider
         self.oauth_params = gen_oauth_params()
         self.grant_redirection_response = self.provider.authorize(
