@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from fastauth.frameworks import Framework
 from logging import Logger
 
 from fastapi import APIRouter
@@ -14,6 +15,7 @@ from fastauth.config import FastAuthConfig
 
 
 def OAuthOptions(
+    framework: Framework,
     provider: Provider,
     fallback_secrets: FallbackSecrets,
     signin_callback: SignInCallback,
@@ -31,6 +33,7 @@ def OAuthOptions(
 ) -> APIRouter:
     FastAuthConfig.set_defaults(debug=debug, logger=logger)
     auth = OAuth2(
+        framework=framework,
         provider=provider,
         fallback_secrets=fallback_secrets,
         signin_callback=signin_callback,

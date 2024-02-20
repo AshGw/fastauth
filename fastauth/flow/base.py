@@ -1,31 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Callable
+from typing import Optional
 from fastauth._types import FallbackSecrets
 from fastauth.signin import SignInCallback
 from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider
-from fastapi.routing import APIRoute
 from fastapi import APIRouter
-from fastauth.requests import FastAPIRequest
-from fastapi import Request, Response
-
-
-class FastAuthRoute(APIRoute):
-    def get_route_handler(self) -> Callable:
-        original_route_handler = super().get_route_handler()
-
-        async def custom_route_handler(request: Request) -> Response:
-            return await original_route_handler(
-                FastAPIRequest(request.scope, request.receive)
-            )
-
-        return custom_route_handler
+from fastauth.adapters.fastapi.route import FastAuthRoute
+from fastauth.frameworks import FastAPI, Framework
 
 
 class OAuth2Base(ABC, FastAuthConfig):
     def __init__(
         self,
         *,
+        framework: Framework,
         provider: Provider,
         fallback_secrets: FallbackSecrets,
         signin_uri: str,
@@ -39,6 +27,7 @@ class OAuth2Base(ABC, FastAuthConfig):
         error_uri: str,
         jwt_max_age: int,
     ) -> None:
+        self.framework = framework
         self.provider = provider
         self.signin_uri = signin_uri
         self.signout_uri = signout_url
@@ -51,8 +40,9 @@ class OAuth2Base(ABC, FastAuthConfig):
         self.jwt_max_age = jwt_max_age
         self.fallback_secrets = fallback_secrets
         self.signin_callback = signin_callback
-        self.auth_route = APIRouter()
-        self.auth_route.route_class = FastAuthRoute
+        if isinstance(self.framework, FastAPI):
+            self.auth_route = APIRouter()
+            self.auth_route.route_class = FastAuthRoute
         self.activate()
 
     @abstractmethod
