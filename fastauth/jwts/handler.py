@@ -4,6 +4,7 @@ from logging import Logger
 from jose.exceptions import JOSEError
 
 
+from fastauth.frameworks import FastAPI, Framework
 from fastauth.adapters.response import FastAuthResponse
 from fastauth.adapters.fastapi.response import FastAPIJSONResponse
 from fastauth._types import JWT, ViewableJWT
@@ -20,6 +21,7 @@ class JWTHandler:
     def __init__(
         self,
         *,
+        framework: Framework,
         request: FastAuthRequest,
         response: FastAuthResponse,
         fallback_secrets: FallbackSecrets,
@@ -32,6 +34,10 @@ class JWTHandler:
         self.fallback_secrets = fallback_secrets
         self.debug = debug
         self.cookie = Cookies(request=self.request, response=self.response)
+        if isinstance(framework, FastAPI):
+            self.json_response = FastAPIJSONResponse
+        else:
+            raise NotImplementedError
 
     def get_jwt(self):  # type: ignore
         encrypted_jwt = self._get_jwt_cookie()
@@ -40,13 +46,13 @@ class JWTHandler:
                 jwt: JWT = decipher_jwt(
                     encrypted_jwt=encrypted_jwt, fallback_secrets=self.fallback_secrets
                 )
-                return FastAPIJSONResponse(
+                return self.json_response(
                     content=ViewableJWT(jwt=jwt), status_code=StatusCode.OK
                 )
             except JOSEError as e:
                 self._handle_error(e)
 
-        return FastAPIJSONResponse(
+        return self.json_response(
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
 
