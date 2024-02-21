@@ -4,7 +4,8 @@ from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.adapters.response import FastAuthRedirectResponse
-from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
+from fastauth.adapters.use_response import use_response
+from fastauth.frameworks import Framework
 from fastauth.adapters.request import FastAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
@@ -15,6 +16,7 @@ class Signout:
     def __init__(
         self,
         *,
+        framework: Framework,
         post_signout_uri: str,
         request: FastAuthRequest,
         fallback_secrets: FallbackSecrets,
@@ -29,10 +31,13 @@ class Signout:
         self.logger = logger
         self.debug = debug
         self.__base_url = request.slashless_base_url()
-        self.success_response = FastAPIRedirectResponse(
+        self.redirect_response = use_response(
+            framework=framework, response_type="redirect"
+        )
+        self.success_response = self.redirect_response(
             url=self.__base_url + self.post_signout_uri
         )
-        self.failure_response = FastAPIRedirectResponse(
+        self.failure_response = self.redirect_response(
             url=self.__base_url + self.error_uri, status_code=StatusCode.BAD_REQUEST
         )
         self.cookie = Cookies(request=request, response=self.success_response)

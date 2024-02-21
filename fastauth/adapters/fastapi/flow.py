@@ -87,6 +87,7 @@ class FastAPIOAuthFlow(OAuth2Base):
         def signout(request: FastAPIRequest):  # type: ignore
             # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Signout(
+                framework=FastAPI(),
                 post_signout_uri=self.post_signout_uri,
                 request=request,
                 error_uri=self.error_uri,
