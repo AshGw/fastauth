@@ -8,7 +8,7 @@ from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
 from fastauth.signout import Signout
-from fastauth.adapters.fastapi.response import FastAPIResponse
+from fastauth.adapters.fastapi.response import FastAPIResponse, FastAPIBaseResponse
 from fastauth.signin import SignInCallback
 from fastauth.oauth2_baseflow import OAuth2Base
 from fastauth.adapters.fastapi.request import FastAPIRequest
@@ -99,7 +99,7 @@ class FastAPIOAuthFlow(OAuth2Base):
         @self.router.get(self.jwt_uri)
         def get_jwt(
             request: FastAPIRequest, response: FastAPIResponse
-        ) -> FastAPIResponse:
+        ):  # type: ignore
             return JWTHandler(
                 request=request,
                 response=response,

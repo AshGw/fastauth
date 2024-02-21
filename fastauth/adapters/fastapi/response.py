@@ -1,12 +1,12 @@
 from typing import Optional, Literal, Mapping, Union
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse
 from fastauth.adapters.response import FastAuthResponse, FastAuthRedirectResponse
 from overrides import override
 from datetime import datetime
 from urllib.parse import quote
 
 
-class FastAPIResponse(Response, FastAuthResponse):
+class FastAPIResponse(JSONResponse, FastAuthResponse):
     @override
     def set_auth_cookie(
         self,
