@@ -1,12 +1,13 @@
-from typing import Optional, Literal, Mapping, Union
-from fastapi.responses import JSONResponse
+import json
+from typing import Optional, Literal, Mapping, Union, Any, Dict
+from fastapi.responses import Response
 from fastauth.adapters.response import FastAuthResponse, FastAuthRedirectResponse
 from overrides import override
 from datetime import datetime
 from urllib.parse import quote
 
 
-class FastAPIResponse(JSONResponse, FastAuthResponse):
+class FastAPIResponse(Response, FastAuthResponse):
     @override
     def set_auth_cookie(
         self,
@@ -63,4 +64,28 @@ class FastAPIRedirectResponse(FastAPIResponse, FastAuthRedirectResponse):
         self.headers["location"] = quote(str(url), safe=":/%#?=@[]!$&'()*+,;")
 
 
-FastAPIBaseResponse = Union[FastAPIResponse, FastAPIRedirectResponse]
+class FastAPIJSONResponse(FastAPIResponse, FastAuthResponse):
+    media_type = "application/json"
+
+    def __init__(
+        self,
+        content: Any,
+        status_code: int = 200,
+        headers: Optional[Dict[str, str]] = None,
+        media_type: Optional[str] = None,
+    ) -> None:
+        super().__init__(content, status_code, headers, media_type)
+
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+
+FastAPIBaseResponse = Union[
+    FastAPIResponse, FastAPIRedirectResponse, FastAPIJSONResponse
+]

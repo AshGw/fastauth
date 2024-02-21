@@ -1,4 +1,4 @@
-from typing import Optional, Literal, Mapping, Any
+from typing import Optional, Literal, Mapping, Any, Dict
 from datetime import datetime
 
 
@@ -43,5 +43,17 @@ class FastAuthRedirectResponse(FastAuthResponse):
         url: str,
         status_code: int = 307,
         headers: Optional[Mapping[str, str]] = None,
+    ) -> None:
+        super().__init__()
+
+
+class FastAuthJSONResponse(FastAuthResponse):
+    media_type = "application/json"
+
+    def __init__(
+        self,
+        content: Any,
+        status_code: int = 200,
+        headers: Optional[Dict[str, str]] = None,
     ) -> None:
         super().__init__()
