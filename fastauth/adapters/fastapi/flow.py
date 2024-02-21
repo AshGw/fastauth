@@ -4,7 +4,6 @@ from fastapi import APIRouter, Query
 from overrides import override
 
 from fastauth._types import FallbackSecrets
-from fastauth.frameworks import FastAPI
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
@@ -87,7 +86,7 @@ class FastAPIOAuthFlow(OAuth2Base):
         def signout(request: FastAPIRequest):  # type: ignore
             # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Signout(
-                framework=FastAPI(),
+                framework=self.framework,
                 post_signout_uri=self.post_signout_uri,
                 request=request,
                 error_uri=self.error_uri,
@@ -103,7 +102,7 @@ class FastAPIOAuthFlow(OAuth2Base):
             request: FastAPIRequest, response: FastAPIResponse
         ) -> FastAPIResponse:
             return JWTHandler(  # type: ignore # response type is determined at runtime
-                framework=FastAPI(),
+                framework=self.framework,
                 request=request,
                 response=response,
                 fallback_secrets=self.fallback_secrets,

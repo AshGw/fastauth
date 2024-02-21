@@ -12,10 +12,9 @@ from typing import (
 
 from httpx import AsyncClient
 
-from fastauth.frameworks import FastAPI
+from fastauth.adapters.use_response import use_response
 from fastauth.utils import querify_kwargs
 from fastauth.adapters.response import FastAuthRedirectResponse
-from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
 
@@ -86,14 +85,15 @@ class Provider(ABC, FastAuthConfig):
             code_challenge_method=code_challenge_method,
             kwargs=kwargs,
         )
-        if isinstance(self.framework, FastAPI):
-            return FastAPIRedirectResponse(url=self._grant_redirect_url)
-        raise NotImplementedError
+        self.redirect_response = use_response(
+            framework=self.framework, response_type="redirect"
+        )
+        return self.redirect_response(url=self._grant_redirect_url)  # type: ignore
 
     @final
     async def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
-    ) -> "ProviderResponseData":
+    ) -> ProviderResponseData:
         async with AsyncClient() as client:
             res = await client.post(
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
