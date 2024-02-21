@@ -98,10 +98,10 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def jwt(self) -> None:
         @self.router.get(self.jwt_uri)
-        def get_jwt(  # type: ignore
+        def get_jwt(  # type: ignore # response type is determined at runtime
             request: FastAPIRequest, response: FastAPIResponse
         ):
-            return JWTHandler(
+            return JWTHandler(  # type: ignore
                 framework=FastAPI(),
                 request=request,
                 response=response,
