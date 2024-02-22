@@ -17,7 +17,9 @@ from fastauth.cookies import Cookies
 from fastauth.jwts.operations import encipher_user_info
 from fastauth._types import UserInfo, ViewableJWT, FallbackSecrets
 from fastauth.const_data import StatusCode
-from fastauth.responses import OAuthResponse
+from fastauth.adapters.response import FastAuthResponse
+from fastauth.frameworks import FastAPI
+from fastauth.adapters.fastapi.response import FastAPIJSONResponse
 
 
 _secrets = FallbackSecrets(
@@ -73,8 +75,8 @@ def req() -> FastAuthRequest:
 
 
 @pytest.fixture
-def res() -> OAuthResponse:
-    return OAuthResponse(content={"": ""})
+def res() -> FastAuthResponse:
+    return FastAuthResponse(content={"": ""})
 
 
 @pytest.fixture
@@ -90,6 +92,7 @@ def test_with_jwt_existence(data, mock_all_cookies, req, res, secrets) -> None:
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         handler = JWTHandler(
+            framework=FastAPI(),
             request=req,
             response=res,
             fallback_secrets=secrets,
@@ -106,6 +109,7 @@ def test_with_wrong_jwe_secret(data, req, res, invalid_secrets) -> None:
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
+                framework=FastAPI(),
                 request=req,
                 response=res,
                 fallback_secrets=invalid_secrets,
@@ -121,6 +125,7 @@ def test_with_invalid_length_jwe_secret(data, req, res, invalid_length_secrets) 
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         with pytest.raises(WrongKeyLength):
             JWTHandler(
+                framework=FastAPI(),
                 request=req,
                 response=res,
                 fallback_secrets=invalid_length_secrets,
@@ -137,6 +142,7 @@ def test_with_altered_jwe(data, req, res, secrets) -> None:
         mocked_get_jwt_cookie.return_value = altered_jwe
         with pytest.raises(JSONWebTokenTampering):
             JWTHandler(
+                framework=FastAPI(),
                 request=req,
                 response=res,
                 fallback_secrets=secrets,
@@ -151,6 +157,7 @@ def test_with_no_jwt(data, req, res, secrets) -> None:
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = None
         handler = JWTHandler(
+            framework=FastAPI(),
             request=req,
             response=res,
             fallback_secrets=secrets,
@@ -158,7 +165,7 @@ def test_with_no_jwt(data, req, res, secrets) -> None:
             logger=data.logger,
         )
         actual_response = handler.get_jwt()
-        expected_response = OAuthResponse(
+        expected_response = FastAPIJSONResponse(
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
 

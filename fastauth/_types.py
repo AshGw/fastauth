@@ -1,6 +1,5 @@
 from __future__ import annotations
 from datetime import datetime
-from fastauth.responses import OAuthResponse, OAuthRedirectResponse
 from fastauth.adapters.response import FastAuthRedirectResponse, FastAuthResponse
 from typing import (
     Any,
@@ -26,7 +25,6 @@ ProviderJSONResponse = Mapping[str, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
 
-OAuthBaseResponse = Union[OAuthRedirectResponse, OAuthResponse]
 FastAuthBaseResponse = Union[FastAuthRedirectResponse, FastAuthResponse]
 
 
