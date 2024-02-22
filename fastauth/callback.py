@@ -2,22 +2,26 @@ from logging import Logger
 
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
+from fastauth.frameworks import Framework, FastAPI
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token
-from fastauth.responses import OAuthRedirectResponse
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.request import FastAuthRequest
+from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 
+
 from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackCheck:
+class _CallbackCheck:  # pass in framework later
     def __init__(
         self,
+        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -25,7 +29,7 @@ class _CallbackCheck:
         state: str,
         fallback_secrets: FallbackSecrets,
         logger: Logger,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
         debug: bool,
@@ -39,11 +43,16 @@ class _CallbackCheck:
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
         self.__base_url = request.slashless_base_url()
-        self.success_response = OAuthRedirectResponse(
-            url=self.__base_url + post_signin_uri
-        )
-        self.error_response = OAuthRedirectResponse(url=self.__base_url + error_uri)
-        self.cookie = Cookies(request=request, response=self.success_response)
+        if isinstance(framework, FastAPI):  # TODO: NEEDS EXPORTING
+            self.success_response = FastAPIRedirectResponse(
+                url=self.__base_url + post_signin_uri
+            )
+            self.error_response = FastAPIRedirectResponse(
+                url=self.__base_url + error_uri
+            )
+            self.cookie = Cookies(request=request, response=self.success_response)
+        else:
+            raise NotImplementedError
 
     def _is_state_valid(self) -> bool:
         if self.cookie.get(CookieData.State.name) != self.state:
@@ -69,6 +78,7 @@ class Callback(_CallbackCheck):
     def __init__(
         self,
         *,
+        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -78,10 +88,11 @@ class Callback(_CallbackCheck):
         logger: Logger,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
-        request: OAuthRequest,
+        request: FastAuthRequest,
         debug: bool,
     ) -> None:
         super().__init__(
+            framework=framework,
             provider=provider,
             post_signin_uri=post_signin_uri,
             error_uri=error_uri,
@@ -128,7 +139,7 @@ class Callback(_CallbackCheck):
         user_info: Optional[UserInfo] = await self.provider.get_user_info(access_token)
         return user_info
 
-    async def __call__(self) -> OAuthRedirectResponse:
+    async def __call__(self) -> FastAuthRedirectResponse:
         user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response

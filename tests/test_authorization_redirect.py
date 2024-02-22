@@ -1,7 +1,10 @@
 from .utils import MockProvider
+from fastauth.config import FastAuthConfig
+from fastauth.frameworks import FastAPI
 
 
 def test_oauth_redirect_url() -> None:
+    FastAuthConfig.framework = FastAPI()
     pv = MockProvider(
         client_id="client_id",
         client_secret="client_secret",

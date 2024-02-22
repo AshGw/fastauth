@@ -2,7 +2,7 @@ from typing import Optional, Dict
 from abc import abstractmethod
 
 
-class RequestProtocol:
+class FastAuthRequest:
     @abstractmethod
     def get_cookie(self, cookie_name: str) -> Optional[str]:
         ...

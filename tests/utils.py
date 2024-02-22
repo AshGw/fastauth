@@ -1,7 +1,7 @@
 from typing import Optional
 from fastauth._types import UserInfo, AccessToken
 from fastauth.providers.base import Provider
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 
 
 class MockProvider(Provider):
@@ -23,8 +23,8 @@ class MockProvider(Provider):
 
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:  # pragma: no cover
-        return OAuthRedirectResponse("/")
+    ) -> FastAuthRedirectResponse:  # pragma: no cover
+        return FastAuthRedirectResponse("/")
 
     async def get_access_token(
         self, *, code_verifier: str, code: str, state: str

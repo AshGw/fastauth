@@ -12,8 +12,9 @@ from typing import (
 
 from httpx import AsyncClient
 
+from fastauth.adapters.use_response import use_response
 from fastauth.utils import querify_kwargs
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
 
@@ -52,7 +53,7 @@ class Provider(ABC, FastAuthConfig):
     @abstractmethod
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:
+    ) -> FastAuthRedirectResponse:
         ...
 
     @abstractmethod
@@ -72,7 +73,7 @@ class Provider(ABC, FastAuthConfig):
         code_challenge: str,
         code_challenge_method: str,
         **kwargs: str,
-    ) -> OAuthRedirectResponse:
+    ) -> FastAuthRedirectResponse:
         # private as it's only here for testing it serves no other purpose
         self._grant_redirect_url = self._make_grant_url(
             response_type=self.response_type,
@@ -84,12 +85,15 @@ class Provider(ABC, FastAuthConfig):
             code_challenge_method=code_challenge_method,
             kwargs=kwargs,
         )
-        return OAuthRedirectResponse(url=self._grant_redirect_url)
+        self.redirect_response = use_response(
+            framework=self.framework, response_type="redirect"
+        )
+        return self.redirect_response(url=self._grant_redirect_url)  # type: ignore
 
     @final
     async def _request_access_token(
         self, *, code_verifier: str, code: str, state: str, **kwargs: str
-    ) -> "ProviderResponseData":
+    ) -> ProviderResponseData:
         async with AsyncClient() as client:
             res = await client.post(
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -106,7 +110,7 @@ class Provider(ABC, FastAuthConfig):
             )
 
     @final
-    async def _request_user_info(self, *, access_token: str) -> "ProviderResponseData":
+    async def _request_user_info(self, *, access_token: str) -> ProviderResponseData:
         async with AsyncClient() as client:
             res = await client.get(
                 url=self.userInfo,

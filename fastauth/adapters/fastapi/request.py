@@ -1,11 +1,11 @@
 from typing import Optional, Dict
 from fastauth.utils import get_slashless_url
 from fastapi.requests import Request
-from fastauth.adapters.request import RequestProtocol
+from fastauth.adapters.request import FastAuthRequest
 from overrides import override
 
 
-class FastAPIRequest(Request, RequestProtocol):
+class FastAPIRequest(Request, FastAuthRequest):
     @override
     def get_cookie(self, cookie_name: str) -> Optional[str]:
         return self.cookies.get(cookie_name)

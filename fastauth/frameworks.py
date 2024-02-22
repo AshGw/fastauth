@@ -4,7 +4,3 @@ class Framework:
 
 class FastAPI(Framework):
     pass
-
-
-class Tornado(Framework):
-    pass

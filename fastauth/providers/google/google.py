@@ -16,7 +16,7 @@ from fastauth.exceptions import (
 )
 from fastauth.providers.base import Provider
 from fastauth.const_data import OAuthURLs, SUCCESS_STATUS_CODES
-from fastauth.responses import OAuthRedirectResponse
+from fastauth.adapters.response import FastAuthRedirectResponse
 
 
 @final
@@ -40,7 +40,7 @@ class Google(Provider):
     @override
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> OAuthRedirectResponse:  # pragma: no cover
+    ) -> FastAuthRedirectResponse:  # pragma: no cover
         return self._grant_redirect(
             state=state,
             code_challenge=code_challenge,

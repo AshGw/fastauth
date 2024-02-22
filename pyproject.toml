@@ -150,6 +150,9 @@ omit = [
     'fastauth\adapters\fastapi\flow.py', # TODO: remove when testing them
     'fastauth\oauth2_options.py', # TODO: remove when testing them
     'fastauth\oauth2_baseflow.py', # TODO: remove when testing them
+    'fastauth\adapters\response.py', # TODO: remove when testing them
+    'fastauth\adapters\fastapi\response.py', # TODO: remove when testing them
+
 ]
 
 exclude_lines = [

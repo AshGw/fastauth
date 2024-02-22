@@ -3,8 +3,10 @@ from typing import List
 from fastauth.const_data import CookieData, StatusCode
 from fastauth._types import FallbackSecrets
 from fastauth.cookies import Cookies
-from fastauth.responses import OAuthRedirectResponse
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.response import FastAuthResponse
+from fastauth.adapters.use_response import use_response
+from fastauth.frameworks import Framework
+from fastauth.adapters.request import FastAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
 from jose.exceptions import JWTError
@@ -14,8 +16,9 @@ class Signout:
     def __init__(
         self,
         *,
+        framework: Framework,
         post_signout_uri: str,
-        request: OAuthRequest,
+        request: FastAuthRequest,
         fallback_secrets: FallbackSecrets,
         error_uri: str,
         logger: Logger,
@@ -28,15 +31,18 @@ class Signout:
         self.logger = logger
         self.debug = debug
         self.__base_url = request.slashless_base_url()
-        self.success_response = OAuthRedirectResponse(
+        self.redirect_response = use_response(
+            framework=framework, response_type="redirect"
+        )
+        self.success_response = self.redirect_response(  # type: ignore  # @runtime
             url=self.__base_url + self.post_signout_uri
         )
-        self.failure_response = OAuthRedirectResponse(
+        self.failure_response = self.redirect_response(  # type: ignore   # @runtime
             url=self.__base_url + self.error_uri, status_code=StatusCode.BAD_REQUEST
         )
         self.cookie = Cookies(request=request, response=self.success_response)
 
-    def __call__(self) -> OAuthRedirectResponse:
+    def __call__(self) -> FastAuthResponse:
         encrypted_jwt = self.cookie.get(CookieData.JWT.name)
         if encrypted_jwt:
             try:

@@ -2,15 +2,16 @@ from typing import Optional, final
 
 from fastapi import APIRouter, Query
 from overrides import override
+
 from fastauth._types import FallbackSecrets
 from fastauth.providers.base import Provider
 from fastauth.authorize import Authorize
 from fastauth.callback import Callback
 from fastauth.signout import Signout
-from fastauth.responses import OAuthRedirectResponse, OAuthResponse
-from fastauth.requests import OAuthRequest
+from fastauth.adapters.fastapi.response import FastAPIResponse
 from fastauth.signin import SignInCallback
 from fastauth.oauth2_baseflow import OAuth2Base
+from fastauth.adapters.fastapi.request import FastAPIRequest
 from fastauth.jwts.handler import JWTHandler
 
 
@@ -54,16 +55,18 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signin(self) -> None:
         @self.router.get(self.signin_uri)
-        async def authorize(request: OAuthRequest) -> OAuthRedirectResponse:
+        async def authorize(request: FastAPIRequest):  # type:ignore
+            # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Authorize(provider=self.provider, request=request)()
 
         @self.router.get(self.callback_uri + "/" + self.provider.provider)
-        async def callback(
-            req: OAuthRequest,
+        async def callback(  #  type: ignore
+            req: FastAPIRequest,
             code: str = Query(...),
             state: str = Query(...),
-        ) -> OAuthRedirectResponse:
+        ):
             return await Callback(
+                framework=self.framework,
                 code=code,
                 request=req,
                 state=state,
@@ -80,8 +83,10 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def on_signout(self) -> None:
         @self.router.get(self.signout_uri)
-        def signout(request: OAuthRequest) -> OAuthRedirectResponse:
+        def signout(request: FastAPIRequest):  # type: ignore
+            # Type is determined at runtime, FastAPIRedirectResponse is the type.
             return Signout(
+                framework=self.framework,
                 post_signout_uri=self.post_signout_uri,
                 request=request,
                 error_uri=self.error_uri,
@@ -93,8 +98,11 @@ class FastAPIOAuthFlow(OAuth2Base):
     @override
     def jwt(self) -> None:
         @self.router.get(self.jwt_uri)
-        def get_jwt(request: OAuthRequest, response: OAuthResponse) -> OAuthResponse:
-            return JWTHandler(
+        def get_jwt(
+            request: FastAPIRequest, response: FastAPIResponse
+        ) -> FastAPIResponse:
+            return JWTHandler(  # type: ignore # response type is determined at runtime
+                framework=self.framework,
                 request=request,
                 response=response,
                 fallback_secrets=self.fallback_secrets,
