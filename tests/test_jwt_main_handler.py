@@ -8,7 +8,6 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from fastauth.jwts.helpers import generate_secret
 from fastauth.adapters.request import FastAuthRequest
-from fastauth.adapters.fastapi.request import FastAPIRequest
 from fastauth.jwts.handler import JWTHandler
 from fastauth.exceptions import JSONWebTokenTampering, WrongKeyLength
 from fastauth.const_data import CookieData
@@ -75,12 +74,12 @@ def mock_all_cookies(monkeypatch: MonkeyPatch) -> None:
 
 @pytest.fixture
 def req() -> FastAuthRequest:
-    return FastAPIRequest(scope={"type": "http"})
+    return FastAuthRequest()
 
 
 @pytest.fixture
 def res() -> FastAuthResponse:
-    return FastAuthResponse(content={"": ""})
+    return FastAuthResponse()
 
 
 @pytest.fixture
