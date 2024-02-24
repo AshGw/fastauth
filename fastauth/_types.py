@@ -3,8 +3,6 @@ from datetime import datetime
 from fastauth.adapters.response import FastAuthRedirectResponse, FastAuthResponse
 from typing import (
     Any,
-    Callable,
-    TypeVar,
     NamedTuple,
     TypedDict,
     NewType,
@@ -13,8 +11,6 @@ from typing import (
     Mapping,
     Union,
 )
-
-_F = TypeVar("_F", bound=Callable[..., Any])
 
 
 AccessToken = NewType("AccessToken", str)

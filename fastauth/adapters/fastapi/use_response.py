@@ -7,7 +7,7 @@ from fastauth.adapters.fastapi.response import (
 
 
 def use_fastapi_response(
-    response_type: Literal["json", "redirect"]
+    response_type: Literal["json", "redirect"],
 ) -> Type[FastAPIBaseResponse]:
     if response_type == "redirect":
         return FastAPIRedirectResponse

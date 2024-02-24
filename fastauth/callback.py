@@ -2,12 +2,12 @@ from logging import Logger
 
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
-from fastauth.frameworks import Framework, FastAPI
+from fastauth.frameworks import Framework
 from fastauth.cookies import Cookies
 from fastauth.utils import gen_csrf_token
 from fastauth.adapters.request import FastAuthRequest
-from fastauth.adapters.fastapi.response import FastAPIRedirectResponse
-from fastauth.adapters.response import FastAuthRedirectResponse
+from fastauth.adapters.use_response import use_response
+from fastauth.adapters.response import FastAuthResponse
 from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
@@ -18,7 +18,7 @@ from fastauth._types import UserInfo
 from typing import Optional
 
 
-class _CallbackCheck:  # pass in framework later
+class _CallbackCheck:
     def __init__(
         self,
         framework: Framework,
@@ -42,17 +42,11 @@ class _CallbackCheck:  # pass in framework later
         self.debug = debug
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
-        self.__base_url = request.slashless_base_url()
-        if isinstance(framework, FastAPI):  # TODO: NEEDS EXPORTING
-            self.success_response = FastAPIRedirectResponse(
-                url=self.__base_url + post_signin_uri
-            )
-            self.error_response = FastAPIRedirectResponse(
-                url=self.__base_url + error_uri
-            )
-            self.cookie = Cookies(request=request, response=self.success_response)
-        else:
-            raise NotImplementedError
+        __base_url = request.slashless_base_url()
+        __response = use_response(framework=framework, response_type="redirect")
+        self.success_response = __response(url=__base_url + post_signin_uri)  # type: ignore
+        self.error_response = __response(url=__base_url + error_uri)  # type: ignore
+        self.cookie = Cookies(request=request, response=self.success_response)
 
     def _is_state_valid(self) -> bool:
         if self.cookie.get(CookieData.State.name) != self.state:
@@ -139,7 +133,7 @@ class Callback(_CallbackCheck):
         user_info: Optional[UserInfo] = await self.provider.get_user_info(access_token)
         return user_info
 
-    async def __call__(self) -> FastAuthRedirectResponse:
+    async def __call__(self) -> FastAuthResponse:
         user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response
