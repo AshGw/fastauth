@@ -7,6 +7,7 @@ from fastauth.frameworks import Framework
 
 class FastAuthConfig:
     framework: ClassVar[Framework]
+    passed_csrf_validation: ClassVar[bool] = True
     logger: ClassVar[Logger] = flogger
     debug: ClassVar[bool] = True
 
