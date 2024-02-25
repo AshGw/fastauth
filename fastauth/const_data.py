@@ -62,6 +62,7 @@ class StatusCode:
     CREATED = 201
     UNAUTHORIZED = 401
     BAD_REQUEST = 400
+    NO_CONTENT = 204
 
 
 SUCCESS_STATUS_CODES: Final[FrozenSet[int]] = frozenset(
