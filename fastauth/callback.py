@@ -4,7 +4,6 @@ from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
 from fastauth.frameworks import Framework
 from fastauth.cookies import Cookies
-from fastauth.utils import gen_csrf_token
 from fastauth.adapters.request import FastAuthRequest
 from fastauth.adapters.use_response import use_response
 from fastauth.adapters.response import FastAuthResponse
@@ -111,13 +110,6 @@ class Callback(_CallbackCheck):
             max_age=max_age,
         )
 
-    def set_csrf_token(self) -> None:
-        self.cookie.set(
-            key=CookieData.CSRFToken.name,
-            value=gen_csrf_token(),
-            max_age=CookieData.CSRFToken.max_age,
-        )
-
     async def get_user_info(self) -> Optional[UserInfo]:
         valid_state: bool = self._is_state_valid()
         if not valid_state:
@@ -138,7 +130,6 @@ class Callback(_CallbackCheck):
         if not user_info:
             return self.error_response
         self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
-        self.set_csrf_token()
         if self.signin_callback:
             check_signin_signature(self.signin_callback)
             await self.signin_callback(user_info=user_info)
