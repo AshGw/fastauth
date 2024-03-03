@@ -1,8 +1,20 @@
+from __future__ import annotations
+
+import logging
 import hmac
 import hashlib
 from os import urandom
+
+from starlette.requests import Request
+from starlette.responses import Response
 from fastauth._types import FallbackSecrets, CSRFToken
-from typing import ClassVar, Optional
+from fastauth.const_data import CookieData, StatusCode
+from fastauth.utils import name_cookie
+from fastauth.config import FastAuthConfig
+
+from typing import ClassVar, Optional, final
+
+logger = logging.getLogger("fastauth.adapters.fastapi.csrf")
 
 
 # TODO: make it an actual singleton
@@ -47,3 +59,59 @@ class CSRF:
             bytes(message_payload, "utf-8"),
             hashlib.sha256,
         ).hexdigest()
+
+
+@final
+class CSRFValidationFilter(CSRF, FastAuthConfig):
+    def __init__(self, request: Request, response: Response) -> None:
+        self.request = request
+        self.response = response
+
+    def __call__(self) -> None:
+        token = self.get_csrf_token_cookie()
+        if not token:
+            self.set_csrf_token_cookie()
+            return self.reject(
+                reason="CSRF cookie is absent / not set", request=self.request
+            )
+        if not self.validate_csrf_token(token):
+            return self.reject(
+                reason="CSRF token is incorrect, the received HMAC"
+                " and the generated one do not match.",
+                request=self.request,
+            )
+        return self.accept()
+
+    def get_csrf_token_cookie(self) -> Optional[CSRFToken]:
+        token = self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
+        return CSRFToken(token) if token else None
+
+    # TODO: delegate this to the Cookie class
+    def set_csrf_token_cookie(self) -> None:
+        self.response.set_cookie(
+            key=name_cookie(name=CookieData.CSRFToken.name),
+            value=self.gen_csrf_token(),
+            max_age=CookieData.CSRFToken.max_age,
+            httponly=False,
+            secure=self.request.url.is_secure,
+            samesite="lax",
+            path="/",
+            domain=None,
+        )
+
+    @classmethod
+    def reject(cls, reason: str, request: Request) -> None:
+        logger.warning(
+            "Forbidden (%s): %s",
+            reason,
+            request.url,
+            extra={
+                "status_code": StatusCode.FORBIDDEN,
+                "request": request,
+            },
+        )
+        cls.passed_csrf_validation = False
+
+    @classmethod
+    def accept(cls) -> None:
+        cls.passed_csrf_validation = True
