@@ -1,8 +1,8 @@
 import logging
+
 from typing import Optional, final
 from fastapi import Request
 from fastauth.csrf import CSRF
-from os import urandom
 from typing import Awaitable, Callable
 from starlette.responses import Response
 from fastauth.const_data import CookieData, StatusCode
@@ -18,10 +18,6 @@ REASON_BAD_TOKEN = (
 )
 
 
-SECRET = "137332f341b7813b88a4a9c44d8a6179"
-JWT_EMBEDDED = urandom(16).hex()
-
-
 @final
 class CSRFValidationFilter(CSRF, FastAuthConfig):
     def __init__(self, request: Request, response: Response) -> None:
@@ -30,7 +26,7 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
 
     def __call__(self) -> None:
         token = self.get_csrf_cookie_token()
-        if token is None:
+        if not token:
             self.set_csrf_token_cookie()
             return self.reject(reason=REASON_NO_CSRF_COOKIE, request=self.request)
         if not self.validate_csrf_token(token):
@@ -41,6 +37,7 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
         token = self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
         return CSRFToken(token) if token else None
 
+    # TODO: delegate this to the Cookie class
     def set_csrf_token_cookie(self) -> None:
         self.response.set_cookie(
             key=name_cookie(name=CookieData.CSRFToken.name),
@@ -60,7 +57,7 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
             reason,
             request.url,
             extra={
-                "status_code": StatusCode.NO_CONTENT,
+                "status_code": StatusCode.FORBIDDEN,
                 "request": request,
             },
         )

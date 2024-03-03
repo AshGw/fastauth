@@ -5,10 +5,6 @@ from fastauth._types import FallbackSecrets, CSRFToken
 from typing import ClassVar, Optional
 
 
-def _gen_collision_value() -> str:
-    return urandom(16).hex()
-
-
 # TODO: make it an actual singleton
 class CSRF:
     fallback_secrets: ClassVar[Optional[FallbackSecrets]] = None
@@ -37,7 +33,7 @@ class CSRF:
             random_value: str = urandom(16).hex()
             message_payload = random_value
             hmac_hash = cls.create_hmac(
-                secret=cls.fallback_secrets.secret_1,
+                secret=cls.fallback_secrets.secret_1,  # TODO: actually rotate em all
                 message_payload=message_payload,
             )
             token = hmac_hash + "." + message_payload

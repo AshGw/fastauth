@@ -7,7 +7,7 @@ from fastauth.cookies import Cookies
 from fastauth.adapters.request import FastAuthRequest
 from fastauth.adapters.use_response import use_response
 from fastauth.adapters.response import FastAuthResponse
-from fastauth._types import FallbackSecrets, AccessToken, CSRFToken
+from fastauth._types import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
@@ -99,7 +99,7 @@ class Callback(_CallbackCheck):
             debug=debug,
         )
 
-    def set_jwt(self, user_info: UserInfo, max_age: int) -> None:
+    def set_jwt_cookie(self, user_info: UserInfo, max_age: int) -> None:
         self.cookie.set(
             key=CookieData.JWT.name,
             value=encipher_user_info(
@@ -110,8 +110,12 @@ class Callback(_CallbackCheck):
             max_age=max_age,
         )
 
-    def set_csrf(self) -> CSRFToken:
-        return CSRF.gen_csrf_token()
+    def set_csrf_cookie(self) -> None:
+        self.cookie.set(
+            key=CookieData.CSRFToken.name,
+            value=CSRF.gen_csrf_token(),
+            max_age=CookieData.CSRFToken.max_age,
+        )
 
     async def get_user_info(self) -> Optional[UserInfo]:
         valid_state: bool = self._is_state_valid()
@@ -132,8 +136,8 @@ class Callback(_CallbackCheck):
         user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response
-        self.set_jwt(user_info=user_info, max_age=self.jwt_max_age)
-        self.set_csrf()
+        self.set_csrf_cookie()
+        self.set_jwt_cookie(user_info=user_info, max_age=self.jwt_max_age)
         if self.signin_callback:
             check_signin_signature(self.signin_callback)
             await self.signin_callback(user_info=user_info)
