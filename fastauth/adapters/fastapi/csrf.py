@@ -38,7 +38,8 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
         return self.accept()
 
     def get_csrf_cookie_token(self) -> Optional[CSRFToken]:
-        return self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
+        token = self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
+        return CSRFToken(token) if token else None
 
     def set_csrf_token_cookie(self) -> None:
         self.response.set_cookie(
