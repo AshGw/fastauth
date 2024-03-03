@@ -74,7 +74,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 
 @final
-class CSRFValidationMiddleware(BaseHTTPMiddleware):
+class CSRFMitigationMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
         request: Request,
