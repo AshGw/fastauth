@@ -1,7 +1,7 @@
 import hmac
 import hashlib
 from os import urandom
-from fastauth._types import FallbackSecrets
+from fastauth._types import FallbackSecrets, CSRFToken
 from typing import ClassVar, Optional
 
 
@@ -9,18 +9,19 @@ def _gen_collision_value() -> str:
     return urandom(16).hex()
 
 
+# TODO: make it an actual singleton
 class CSRF:
     fallback_secrets: ClassVar[Optional[FallbackSecrets]] = None
 
     @classmethod
-    def init_with(
+    def init_once(
         cls,
         fallback_secrets: FallbackSecrets,
     ) -> None:
         cls.fallback_secrets = fallback_secrets
 
     @classmethod
-    def validate_csrf_token(cls, token: str) -> bool:
+    def validate_csrf_token(cls, token: CSRFToken) -> bool:
         if cls.fallback_secrets is not None:
             hmac_hash, message_payload = token.split(".")
             for secret in cls.fallback_secrets:
@@ -31,7 +32,7 @@ class CSRF:
         return False
 
     @classmethod
-    def gen_csrf_token(cls) -> str:
+    def gen_csrf_token(cls) -> CSRFToken:
         if cls.fallback_secrets is not None:
             random_value: str = urandom(16).hex()
             message_payload = random_value
@@ -40,7 +41,7 @@ class CSRF:
                 message_payload=message_payload,
             )
             token = hmac_hash + "." + message_payload
-            return token
+            return CSRFToken(token)
         raise ValueError("JWT embedded value or fallback secrets not set.")
 
     @staticmethod

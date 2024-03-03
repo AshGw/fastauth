@@ -16,6 +16,7 @@ from typing import (
 
 
 AccessToken = NewType("AccessToken", str)
+CSRFToken = NewType("CSRFToken", str)
 
 QueryParams = MutableMapping[str, str]
 

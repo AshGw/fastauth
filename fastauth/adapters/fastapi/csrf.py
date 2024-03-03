@@ -8,7 +8,7 @@ from starlette.responses import Response
 from fastauth.const_data import CookieData, StatusCode
 from fastauth.utils import name_cookie
 from fastauth.config import FastAuthConfig
-
+from fastauth._types import CSRFToken
 
 logger = logging.getLogger("fastauth.adapters.fastapi.csrf")
 
@@ -29,7 +29,7 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
         self.response = response
 
     def __call__(self) -> None:
-        token = self.get_csrf_token()
+        token = self.get_csrf_cookie_token()
         if token is None:
             self.set_csrf_token_cookie()
             return self.reject(reason=REASON_NO_CSRF_COOKIE, request=self.request)
@@ -37,7 +37,7 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
             return self.reject(reason=REASON_BAD_TOKEN, request=self.request)
         return self.accept()
 
-    def get_csrf_token(self) -> Optional[str]:
+    def get_csrf_cookie_token(self) -> Optional[CSRFToken]:
         return self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
 
     def set_csrf_token_cookie(self) -> None:
