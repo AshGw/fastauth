@@ -3,14 +3,15 @@ from __future__ import annotations
 import logging
 import hmac
 import hashlib
-from os import urandom
 
-from starlette.requests import Request
-from starlette.responses import Response
+from os import urandom
 from fastauth._types import FallbackSecrets, CSRFToken
 from fastauth.const_data import CookieData, StatusCode
 from fastauth.utils import name_cookie
 from fastauth.config import FastAuthConfig
+from fastauth.adapters.response import FastAuthResponse
+from fastauth.adapters.request import FastAuthRequest
+from fastauth.cookies import Cookies
 
 from typing import ClassVar, Optional, final
 
@@ -63,9 +64,10 @@ class CSRF:
 
 @final
 class CSRFValidationFilter(CSRF, FastAuthConfig):
-    def __init__(self, request: Request, response: Response) -> None:
+    def __init__(self, request: FastAuthRequest, response: FastAuthResponse) -> None:
         self.request = request
         self.response = response
+        self.c = Cookies(request=request, response=response)
 
     def __call__(self) -> None:
         token = self.get_csrf_token_cookie()
@@ -83,28 +85,23 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
         return self.accept()
 
     def get_csrf_token_cookie(self) -> Optional[CSRFToken]:
-        token = self.request.cookies.get(name_cookie(name=CookieData.CSRFToken.name))
+        token = self.c.get(key=name_cookie(name=CookieData.CSRFToken.name))
         return CSRFToken(token) if token else None
 
     # TODO: delegate this to the Cookie class
     def set_csrf_token_cookie(self) -> None:
-        self.response.set_cookie(
+        self.c.set(
             key=name_cookie(name=CookieData.CSRFToken.name),
             value=self.gen_csrf_token(),
             max_age=CookieData.CSRFToken.max_age,
-            httponly=False,
-            secure=self.request.url.is_secure,
-            samesite="lax",
-            path="/",
-            domain=None,
         )
 
     @classmethod
-    def reject(cls, reason: str, request: Request) -> None:
+    def reject(cls, reason: str, request: FastAuthRequest) -> None:
         logger.warning(
             "Forbidden (%s): %s",
             reason,
-            request.url,
+            request.slashless_base_url(),
             extra={
                 "status_code": StatusCode.FORBIDDEN,
                 "request": request,
