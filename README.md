@@ -57,3 +57,5 @@ def logged():
 def out():
     return 'out'
 ```
+#### Setup
+checkout ``justfile``
