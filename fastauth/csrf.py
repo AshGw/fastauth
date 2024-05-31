@@ -1,3 +1,4 @@
+#### This is a mess and needs work
 from __future__ import annotations
 
 import logging
@@ -12,7 +13,6 @@ from fastauth.config import FastAuthConfig
 from fastauth.adapters.response import FastAuthResponse
 from fastauth.adapters.request import FastAuthRequest
 from fastauth.cookies import Cookies
-
 from typing import ClassVar, Optional, final
 
 logger = logging.getLogger("fastauth.adapters.fastapi.csrf")
@@ -62,12 +62,11 @@ class CSRF:
         ).hexdigest()
 
 
-@final
 class CSRFValidationFilter(CSRF, FastAuthConfig):
     def __init__(self, request: FastAuthRequest, response: FastAuthResponse) -> None:
         self.request = request
         self.response = response
-        self.c = Cookies(request=request, response=response)
+        self.cookie_handler = Cookies(request=request, response=response)
 
     def __call__(self) -> None:
         token = self.get_csrf_token_cookie()
@@ -84,28 +83,65 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
             )
         return self.accept()
 
-    def get_csrf_token_cookie(self) -> Optional[CSRFToken]:
-        token = self.c.get(key=name_cookie(name=CookieData.CSRFToken.name))
-        return CSRFToken(token) if token else None
-
-    # TODO: delegate this to the Cookie class
-    def set_csrf_token_cookie(self) -> None:
-        self.c.set(
-            key=name_cookie(name=CookieData.CSRFToken.name),
-            value=self.gen_csrf_token(),
-            max_age=CookieData.CSRFToken.max_age,
-        )
-
     @classmethod
     def reject(cls, reason: str, request: FastAuthRequest) -> None:
         logger.warning(
             "Forbidden (%s): %s",
             reason,
-            request.slashless_base_url(),
+            request.slashless_current_url(),
             extra={
                 "status_code": StatusCode.FORBIDDEN,
                 "request": request,
             },
+        )
+        cls.passed_csrf_validation = False
+
+    @classmethod
+    def accept(cls) -> None:
+        cls.passed_csrf_validation = True
+
+
+@final
+class CSRFValidationFilterBase(CSRF, FastAuthConfig):
+    def __init__(
+        self,
+    ) -> None:
+        super().__init__()
+
+    def __call__(self) -> None:
+        token = self.get_csrf_token_cookie()
+        if not token:
+            self.set_csrf_token_cookie()
+            return self.reject(reason="CSRF cookie is absent / not set")
+        if not self.validate_csrf_token(token):
+            return self.reject(
+                reason="CSRF token is incorrect, the received HMAC"
+                " and the generated one do not match."
+            )
+        return self.accept()
+
+    def get_csrf_token_cookie(self) -> Optional[CSRFToken]:
+        token = self.cookie_handler.get(name_cookie(name=CookieData.CSRFToken.name))
+        return CSRFToken(token) if token else None
+
+    # TODO: delegate this to the Cookie class
+    def set_csrf_token_cookie(self) -> None:
+        self.response.set_cookie(
+            key=name_cookie(name=CookieData.CSRFToken.name),
+            value=self.gen_csrf_token(),
+            max_age=CookieData.CSRFToken.max_age,
+            secure=self.request.url.is_secure,
+            httponly=False,
+            samesite="lax",
+            path="/",
+            domain=None,
+        )
+
+    @classmethod
+    def reject(cls, reason: str) -> None:
+        logger.warning(
+            f"Forbidden {StatusCode.FORBIDDEN}: {reason}",
+            reason,
         )
         cls.passed_csrf_validation = False
 
