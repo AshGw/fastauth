@@ -21,3 +21,7 @@ class FastAPIRequest(Request, FastAuthRequest):
     @override
     def slashless_base_url(self) -> str:
         return get_slashless_url(str(self.base_url))
+
+    @override
+    def slashless_current_url(self) -> str:
+        return get_slashless_url(str(self.url))

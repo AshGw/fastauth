@@ -181,21 +181,21 @@ def log_action(f: Callable[_PSpec, _T]) -> Callable[_PSpec, _T]:  # pragma: no c
                 f"{f.__qualname__}: Can only log members of the {Provider} class"
             )
         if f.__name__ == provider.authorize.__name__:
-            provider.logger.info(
+            provider.logger.debug(
                 f"Redirecting the client to the resource owner via"
                 f" {provider.provider} authorization server"
             )
             return f(*args, **kwargs)
 
         if f.__name__ == provider.get_access_token.__name__:
-            provider.logger.info(
+            provider.logger.debug(
                 f"Requesting the access token from {provider.provider} "
                 f"authorization server"
             )
             return f(*args, **kwargs)
 
         if f.__name__ == provider.get_user_info.__name__:
-            provider.logger.info(
+            provider.logger.debug(
                 f"Requesting user information from {provider.provider} "
                 f"resource server"
             )

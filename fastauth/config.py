@@ -7,14 +7,13 @@ from fastauth.frameworks import Framework
 
 class FastAuthConfig:
     framework: ClassVar[Framework]
+    passed_csrf_validation: ClassVar[bool] = True
     logger: ClassVar[Logger] = flogger
     debug: ClassVar[bool] = True
 
     @classmethod
-    def get_defaults(cls) -> _DefaultAttrs:
-        return _DefaultAttrs(
-            framework=cls.framework, debug=cls.debug, logger=cls.logger
-        )
+    def get_defaults(cls) -> _DefaultVars:
+        return _DefaultVars(framework=cls.framework, debug=cls.debug, logger=cls.logger)
 
     @classmethod
     def set_defaults(cls, framework: Framework, debug: bool, logger: Logger) -> None:
@@ -23,7 +22,7 @@ class FastAuthConfig:
         cls.logger = logger
 
 
-class _DefaultAttrs(NamedTuple):
+class _DefaultVars(NamedTuple):
     framework: Framework
     debug: bool
     logger: Logger

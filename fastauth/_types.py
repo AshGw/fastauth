@@ -3,21 +3,20 @@ from datetime import datetime
 from fastauth.adapters.response import FastAuthRedirectResponse, FastAuthResponse
 from typing import (
     Any,
-    Callable,
-    TypeVar,
     NamedTuple,
     TypedDict,
     NewType,
     Optional,
     MutableMapping,
     Mapping,
+    Callable,
+    Awaitable,
     Union,
 )
 
-_F = TypeVar("_F", bound=Callable[..., Any])
-
 
 AccessToken = NewType("AccessToken", str)
+CSRFToken = NewType("CSRFToken", str)
 
 QueryParams = MutableMapping[str, str]
 
@@ -26,6 +25,14 @@ ProviderJSONResponse = Mapping[str, Any]
 ProviderResponse = Union[ProviderJSONResponse, str]
 
 FastAuthBaseResponse = Union[FastAuthRedirectResponse, FastAuthResponse]
+
+Scope = MutableMapping[str, Any]
+Message = MutableMapping[str, Any]
+
+Receive = Callable[[], Awaitable[Message]]
+Send = Callable[[Message], Awaitable[None]]
+
+ASGIApp = Callable[[Scope, Receive, Send], Awaitable[None]]  # get em from starlette
 
 
 class ProviderResponseData(NamedTuple):

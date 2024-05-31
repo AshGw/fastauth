@@ -18,3 +18,7 @@ class FastAuthRequest:
     @abstractmethod
     def slashless_base_url(self) -> str:  # petition to add this word to the dictionary
         ...
+
+    @abstractmethod
+    def slashless_current_url(self) -> str:
+        ...

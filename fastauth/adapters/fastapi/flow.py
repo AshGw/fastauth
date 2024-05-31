@@ -1,6 +1,6 @@
 from typing import Optional, final
 
-from fastapi import APIRouter, Query
+from fastapi import Query, APIRouter
 from overrides import override
 
 from fastauth._types import FallbackSecrets
@@ -13,6 +13,8 @@ from fastauth.signin import SignInCallback
 from fastauth.oauth2_baseflow import OAuth2Base
 from fastauth.adapters.fastapi.request import FastAPIRequest
 from fastauth.jwts.handler import JWTHandler
+from fastauth.adapters.fastapi.route import FastAuthRoute
+from fastauth.csrf import CSRF
 
 
 @final
@@ -47,6 +49,10 @@ class FastAPIOAuthFlow(OAuth2Base):
             error_uri=error_uri,
             jwt_max_age=jwt_max_age,
         )
+        CSRF.init_once(fallback_secrets=fallback_secrets)
+        self.auth_route = APIRouter()
+        self.auth_route.route_class = FastAuthRoute
+        self.activate()
 
     @property
     def router(self) -> APIRouter:
