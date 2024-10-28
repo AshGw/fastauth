@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastauth._types import FallbackSecrets
+from fastauth.libtypes import FallbackSecrets
 from fastauth.jwts.operations import (
     encipher_user_info,
     decipher_jwt,

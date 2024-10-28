@@ -12,8 +12,7 @@ alias b:= build-docs
     just --list
 
 @install:
-    chmod +x ./scripts/install
-    ./scripts/install
+    bash ./scripts/install
 
 @lint:
     ./scripts/lint

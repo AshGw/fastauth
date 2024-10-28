@@ -24,7 +24,7 @@ from fastauth.exceptions import (
 )
 from fastauth.const_data import StatusCode
 from fastauth.utils import gen_oauth_params
-from fastauth._types import GrantSecurityParams
+from fastauth.libtypes import GrantSecurityParams
 from fastauth.config import FastAuthConfig
 
 load_dotenv()

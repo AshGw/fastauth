@@ -11,11 +11,11 @@ from typing import (
 )
 
 from httpx import AsyncClient
+from starlette.responses import RedirectResponse
 
 from fastauth.adapters.use_response import use_response
 from fastauth.utils import querify_kwargs
-from fastauth.adapters.response import FastAuthRedirectResponse
-from fastauth._types import UserInfo, QueryParams, ProviderResponseData, AccessToken
+from fastauth.libtypes import UserInfo, QueryParams, ProviderResponseData, AccessToken
 from fastauth.config import FastAuthConfig
 
 
@@ -53,7 +53,7 @@ class Provider(ABC, FastAuthConfig):
     @abstractmethod
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> FastAuthRedirectResponse:
+    ) -> RedirectResponse:
         ...
 
     @abstractmethod
@@ -73,9 +73,9 @@ class Provider(ABC, FastAuthConfig):
         code_challenge: str,
         code_challenge_method: str,
         **kwargs: str,
-    ) -> FastAuthRedirectResponse:
+    ) -> RedirectResponse:
         # private as it's only here for testing it serves no other purpose
-        self._grant_redirect_url = self._make_grant_url(
+        self._grant_redirect_url = self._create_grant_uri(
             response_type=self.response_type,
             authorizationUrl=self.authorizationUrl,
             client_id=self.client_id,
@@ -85,9 +85,7 @@ class Provider(ABC, FastAuthConfig):
             code_challenge_method=code_challenge_method,
             kwargs=kwargs,
         )
-        self.redirect_response = use_response(
-            framework=self.framework, response_type="redirect"
-        )
+        self.redirect_response = use_response(response_type="redirect")
         return self.redirect_response(url=self._grant_redirect_url)  # type: ignore
 
     @final
@@ -149,7 +147,7 @@ class Provider(ABC, FastAuthConfig):
 
     @final
     @staticmethod
-    def _make_grant_url(
+    def _create_grant_uri(
         *,
         response_type: str,
         authorizationUrl: str,

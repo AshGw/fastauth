@@ -1,6 +1,5 @@
 from __future__ import annotations
 from datetime import datetime
-from fastauth.adapters.response import FastAuthRedirectResponse, FastAuthResponse
 from typing import (
     Any,
     NamedTuple,
@@ -14,7 +13,6 @@ from typing import (
     Union,
 )
 
-
 AccessToken = NewType("AccessToken", str)
 CSRFToken = NewType("CSRFToken", str)
 
@@ -23,8 +21,6 @@ QueryParams = MutableMapping[str, str]
 ProviderJSONResponse = Mapping[str, Any]
 
 ProviderResponse = Union[ProviderJSONResponse, str]
-
-FastAuthBaseResponse = Union[FastAuthRedirectResponse, FastAuthResponse]
 
 Scope = MutableMapping[str, Any]
 Message = MutableMapping[str, Any]
@@ -43,7 +39,7 @@ class ProviderResponseData(NamedTuple):
 
 class ViewableJWT(TypedDict):
     """
-    What the user will see when navigating to the
+    What the developer will see when navigating to the
     jwt endpoint, they should get a JSON object, which is {jwt: null}
     if they're not authenticated, and a non-null value if they are.
     """
@@ -68,6 +64,7 @@ class JWT(TypedDict):
 
 class GrantSecurityParams(NamedTuple):
     state: str
+    # PKCE
     code_verifier: str
     code_challenge: str
     code_challenge_method: str

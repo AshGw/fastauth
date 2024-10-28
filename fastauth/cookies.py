@@ -1,5 +1,6 @@
-from fastauth.adapters.request import FastAuthRequest
-from fastauth.adapters.response import FastAuthResponse
+from fastapi.requests import Request
+from fastapi.responses import Response
+
 from typing import Optional, Literal, Dict, final, Final
 from fastauth.utils import name_cookie
 
@@ -13,15 +14,15 @@ class Cookies:
 
     def __init__(
         self,
-        request: FastAuthRequest,
-        response: FastAuthResponse,
+        request: Request,
+        response: Response,
     ) -> None:
         self.request = request
         self.response = response
 
     @property
     def all(self) -> Dict[str, str]:
-        return self.request.all_cookies()
+        return self.request.cookies
 
     def set(
         self,
@@ -30,7 +31,7 @@ class Cookies:
         value: str,
         max_age: Optional[int],
     ) -> None:
-        self.response.set_auth_cookie(
+        self.response.set_cookie(
             key=name_cookie(name=key),
             value=value,
             max_age=max_age,
@@ -45,7 +46,7 @@ class Cookies:
         self,
         key: str,
     ) -> None:
-        return self.response.delete_auth_cookie(
+        return self.response.delete_cookie(
             key=name_cookie(name=key),
             path=self._path,
             domain=self._domain,
@@ -55,7 +56,7 @@ class Cookies:
         )
 
     def get(self, key: str) -> Optional[str]:
-        return self.request.get_cookie(cookie_name=name_cookie(name=key))
+        return self.request.cookies.get(name_cookie(name=key))
 
     def _is_secure(self) -> bool:
-        return self.request.is_connection_secure()
+        return self.request.url.is_secure

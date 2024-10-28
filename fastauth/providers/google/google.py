@@ -1,8 +1,9 @@
 from typing import Optional, final
 from overrides import override
 from pydantic import ValidationError
+from starlette.responses import RedirectResponse
 
-from fastauth._types import AccessToken
+from fastauth.libtypes import AccessToken
 
 from fastauth.providers.google.schemas import (
     GoogleUserInfo,
@@ -16,13 +17,13 @@ from fastauth.exceptions import (
 )
 from fastauth.providers.base import Provider
 from fastauth.const_data import OAuthURLs, SUCCESS_STATUS_CODES
-from fastauth.adapters.response import FastAuthRedirectResponse
 
 
 @final
 class Google(Provider):
     def __init__(
         self,
+        *,
         client_id: str,
         client_secret: str,
         redirect_uri: str,
@@ -40,12 +41,12 @@ class Google(Provider):
     @override
     def authorize(
         self, *, state: str, code_challenge: str, code_challenge_method: str
-    ) -> FastAuthRedirectResponse:  # pragma: no cover
+    ) -> RedirectResponse:  # pragma: no cover
         return self._grant_redirect(
             state=state,
             code_challenge=code_challenge,
             code_challenge_method=code_challenge_method,
-            scope="openid%20profile%20email",
+            scope="openid%20profile%20email",  # The basics
             service="lso",
             access_type="offline",
             flowName="GeneralOAuthFlow",

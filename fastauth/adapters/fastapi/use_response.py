@@ -1,15 +1,12 @@
-from typing import Literal, Type
-from fastauth.adapters.fastapi.response import (
-    FastAPIJSONResponse,
-    FastAPIRedirectResponse,
-    FastAPIBaseResponse,
-)
+from typing import Literal, Type, Union
+
+from starlette.responses import RedirectResponse, JSONResponse
 
 
 def use_fastapi_response(
     response_type: Literal["json", "redirect"],
-) -> Type[FastAPIBaseResponse]:
+) -> Type[Union[RedirectResponse, JSONResponse]]:
     if response_type == "redirect":
-        return FastAPIRedirectResponse
+        return RedirectResponse
     if response_type == "json":
-        return FastAPIJSONResponse
+        return JSONResponse

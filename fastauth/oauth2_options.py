@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from fastauth.frameworks import Framework, FastAPI
 from logging import Logger
 
 from fastapi import APIRouter
 
 from fastauth.providers.base import Provider
-from fastauth._types import FallbackSecrets
+from fastauth.libtypes import FallbackSecrets
 from fastauth.signin import SignInCallback
 from fastauth.const_data import CookieData
 from fastauth.adapters.fastapi.flow import FastAPIOAuthFlow as FastAPIOAuth2
@@ -15,7 +14,6 @@ from fastauth.config import FastAuthConfig
 
 
 def OAuthOptions(
-    framework: Framework,
     provider: Provider,
     fallback_secrets: FallbackSecrets,
     signin_callback: SignInCallback,
@@ -31,21 +29,19 @@ def OAuthOptions(
     debug: bool = True,
     logger: Logger = flogger,
 ) -> APIRouter:
-    FastAuthConfig.set_defaults(framework=framework, debug=debug, logger=logger)
-    if isinstance(framework, FastAPI):
-        auth = FastAPIOAuth2(
-            provider=provider,
-            fallback_secrets=fallback_secrets,
-            signin_callback=signin_callback,
-            signin_uri=signin_uri,
-            signout_url=signout_url,
-            callback_uri=callback_uri,
-            jwt_uri=jwt_uri,
-            csrf_token_uri=csrf_token_uri,
-            post_signin_uri=post_signin_uri,
-            post_signout_uri=post_signout_uri,
-            error_uri=error_uri,
-            jwt_max_age=jwt_max_age,
-        )
-        return auth.auth_route
-    raise NotImplementedError
+    FastAuthConfig.set_defaults(debug=debug, logger=logger)
+    auth = FastAPIOAuth2(
+        provider=provider,
+        fallback_secrets=fallback_secrets,
+        signin_callback=signin_callback,
+        signin_uri=signin_uri,
+        signout_url=signout_url,
+        callback_uri=callback_uri,
+        jwt_uri=jwt_uri,
+        csrf_token_uri=csrf_token_uri,
+        post_signin_uri=post_signin_uri,
+        post_signout_uri=post_signout_uri,
+        error_uri=error_uri,
+        jwt_max_age=jwt_max_age,
+    )
+    return auth.auth_route

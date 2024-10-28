@@ -1,6 +1,6 @@
 import pytest
 
-from fastauth._types import UserInfo
+from fastauth.libtypes import UserInfo
 from fastauth.signin import check_signin_signature
 
 

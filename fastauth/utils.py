@@ -1,7 +1,7 @@
 from hashlib import sha256
 from secrets import token_urlsafe
 from base64 import urlsafe_b64encode
-from fastauth._types import GrantSecurityParams, QueryParams
+from fastauth.libtypes import GrantSecurityParams, QueryParams
 from typing import Optional
 
 

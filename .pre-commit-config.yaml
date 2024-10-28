@@ -12,6 +12,8 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.4
     hooks:
-      - id: ruff
-        args: [--exit-non-zero-on-fix, --fix-only]
-      - id: ruff-format
+    - id: ruff
+      args: [--exit-non-zero-on-fix, --fix-only]
+      files: \.py$
+    - id: ruff-format
+      files: \.py$

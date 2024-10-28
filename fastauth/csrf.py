@@ -1,4 +1,3 @@
-#### This is a mess and needs work
 from __future__ import annotations
 
 import logging
@@ -6,38 +5,46 @@ import hmac
 import hashlib
 
 from os import urandom
-from fastauth._types import FallbackSecrets, CSRFToken
+
+from starlette.requests import Request
+from starlette.responses import Response
+
+from fastauth.libtypes import FallbackSecrets, CSRFToken
 from fastauth.const_data import CookieData, StatusCode
-from fastauth.utils import name_cookie
 from fastauth.config import FastAuthConfig
-from fastauth.adapters.response import FastAuthResponse
-from fastauth.adapters.request import FastAuthRequest
 from fastauth.cookies import Cookies
 from typing import ClassVar, Optional, final
 
 logger = logging.getLogger("fastauth.adapters.fastapi.csrf")
 
 
-# TODO: make it an actual singleton
 class CSRF:
-    fallback_secrets: ClassVar[Optional[FallbackSecrets]] = None
+    fallback_secrets: ClassVar[Optional[list[str]]] = None
+    current_secret_index: ClassVar[int] = 0
 
     @classmethod
     def init_once(
         cls,
+        *,
         fallback_secrets: FallbackSecrets,
     ) -> None:
-        cls.fallback_secrets = fallback_secrets
+        cls.fallback_secrets = [secret for secret in fallback_secrets if secret]
+        cls.current_secret_index = 0
 
     @classmethod
-    def validate_csrf_token(cls, token: CSRFToken) -> bool:
+    def is_token_valid(cls, *, token: CSRFToken) -> bool:
         if cls.fallback_secrets is not None:
             hmac_hash, message_payload = token.split(".")
-            for secret in cls.fallback_secrets:
+            for i in range(len(cls.fallback_secrets)):
                 calculated_hmac = cls.create_hmac(
-                    secret=secret, message_payload=message_payload
+                    secret=cls.fallback_secrets[i], message_payload=message_payload
                 )
-                return hmac.compare_digest(calculated_hmac, hmac_hash)
+                if hmac.compare_digest(calculated_hmac, hmac_hash):
+                    # Rotate to the next secret
+                    cls.current_secret_index = (cls.current_secret_index + 1) % len(
+                        cls.fallback_secrets
+                    )
+                    return True
         return False
 
     @classmethod
@@ -45,11 +52,17 @@ class CSRF:
         if cls.fallback_secrets is not None:
             random_value: str = urandom(16).hex()
             message_payload = random_value
+            secret = cls.fallback_secrets[
+                cls.current_secret_index
+            ]  # Use the current secret as default
             hmac_hash = cls.create_hmac(
-                secret=cls.fallback_secrets.secret_1,  # TODO: actually rotate em all
+                secret=secret,
                 message_payload=message_payload,
             )
             token = hmac_hash + "." + message_payload
+            cls.current_secret_index = (cls.current_secret_index + 1) % len(
+                cls.fallback_secrets
+            )  # Rotate to the next secret
             return CSRFToken(token)
         raise ValueError("JWT embedded value or fallback secrets not set.")
 
@@ -62,20 +75,32 @@ class CSRF:
         ).hexdigest()
 
 
+@final
 class CSRFValidationFilter(CSRF, FastAuthConfig):
-    def __init__(self, request: FastAuthRequest, response: FastAuthResponse) -> None:
+    def __init__(self, request: Request, response: Response) -> None:
         self.request = request
         self.response = response
         self.cookie_handler = Cookies(request=request, response=response)
 
+    def _get_csrf_token_cookie(self) -> Optional[CSRFToken]:
+        token = self.cookie_handler.get(CookieData.CSRFToken.name)
+        return CSRFToken(token) if token else None
+
+    def _set_csrf_token_cookie(self) -> None:
+        self.cookie_handler.set(
+            key=CookieData.CSRFToken.name,
+            value=CSRF.gen_csrf_token(),
+            max_age=CookieData.CSRFToken.max_age,
+        )
+
     def __call__(self) -> None:
-        token = self.get_csrf_token_cookie()
+        token = self._get_csrf_token_cookie()
         if not token:
-            self.set_csrf_token_cookie()
+            self._set_csrf_token_cookie()
             return self.reject(
                 reason="CSRF cookie is absent / not set", request=self.request
             )
-        if not self.validate_csrf_token(token):
+        if not self.is_token_valid(token=token):
             return self.reject(
                 reason="CSRF token is incorrect, the received HMAC"
                 " and the generated one do not match.",
@@ -84,64 +109,15 @@ class CSRFValidationFilter(CSRF, FastAuthConfig):
         return self.accept()
 
     @classmethod
-    def reject(cls, reason: str, request: FastAuthRequest) -> None:
+    def reject(cls, reason: str, request: Request) -> None:
         logger.warning(
             "Forbidden (%s): %s",
             reason,
-            request.slashless_current_url(),
+            request.url,
             extra={
                 "status_code": StatusCode.FORBIDDEN,
                 "request": request,
             },
-        )
-        cls.passed_csrf_validation = False
-
-    @classmethod
-    def accept(cls) -> None:
-        cls.passed_csrf_validation = True
-
-
-@final
-class CSRFValidationFilterBase(CSRF, FastAuthConfig):
-    def __init__(
-        self,
-    ) -> None:
-        super().__init__()
-
-    def __call__(self) -> None:
-        token = self.get_csrf_token_cookie()
-        if not token:
-            self.set_csrf_token_cookie()
-            return self.reject(reason="CSRF cookie is absent / not set")
-        if not self.validate_csrf_token(token):
-            return self.reject(
-                reason="CSRF token is incorrect, the received HMAC"
-                " and the generated one do not match."
-            )
-        return self.accept()
-
-    def get_csrf_token_cookie(self) -> Optional[CSRFToken]:
-        token = self.cookie_handler.get(name_cookie(name=CookieData.CSRFToken.name))
-        return CSRFToken(token) if token else None
-
-    # TODO: delegate this to the Cookie class
-    def set_csrf_token_cookie(self) -> None:
-        self.response.set_cookie(
-            key=name_cookie(name=CookieData.CSRFToken.name),
-            value=self.gen_csrf_token(),
-            max_age=CookieData.CSRFToken.max_age,
-            secure=self.request.url.is_secure,
-            httponly=False,
-            samesite="lax",
-            path="/",
-            domain=None,
-        )
-
-    @classmethod
-    def reject(cls, reason: str) -> None:
-        logger.warning(
-            f"Forbidden {StatusCode.FORBIDDEN}: {reason}",
-            reason,
         )
         cls.passed_csrf_validation = False
 

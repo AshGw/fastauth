@@ -1,7 +1,7 @@
 import inspect
 from typing import Protocol, runtime_checkable
 
-from fastauth._types import UserInfo
+from fastauth.libtypes import UserInfo
 
 
 @runtime_checkable

@@ -6,7 +6,7 @@ from jose.jwe import encrypt, decrypt
 from datetime import datetime, timedelta
 from fastauth.const_data import CookieData
 from fastauth.jwts.helpers import validate_secret_key
-from fastauth._types import JWT, UserInfo, FallbackSecrets
+from fastauth.libtypes import JWT, UserInfo, FallbackSecrets
 from typing import Optional, Final
 
 JWT_MAX_AGE: Final = CookieData.JWT.max_age
