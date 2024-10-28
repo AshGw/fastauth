@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 from fastauth.libtypes import UserInfo, FallbackSecrets
+
 from fastauth.jwts.helpers import generate_secret
 from fastauth.oauth2_options import OAuthOptions
 from fastauth.providers.google.google import Google
@@ -23,7 +24,6 @@ from fastauth.providers.google.google import Google
 from fastauth.adapters.fastapi.csrf_middleware import CSRFMitigationMiddleware
 
 load_dotenv()
-
 
 # What happens when someone logs in
 async def push_to_db(user_info: UserInfo) -> None:
