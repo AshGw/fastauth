@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastauth._types import UserInfo, ProviderJSONResponse
+from fastauth.libtypes import UserInfo, ProviderJSONResponse
 from pydantic import BaseModel, EmailStr, HttpUrl, Field, Extra
 from typing import Literal, Annotated, List, TypedDict
 

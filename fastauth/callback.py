@@ -1,26 +1,25 @@
 from logging import Logger
 
+from starlette.requests import Request
+from starlette.responses import Response
+
 from fastauth.providers.base import Provider
 from fastauth.const_data import CookieData
-from fastauth.frameworks import Framework
 from fastauth.cookies import Cookies
-from fastauth.adapters.request import FastAuthRequest
 from fastauth.adapters.use_response import use_response
-from fastauth.adapters.response import FastAuthResponse
-from fastauth._types import FallbackSecrets, AccessToken
+from fastauth.libtypes import FallbackSecrets, AccessToken
 from fastauth.jwts.operations import encipher_user_info
 from fastauth.signin import SignInCallback, check_signin_signature
 from fastauth.exceptions import InvalidState, CodeVerifierNotFound
 from fastauth.csrf import CSRF
 
-from fastauth._types import UserInfo
+from fastauth.libtypes import UserInfo
 from typing import Optional
 
 
 class _CallbackCheck:
     def __init__(
         self,
-        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -28,7 +27,7 @@ class _CallbackCheck:
         state: str,
         fallback_secrets: FallbackSecrets,
         logger: Logger,
-        request: FastAuthRequest,
+        request: Request,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
         debug: bool,
@@ -41,8 +40,8 @@ class _CallbackCheck:
         self.debug = debug
         self.jwt_max_age = jwt_max_age
         self.signin_callback = signin_callback
-        __base_url = request.slashless_base_url()
-        __response = use_response(framework=framework, response_type="redirect")
+        __base_url = request.base_url
+        __response = use_response(response_type="redirect")
         self.success_response = __response(url=__base_url + post_signin_uri)  # type: ignore
         self.error_response = __response(url=__base_url + error_uri)  # type: ignore
         self.cookie = Cookies(request=request, response=self.success_response)
@@ -71,7 +70,6 @@ class Callback(_CallbackCheck):
     def __init__(
         self,
         *,
-        framework: Framework,
         provider: Provider,
         post_signin_uri: str,
         error_uri: str,
@@ -81,11 +79,10 @@ class Callback(_CallbackCheck):
         logger: Logger,
         jwt_max_age: int,
         signin_callback: Optional[SignInCallback],
-        request: FastAuthRequest,
+        request: Request,
         debug: bool,
     ) -> None:
         super().__init__(
-            framework=framework,
             provider=provider,
             post_signin_uri=post_signin_uri,
             error_uri=error_uri,
@@ -132,7 +129,7 @@ class Callback(_CallbackCheck):
         user_info: Optional[UserInfo] = await self.provider.get_user_info(access_token)
         return user_info
 
-    async def __call__(self) -> FastAuthResponse:
+    async def __call__(self) -> Response:
         user_info: Optional[UserInfo] = await self.get_user_info()
         if not user_info:
             return self.error_response

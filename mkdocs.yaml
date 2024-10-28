@@ -1,6 +1,6 @@
 site_name: "FastAuth"
-site_description: "OAuth2 integration with you favorite provider for FastAPI"
-copyright: "Copyright &copy; 2023 AshGw"
+site_description: "OAuth2 integration with your favorite provider for FastAPI"
+copyright: "Copyright &copy; 2024 Ashref Gwader"
 repo_name: ashgw/fastauth
 repo_url: https://github.com/ashgw/fastauth
 

@@ -1,12 +1,13 @@
 from logging import Logger
 from typing import List
+
+from starlette.requests import Request
+
 from fastauth.const_data import CookieData, StatusCode
-from fastauth._types import FallbackSecrets
+from fastauth.libtypes import FallbackSecrets
 from fastauth.cookies import Cookies
-from fastauth.adapters.response import FastAuthResponse
+from fastapi.responses import Response
 from fastauth.adapters.use_response import use_response
-from fastauth.frameworks import Framework
-from fastauth.adapters.request import FastAuthRequest
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.exceptions import JSONWebTokenTampering
 from jose.exceptions import JWTError
@@ -16,33 +17,32 @@ class Signout:
     def __init__(
         self,
         *,
-        framework: Framework,
         post_signout_uri: str,
-        request: FastAuthRequest,
+        request: Request,
         fallback_secrets: FallbackSecrets,
         error_uri: str,
         logger: Logger,
         debug: bool,
-    ):
+    ) -> None:
         self.post_signout_uri = post_signout_uri
         self.error_uri = error_uri
         self.request = request
         self.fallback_secrets = fallback_secrets
         self.logger = logger
         self.debug = debug
-        self.__base_url = request.slashless_base_url()
-        self.redirect_response = use_response(
-            framework=framework, response_type="redirect"
-        )
-        self.success_response = self.redirect_response(  # type: ignore  # @runtime
-            url=self.__base_url + self.post_signout_uri
-        )
-        self.failure_response = self.redirect_response(  # type: ignore   # @runtime
-            url=self.__base_url + self.error_uri, status_code=StatusCode.BAD_REQUEST
-        )
+        self.__base_url = request.base_url
+        self.redirect_response = use_response(response_type="redirect")
+        self.success_response = self.redirect_response(
+            url=str(self.__base_url) + self.post_signout_uri
+        )  # type: ignore
+        self.failure_response = self.redirect_response(
+            url=str(self.__base_url) + self.error_uri,
+            status_code=StatusCode.BAD_REQUEST,
+        )  # type: ignore
+
         self.cookie = Cookies(request=request, response=self.success_response)
 
-    def __call__(self) -> FastAuthResponse:
+    def __call__(self) -> Response:
         encrypted_jwt = self.cookie.get(CookieData.JWT.name)
         if encrypted_jwt:
             try:

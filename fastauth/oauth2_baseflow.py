@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-from fastauth._types import FallbackSecrets
+from fastauth.libtypes import FallbackSecrets
 from fastauth.signin import SignInCallback
 from fastauth.config import FastAuthConfig
 from fastauth.providers.base import Provider

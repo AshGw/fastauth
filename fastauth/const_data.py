@@ -76,6 +76,7 @@ class StatusCode:
     UNAUTHORIZED = 401
     BAD_REQUEST = 400
     FORBIDDEN = 403
+    TMP_REDIRECT = 307
 
 
 SUCCESS_STATUS_CODES: Final[FrozenSet[int]] = frozenset(

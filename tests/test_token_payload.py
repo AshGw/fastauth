@@ -1,5 +1,5 @@
 import pytest
-from fastauth._types import QueryParams
+from fastauth.libtypes import QueryParams
 from .utils import MockProvider
 
 

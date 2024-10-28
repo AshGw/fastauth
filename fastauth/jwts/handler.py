@@ -2,14 +2,13 @@ from typing import Optional
 from logging import Logger
 
 from jose.exceptions import JOSEError
+from starlette.requests import Request
+from starlette.responses import Response, JSONResponse
 
 from fastauth.adapters.use_response import use_response
-from fastauth.frameworks import Framework
-from fastauth.adapters.response import FastAuthResponse
-from fastauth._types import JWT, ViewableJWT
+from fastauth.libtypes import JWT, ViewableJWT
 from fastauth.const_data import CookieData
-from fastauth.adapters.request import FastAuthRequest
-from fastauth._types import FallbackSecrets
+from fastauth.libtypes import FallbackSecrets
 from fastauth.cookies import Cookies
 from fastauth.jwts.operations import decipher_jwt
 from fastauth.const_data import StatusCode
@@ -20,9 +19,8 @@ class JWTHandler:
     def __init__(
         self,
         *,
-        framework: Framework,
-        request: FastAuthRequest,
-        response: FastAuthResponse,
+        request: Request,
+        response: Response,
         fallback_secrets: FallbackSecrets,
         logger: Logger,
         debug: bool,
@@ -33,22 +31,22 @@ class JWTHandler:
         self.fallback_secrets = fallback_secrets
         self.debug = debug
         self.cookie = Cookies(request=self.request, response=self.response)
-        self.json_response = use_response(framework=framework, response_type="json")
+        self.json_response = use_response(response_type="json")
 
-    def get_jwt(self):  # type: ignore
+    def get_jwt(self) -> JSONResponse:
         encrypted_jwt = self._get_jwt_cookie()
         if encrypted_jwt:
             try:
                 jwt: JWT = decipher_jwt(
                     encrypted_jwt=encrypted_jwt, fallback_secrets=self.fallback_secrets
                 )
-                return self.json_response(
+                return self.json_response(  # type: ignore
                     content=ViewableJWT(jwt=jwt), status_code=StatusCode.OK
                 )
             except JOSEError as e:
                 self._handle_error(e)
 
-        return self.json_response(
+        return self.json_response(  # type: ignore
             content=ViewableJWT(jwt=None), status_code=StatusCode.UNAUTHORIZED
         )
 
