@@ -19,6 +19,8 @@ from fastauth.jwts.operations import encipher_user_info
 from fastauth.libtypes import UserInfo, ViewableJWT, FallbackSecrets
 from fastauth.const_data import StatusCode
 from fastauth.adapters.use_response import use_response
+from .utils import get_method_to_patch
+
 
 _secrets = FallbackSecrets(
     secret_1=generate_secret(),
@@ -103,8 +105,11 @@ def data() -> TestData:
 def test_with_jwt_existence(data, mock_all_cookies, req, res, secrets) -> None:
     cookies = Cookies(request=req, response=res)
     assert cookies.all == {data.jwt_cookie_name: data.encrypted_jwt}
+
     with patch(
-        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+        get_method_to_patch(
+            patched_class=JWTHandler, method_name=JWTHandler._get_jwt_cookie.__name__
+        )
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         handler = JWTHandler(
@@ -119,7 +124,9 @@ def test_with_jwt_existence(data, mock_all_cookies, req, res, secrets) -> None:
 
 def test_with_wrong_jwe_secret(data, req, res, invalid_secrets) -> None:
     with patch(
-        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+        get_method_to_patch(
+            patched_class=JWTHandler, method_name=JWTHandler._get_jwt_cookie.__name__
+        )
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         with pytest.raises(JSONWebTokenTampering):
@@ -134,7 +141,9 @@ def test_with_wrong_jwe_secret(data, req, res, invalid_secrets) -> None:
 
 def test_with_invalid_length_jwe_secret(data, req, res, invalid_length_secrets) -> None:
     with patch(
-        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+        get_method_to_patch(
+            patched_class=JWTHandler, method_name=JWTHandler._get_jwt_cookie.__name__
+        )
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = data.encrypted_jwt
         with pytest.raises(WrongKeyLength):
@@ -150,7 +159,9 @@ def test_with_invalid_length_jwe_secret(data, req, res, invalid_length_secrets) 
 def test_with_altered_jwe(data, req, res, secrets) -> None:
     altered_jwe = data.encrypted_jwt[:-1]  # alter a char
     with patch(
-        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+        get_method_to_patch(
+            patched_class=JWTHandler, method_name=JWTHandler._get_jwt_cookie.__name__
+        )
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = altered_jwe
         with pytest.raises(JSONWebTokenTampering):
@@ -165,7 +176,9 @@ def test_with_altered_jwe(data, req, res, secrets) -> None:
 
 def test_with_no_jwt(data, req, res, secrets) -> None:
     with patch(
-        "fastauth.jwts.handler.JWTHandler._get_jwt_cookie"
+        get_method_to_patch(
+            patched_class=JWTHandler, method_name=JWTHandler._get_jwt_cookie.__name__
+        )
     ) as mocked_get_jwt_cookie:
         mocked_get_jwt_cookie.return_value = None
         handler = JWTHandler(

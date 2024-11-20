@@ -6,6 +6,17 @@ from fastauth.libtypes import UserInfo, AccessToken
 from fastauth.providers.base import Provider
 
 
+def get_method_to_patch(*, patched_class: object, method_name: str) -> str:
+    if not hasattr(patched_class, method_name):
+        raise AttributeError(
+            f"The method '{method_name}' does not exist on the class '{patched_class.__qualname__}'"
+        )
+    method_to_patch = (
+        f"{patched_class.__module__}.{patched_class.__qualname__}.{method_name}"
+    )
+    return method_to_patch
+
+
 class MockProvider(Provider):
     def __init__(
         self,
