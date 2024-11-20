@@ -1,3 +1,4 @@
+# TODO: write these better
 import pytest
 
 from unittest.mock import AsyncMock
@@ -26,6 +27,7 @@ from fastauth.const_data import StatusCode
 from fastauth.utils import gen_oauth_params
 from fastauth.libtypes import GrantSecurityParams
 from fastauth.config import FastAuthConfig
+from .utils import get_method_to_patch
 
 load_dotenv()
 
@@ -36,9 +38,11 @@ redirect_uri: str = cast(str, getenv("GOOGLE_REDIRECT_URI"))
 
 @pytest.mark.asyncio
 async def test_valid_token_acquisition(valid_token_response, op, google) -> None:
-    with patch(
-        "fastauth.providers.google.google.Google._request_access_token"
-    ) as mock_token_request:
+    method_to_patch = get_method_to_patch(
+        patched_class=Google, method_name=Google._request_access_token.__name__
+    )
+
+    with patch(method_to_patch) as mock_token_request:
         mock_response = AsyncMock()
         mock_response.status_code = StatusCode.OK
         mock_response.json = valid_token_response
@@ -62,9 +66,10 @@ async def test_valid_token_acquisition(valid_token_response, op, google) -> None
 
 @pytest.mark.asyncio
 async def test_invalid_token_acquisition(invalid_token_response, op, google) -> None:
-    with patch(
-        "fastauth.providers.google.google.Google._request_access_token"
-    ) as mock_token_request:
+    method_to_patch = get_method_to_patch(
+        patched_class=Google, method_name=Google._request_access_token.__name__
+    )
+    with patch(method_to_patch) as mock_token_request:
         mock_response = AsyncMock()
         mock_response.status_code = StatusCode.OK
         mock_response.json = invalid_token_response
@@ -99,7 +104,9 @@ async def test_invalid_token_acquisition(invalid_token_response, op, google) -> 
 @pytest.mark.asyncio
 async def test_valid_user_info_acquisition(valid_user_data, google) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._request_user_info"
+        get_method_to_patch(
+            patched_class=Google, method_name=Google._request_user_info.__name__
+        )
     ) as mock_inf_request:
         mock_response = AsyncMock()
         mock_response.status_code = StatusCode.OK
@@ -117,7 +124,9 @@ async def test_valid_user_info_acquisition(valid_user_data, google) -> None:
 @pytest.mark.asyncio
 async def test_invalid_user_info_acquisition(invalid_user_data, google) -> None:
     with patch(
-        "fastauth.providers.google.google.Google._request_user_info"
+        get_method_to_patch(
+            patched_class=Google, method_name=Google._request_user_info.__name__
+        )
     ) as mock_inf_request:
         mock_response = AsyncMock()
         mock_response.status_code = StatusCode.OK
